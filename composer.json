@@ -1,0 +1,22 @@
+{
+  "type": "library",
+  "name": "zoujingli/WeChatDeveloper",
+  "homepage": "https://github.com/zoujingli/WeChatDeveloper",
+  "description": "WeChat development of SDK",
+  "license": "MIT",
+  "keywords": [
+    "wechat",
+    "alipay",
+    "wxpay"
+  ],
+  "require": {
+    "php": ">=5.3.3",
+    "ext-curl": "*",
+    "ext-openssl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Wechat\\": "./Wechat"
+    }
+  }
+}
