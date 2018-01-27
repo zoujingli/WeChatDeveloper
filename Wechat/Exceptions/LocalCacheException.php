@@ -29,8 +29,8 @@ class LocalCacheException extends \Exception
 
     /**
      * InvalidResponseException constructor.
-     * @param $message
-     * @param $code
+     * @param string $message
+     * @param integer $code
      * @param array $raw
      */
     public function __construct($message, $code, $raw = [])

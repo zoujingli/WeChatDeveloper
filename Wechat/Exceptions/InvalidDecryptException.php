@@ -19,7 +19,7 @@ namespace Wechat\Exceptions;
  * Class InvalidResponseException
  * @package Wechat
  */
-class InvalidResponseException extends \Exception
+class InvalidDecryptException extends \Exception
 {
     /**
      * @var array
@@ -27,7 +27,7 @@ class InvalidResponseException extends \Exception
     public $raw = [];
 
     /**
-     * InvalidResponseException constructor.
+     * InvalidDecryptException constructor.
      * @param string $message
      * @param integer $code
      * @param array $raw

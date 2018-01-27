@@ -14,7 +14,7 @@
 
 namespace Wechat;
 
-use Wechat\Contracts\Request;
+use Wechat\Contracts\Tools;
 use Wechat\Contracts\Wechat;
 use Wechat\Exceptions\InvalidResponseException;
 
@@ -40,7 +40,7 @@ class Media extends Wechat
         }
         $url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type={$type}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Request::createCurlFile($filename)], false);
+        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename)], false);
     }
 
     /**
@@ -54,7 +54,7 @@ class Media extends Wechat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id={$media_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return Request::get($url);
+        return Tools::get($url);
     }
 
     /**
@@ -99,7 +99,7 @@ class Media extends Wechat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Request::createCurlFile($filename)], false);
+        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename)], false);
     }
 
     /**
@@ -118,7 +118,7 @@ class Media extends Wechat
         }
         $url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=ACCESS_TOKEN&type={$type}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Request::createCurlFile($filename), 'description' => Request::toJson($description)], false);
+        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename), 'description' => Tools::toJson($description)], false);
     }
 
     /**

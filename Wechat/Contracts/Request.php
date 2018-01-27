@@ -15,303 +15,213 @@
 namespace Wechat\Contracts;
 
 use Wechat\Exceptions\InvalidArgumentException;
+use Wechat\Exceptions\InvalidDecryptException;
 use Wechat\Exceptions\InvalidResponseException;
-use Wechat\Exceptions\LocalCacheException;
 
 /**
- * 网络请求支持
+ * 微信通知处理基本类
  * Class Request
- * @package Wechat
+ * @package Wechat\Contracts
  */
 class Request
 {
     /**
-     * 缓存路径
-     * @var null
+     * 公众号APPID
+     * @var string
      */
-    public static $cache_path = null;
+    protected $appid;
 
     /**
-     * 根据文件后缀获取文件MINE
-     * @param array $ext 文件后缀
-     * @param array $mine 文件后缀MINE信息
-     * @return string
-     * @throws LocalCacheException
+     * 公众号推送XML内容
+     * @var string
      */
-    public static function getExtMine($ext, $mine = [])
-    {
-        $mines = self::getMines();
-        foreach (is_string($ext) ? explode(',', $ext) : $ext as $e) {
-            $mine[] = isset($mines[strtolower($e)]) ? $mines[strtolower($e)] : 'application/octet-stream';
-        }
-        return join(',', array_unique($mine));
-    }
+    protected $postxml;
 
     /**
-     * 获取所有文件扩展的mine
-     * @return array
-     * @throws LocalCacheException
+     * 公众号推送加密类型
+     * @var string
      */
-    private static function getMines()
-    {
-        $mines = self::getCache('all_ext_mine');
-        if (empty($mines)) {
-            $content = file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types');
-            preg_match_all('#^([^\s]{2,}?)\s+(.+?)$#ism', $content, $matches, PREG_SET_ORDER);
-            foreach ($matches as $match) {
-                foreach (explode(" ", $match[2]) as $ext) {
-                    $mines[$ext] = $match[1];
-                }
-            }
-            self::setCache('all_ext_mine', $mines);
-        }
-        return $mines;
-    }
+    protected $encryptType;
 
     /**
-     * 创建CURL文件对象
-     * @param $filename
-     * @param string $mimetype
-     * @param string $postname
-     * @return \CURLFile|string
-     * @throws LocalCacheException
+     * 当前公众号配置对象
+     * @var Config
      */
-    public static function createCurlFile($filename, $mimetype = '', $postname = '')
-    {
-        $basename = $postname ?: basename($filename);
-        $basemine = $mimetype ?: self::getExtMine(pathinfo($filename, 4));
-        if (function_exists('curl_file_create')) {
-            return curl_file_create($filename, $basemine, $basename);
-        }
-        return "@{$filename};filename={$basename};type={$basemine}";
-    }
+    protected $config;
 
     /**
-     * 以get访问模拟访问
-     * @param string $url 访问URL
-     * @param array $query GET数
+     * 公众号的推送请求参数
+     * @var Config
+     */
+    protected $params;
+
+    /**
+     * 公众号推送内容对象
+     * @var Config
+     */
+    protected $receive;
+
+    /**
+     * 准备回复的消息内容
+     * @var array
+     */
+    protected $message;
+
+    /**
+     * Request constructor.
      * @param array $options
-     * @return bool|string
-     */
-    public static function get($url, $query = [], $options = [])
-    {
-        $options['query'] = $query;
-        return self::doRequest('get', $url, $options);
-    }
-
-    /**
-     * 以post访问模拟访问
-     * @param string $url 访问URL
-     * @param array $data POST数据
-     * @param array $options
-     * @return bool|string
-     */
-    public static function post($url, $data = [], $options = [])
-    {
-        $options['data'] = $data;
-        return self::doRequest('post', $url, $options);
-    }
-
-    /**
-     * 数组转XML内容
-     * @param array $data
-     * @return string
-     */
-    public static function toXml($data)
-    {
-        return "<xml>" . self::_data_to_xml($data) . "</xml>";
-    }
-
-    /**
-     * XML内容生成
-     * @param array $data 数据
-     * @param string $content
-     * @return string
-     */
-    private static function _data_to_xml($data, $content = '')
-    {
-        foreach ($data as $key => $val) {
-            $content .= "<{$key}>";
-            if (is_array($val) || is_object($val)) {
-                $content .= self::_data_to_xml($val);
-            } elseif (is_string($val)) {
-                $content .= '<![CDATA[' . preg_replace("/[\\x00-\\x08\\x0b-\\x0c\\x0e-\\x1f]/", '', $val) . ']]>';
-            } else {
-                $content .= $val;
-            }
-            $content .= "</{$key}>";
-        }
-        return $content;
-    }
-
-    /**
-     * 解析XML内容到数组
-     * @param string $xml
-     * @return array
-     */
-    public static function fromXml($xml)
-    {
-        return json_decode(self::toJson(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-    }
-
-    /**
-     * 数组转xml内容
-     * @param array $data
-     * @return null|string|string
-     */
-    public static function toJson($data)
-    {
-        return preg_replace_callback('/\\\\u([0-9a-f]{4})/i', function ($matches) {
-            return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE");
-        }, json_encode($data));
-    }
-
-    /**
-     * 解析JSON内容到数组
-     * @param string $json
-     * @return array
      * @throws InvalidResponseException
      */
-    public static function fromJson($json)
+    public function __construct(array $options)
     {
-        $result = json_decode($json, true);
-        if (empty($result)) {
-            throw new InvalidResponseException('invalid response.', '0');
+        if (empty($options['appid'])) {
+            throw new InvalidArgumentException("Missing Config -- [appid]");
         }
-        if (!empty($result['errcode'])) {
-            throw new InvalidResponseException($result['errmsg'], $result['errcode'], $result);
+        if (empty($options['appsecret'])) {
+            throw new InvalidArgumentException("Missing Config -- [appsecret]");
         }
-        return $result;
-    }
-
-    /**
-     * CURL模拟网络请求
-     * @param string $method 请求方法
-     * @param string $url 请求方法
-     * @param array $options 请求参数[headers,data,ssl_cer,ssl_key]
-     * @return bool|string
-     */
-    protected static function doRequest($method, $url, $options = [])
-    {
-        $curl = curl_init();
-        // GET参数设置
-        if (!empty($options['query'])) {
-            $url .= (stripos($url, '?') !== false ? '&' : '?') . http_build_query($options['query']);
+        if (empty($options['token'])) {
+            throw new InvalidArgumentException("Missing Config -- [token]");
         }
-        // POST数据设置
-        if (strtolower($method) === 'post') {
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, self::build($options['data']));
-        }
-        // CURL头信息设置
-        if (!empty($options['headers'])) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $options['headers']);
-        }
-        // 证书文件设置
-        if (!empty($options['ssl_cer'])) {
-            if (file_exists($options['ssl_cer'])) {
-                curl_setopt($curl, CURLOPT_SSLCERTTYPE, 'PEM');
-                curl_setopt($curl, CURLOPT_SSLCERT, $options['ssl_cer']);
-            } else {
-                throw new InvalidArgumentException("Certificate files that do not exist. --- [{$options['ssl_cer']}]");
-            }
-        }
-        // 证书文件设置
-        if (!empty($options['ssl_key'])) {
-            if (file_exists($options['ssl_key'])) {
-                curl_setopt($curl, CURLOPT_SSLKEYTYPE, 'PEM');
-                curl_setopt($curl, CURLOPT_SSLKEY, $options['ssl_key']);
-            } else {
-                throw new InvalidArgumentException("Certificate files that do not exist. --- [{$options['ssl_key']}]");
-            }
-        }
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 60);
-        curl_setopt($curl, CURLOPT_HEADER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        list($content, $status) = [curl_exec($curl), curl_getinfo($curl), curl_close($curl)];
-        return (intval($status["http_code"]) === 200) ? $content : false;
-    }
-
-    /**
-     * POST数据过滤处理
-     * @param array $data
-     * @return array
-     */
-    private static function build($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                if (is_string($value) && class_exists('CURLFile', false) && stripos($value, '@') === 0) {
-                    $filename = realpath(trim($value, '@'));
-                    if ($filename && file_exists($filename)) {
-                        $data[$key] = new \CURLFile($filename);
-                    }
+        // 参数初始化
+        $this->config = new Config($options);
+        $this->params = new Config($_REQUEST);
+        $this->appid = $this->config->get('appid');
+        // 推送消息处理
+        if ($_SERVER['REQUEST_METHOD'] == "POST") {
+            $this->postxml = file_get_contents("php://input");
+            $this->encryptType = $this->params->get('encrypt_type');
+            if ($this->encryptType == 'aes') {
+                if (empty($options['encodingaeskey'])) {
+                    throw new InvalidArgumentException("Missing Config -- [encodingaeskey]");
                 }
+                if (!class_exists('Prpcrypt', false)) {
+                    require __DIR__ . '/Prpcrypt.php';
+                }
+                $prpcrypt = new \Prpcrypt($this->config->get('encodingaeskey'));
+                $result = Tools::fromXml($this->postxml);
+                $array = $prpcrypt->decrypt($result['Encrypt']);
+                if (intval($array[0]) > 0) {
+                    throw new InvalidResponseException($array[1], $array[0]);
+                }
+                list($this->postxml, $this->appid) = [$array[1], $array[2]];
             }
-        }
-        return $data;
-    }
-
-    /**
-     * 缓存配置与存储
-     * @param string $name 缓存名称
-     * @param string $value 缓存内容
-     * @param int $expired 缓存时间(0表示永久缓存)
-     * @throws LocalCacheException
-     */
-    public static function setCache($name, $value = '', $expired = 3600)
-    {
-        $cache_file = self::getCacheName($name);
-        $content = serialize(['name' => $name, 'value' => $value, 'expired' => time() + intval($expired)]);
-        if (!file_put_contents($cache_file, $content)) {
-            throw new LocalCacheException('local cache error.', '0');
+            $this->receive = new Config(Tools::fromXml($this->postxml));
+        } elseif ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
+            @ob_clean();
+            exit($this->params->get('echostr'));
+        } else {
+            throw new InvalidResponseException('Invalid interface request.', '0');
         }
     }
 
     /**
-     * 获取缓存内容
-     * @param string $name 缓存名称
-     * @return null|mixed
-     */
-    public static function getCache($name)
-    {
-        $cache_file = self::getCacheName($name);
-        if (file_exists($cache_file) && ($content = file_get_contents($cache_file))) {
-            $data = unserialize($content);
-            if (isset($data['expired']) && (intval($data['expired']) === 0 || intval($data['expired']) >= time())) {
-                return $data['value'];
-            }
-            self::delCache($name);
-        }
-        return null;
-    }
-
-    /**
-     * 移除缓存文件
-     * @param string $name 缓存名称
+     * 验证来自微信服务器
+     * @param string $str
      * @return bool
      */
-    public static function delCache($name)
+    private function checkSignature($str = '')
     {
-        $cache_file = self::getCacheName($name);
-        return file_exists($cache_file) ? unlink($cache_file) : true;
+        $nonce = $this->params->get('nonce');
+        $timestamp = $this->params->get('timestamp');
+        $msg_signature = $this->params->get('msg_signature');
+        $signature = empty($msg_signature) ? $this->params->get('signature') : $msg_signature;
+        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, $str];
+        sort($tmpArr, SORT_STRING);
+        if (sha1(implode($tmpArr)) == $signature) {
+            return true;
+        }
+        return false;
     }
 
     /**
-     * 应用缓存目录
-     * @param string $name
+     * 获取公众号推送对象
+     * @return array
+     */
+    public function getReceive()
+    {
+        return $this->receive->get();
+    }
+
+    /**
+     * 回复消息
+     * @param array $data 消息内容
+     * @param bool $return 是否返回XML内容
+     * @return string
+     * @throws InvalidDecryptException
+     */
+    public function reply(array $data = [], $return = false)
+    {
+        $xml = Tools::toXml(empty($data) ? $this->message : $data);
+        if ($this->encryptType == 'aes') {
+            if (!class_exists('Prpcrypt', false)) {
+                require __DIR__ . '/Prpcrypt.php';
+            }
+            $prpcrypt = new \Prpcrypt($this->config->get('encodingaeskey'));
+            // 如果是第三方平台，加密得使用 component_appid
+            $component_appid = $this->config->get('component_appid');
+            $appid = empty($component_appid) ? $this->appid : $component_appid;
+            $array = $prpcrypt->encrypt($xml, $appid);
+            if ($array[0] > 0) {
+                throw new InvalidDecryptException('Encrypt Error.', '0');
+            }
+            list($timestamp, $encrypt) = [time(), $array[1]];
+            $nonce = rand(77, 999) * rand(605, 888) * rand(11, 99);
+            $tmpArr = [$this->config->get('token'), $timestamp, $nonce, $encrypt];
+            sort($tmpArr, SORT_STRING);
+            $signature = sha1(implode($tmpArr));
+            $format = "<xml><Encrypt><![CDATA[%s]]></Encrypt><MsgSignature><![CDATA[%s]]></MsgSignature><TimeStamp>%s</TimeStamp><Nonce><![CDATA[%s]]></Nonce></xml>";
+            $xml = sprintf($format, $encrypt, $signature, $timestamp, $nonce);
+        }
+        if ($return) {
+            return $xml;
+        }
+        @ob_clean();
+        echo $xml;
+    }
+
+    /**
+     * 获取当前微信OPENID
      * @return string
      */
-    private static function getCacheName($name)
+    public function getOpenid()
     {
-        if (empty(self::$cache_path)) {
-            self::$cache_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR;
-        }
-        self::$cache_path = rtrim(self::$cache_path, '/\\') . DIRECTORY_SEPARATOR;
-        file_exists(self::$cache_path) || mkdir(self::$cache_path, 0755, true);
-        return self::$cache_path . md5($name);
+        return $this->receive->get('FromUserName');
+    }
+
+    /**
+     * 获取当前推送消息内容
+     * @return string
+     */
+    public function getMsgType()
+    {
+        return $this->receive->get('MsgType');
+    }
+
+    /**
+     * 获取当前推送消息ID
+     * @return string
+     */
+    public function getMsgId()
+    {
+        return $this->receive->get('MsgId');
+    }
+
+    /**
+     * 获取当前推送时间
+     * @return integer
+     */
+    public function getMsgTime()
+    {
+        return $this->receive->get('CreateTime');
+    }
+
+    /**
+     * 获取当前推送公众号
+     * @return string
+     */
+    public function getToOpenid()
+    {
+        return $this->receive->get('ToUserName');
     }
 }

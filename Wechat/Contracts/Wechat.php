@@ -57,8 +57,8 @@ class Wechat
         if (empty($options['appid'])) {
             throw new InvalidArgumentException("Missing Config -- [appid]");
         }
-        if (empty($options['secret'])) {
-            throw new InvalidArgumentException("Missing Config -- [secret]");
+        if (empty($options['appsecret'])) {
+            throw new InvalidArgumentException("Missing Config -- [appsecret]");
         }
         $this->config = new Config($options);
     }
@@ -75,15 +75,15 @@ class Wechat
             return $this->access_token;
         }
         $cacheKey = $this->config->get('appid') . '_accesstoken';
-        $this->access_token = Request::getCache($cacheKey);
+        $this->access_token = Tools::getCache($cacheKey);
         if (!empty($this->access_token)) {
             return $this->access_token;
         }
-        list($appid, $secret) = [$this->config->get('appid'), $this->config->get('secret')];
+        list($appid, $secret) = [$this->config->get('appid'), $this->config->get('appsecret')];
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$secret}";
-        $result = Request::fromJson(Request::get($url));
+        $result = Tools::fromJson(Tools::get($url));
         if (!empty($result['access_token'])) {
-            Request::setCache($cacheKey, $result['access_token'], 6000);
+            Tools::setCache($cacheKey, $result['access_token'], 6000);
         }
         return $result['access_token'];
     }
@@ -95,7 +95,7 @@ class Wechat
     public function delAccessToken()
     {
         $this->access_token = '';
-        return Request::delCache($this->config->get('appid') . '_accesstoken');
+        return Tools::delCache($this->config->get('appid') . '_accesstoken');
     }
 
 
@@ -107,7 +107,7 @@ class Wechat
     protected function httpGetForJson($url)
     {
         try {
-            return Request::fromJson(Request::get($url));
+            return Tools::fromJson(Tools::get($url));
         } catch (InvalidResponseException $e) {
             if (!$this->isTry && in_array($e->getCode(), ['40014', '40001', '41001', '42001'])) {
                 $this->delAccessToken();
@@ -127,7 +127,7 @@ class Wechat
     protected function httpPostForJson($url, array $data, $buildToJson = true)
     {
         try {
-            return Request::fromJson(Request::post($url, $buildToJson ? Request::toJson($data) : $data));
+            return Tools::fromJson(Tools::post($url, $buildToJson ? Tools::toJson($data) : $data));
         } catch (InvalidResponseException $e) {
             if (!$this->isTry && in_array($e->getCode(), ['40014', '40001', '41001', '42001'])) {
                 $this->delAccessToken();
