@@ -155,4 +155,32 @@ class Wechat
         return $url = str_replace('ACCESS_TOKEN', $this->access_token, $url);
     }
 
+    /**
+     * 接口通用POST请求方法
+     * @param string $url 接口URL
+     * @param array $data POST提交接口参数
+     * @param bool $isBuildJson
+     * @return array
+     * @throws InvalidResponseException
+     * @throws \Wechat\Exceptions\LocalCacheException
+     */
+    public function callPostApi($url, array $data, $isBuildJson = true)
+    {
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, $data, $isBuildJson);
+    }
+
+    /**
+     * 接口通用GET请求方法
+     * @param string $url 接口URL
+     * @return array
+     * @throws InvalidResponseException
+     * @throws \Wechat\Exceptions\LocalCacheException
+     */
+    public function callGetApi($url)
+    {
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpGetForJson($url);
+    }
+
 }
