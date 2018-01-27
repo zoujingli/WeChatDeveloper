@@ -31,6 +31,41 @@ class Tools
      */
     public static $cache_path = null;
 
+
+    /**
+     * 产生随机字符串
+     * @param int $length 指定字符长度
+     * @param string $str 字符串前缀
+     * @return string
+     */
+    public static function createNoncestr($length = 32, $str = "")
+    {
+        $chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        for ($i = 0; $i < $length; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
+
+    /**
+     * 数据生成签名
+     * @param array $data 签名数组
+     * @param string $method 签名方法
+     * @return bool|string 签名值
+     */
+    public static function getSignature($data, $method = "sha1")
+    {
+        if (!function_exists($method)) {
+            return false;
+        }
+        ksort($data);
+        $params = [];
+        foreach ($data as $key => $value) {
+            $params[] = "{$key}={$value}";
+        }
+        return $method(join('&', $params));
+    }
+
     /**
      * 根据文件后缀获取文件MINE
      * @param array $ext 文件后缀

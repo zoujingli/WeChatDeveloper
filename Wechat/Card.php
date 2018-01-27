@@ -611,18 +611,6 @@ class Card extends Wechat
         return $this->httpPostForJson($url, $data);
     }
 
-    /**
-     * 获取JSAPI_TICKET接口
-     * @param string $type TICKET类型(wx_card|jsapi)
-     * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
-     */
-    public function getTicket($type = 'jsapi')
-    {
-        $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type={$type}";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpGetForJson($url);
-    }
+
 
 }
