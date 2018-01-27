@@ -117,9 +117,9 @@ class Tools
      * @param array $data
      * @return string
      */
-    public static function toXml($data)
+    public static function arr2xml($data)
     {
-        return "<xml>" . self::_data_to_xml($data) . "</xml>";
+        return "<xml>" . self::_arr2xml($data) . "</xml>";
     }
 
     /**
@@ -128,12 +128,12 @@ class Tools
      * @param string $content
      * @return string
      */
-    private static function _data_to_xml($data, $content = '')
+    private static function _arr2xml($data, $content = '')
     {
         foreach ($data as $key => $val) {
             $content .= "<{$key}>";
             if (is_array($val) || is_object($val)) {
-                $content .= self::_data_to_xml($val);
+                $content .= self::_arr2xml($val);
             } elseif (is_string($val)) {
                 $content .= '<![CDATA[' . preg_replace("/[\\x00-\\x08\\x0b-\\x0c\\x0e-\\x1f]/", '', $val) . ']]>';
             } else {
@@ -149,9 +149,9 @@ class Tools
      * @param string $xml
      * @return array
      */
-    public static function fromXml($xml)
+    public static function xml2arr($xml)
     {
-        return json_decode(self::toJson(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        return json_decode(self::arr2json(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
     }
 
     /**
@@ -159,7 +159,7 @@ class Tools
      * @param array $data
      * @return null|string|string
      */
-    public static function toJson($data)
+    public static function arr2json($data)
     {
         return preg_replace_callback('/\\\\u([0-9a-f]{4})/i', function ($matches) {
             return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE");
@@ -172,7 +172,7 @@ class Tools
      * @return array
      * @throws InvalidResponseException
      */
-    public static function fromJson($json)
+    public static function json2arr($json)
     {
         $result = json_decode($json, true);
         if (empty($result)) {
@@ -198,14 +198,14 @@ class Tools
         if (!empty($options['query'])) {
             $url .= (stripos($url, '?') !== false ? '&' : '?') . http_build_query($options['query']);
         }
-        // POST数据设置
-        if (strtolower($method) === 'post') {
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, self::build($options['data']));
-        }
         // CURL头信息设置
         if (!empty($options['headers'])) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, $options['headers']);
+        }
+        // POST数据设置
+        if (strtolower($method) === 'post') {
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $options['data']);
         }
         // 证书文件设置
         if (!empty($options['ssl_cer'])) {
@@ -228,31 +228,11 @@ class Tools
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_TIMEOUT, 60);
         curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         list($content, $status) = [curl_exec($curl), curl_getinfo($curl), curl_close($curl)];
         return (intval($status["http_code"]) === 200) ? $content : false;
-    }
-
-    /**
-     * POST数据过滤处理
-     * @param array $data
-     * @return array
-     */
-    private static function build($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                if (is_string($value) && class_exists('CURLFile', false) && stripos($value, '@') === 0) {
-                    $filename = realpath(trim($value, '@'));
-                    if ($filename && file_exists($filename)) {
-                        $data[$key] = new \CURLFile($filename);
-                    }
-                }
-            }
-        }
-        return $data;
     }
 
     /**

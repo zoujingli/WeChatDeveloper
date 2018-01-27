@@ -118,7 +118,7 @@ class Media extends Wechat
         }
         $url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=ACCESS_TOKEN&type={$type}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename), 'description' => Tools::toJson($description)], false);
+        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename), 'description' => Tools::arr2json($description)], false);
     }
 
     /**

@@ -19,7 +19,7 @@
 class PKCS7Encoder
 {
 
-    public static $block_size = 32;
+    public static $blockSize = 32;
 
     /**
      * 对需要加密的明文进行填充补位
@@ -28,9 +28,9 @@ class PKCS7Encoder
      */
     function encode($text)
     {
-        $amount_to_pad = PKCS7Encoder::$block_size - (strlen($text) % PKCS7Encoder::$block_size);
+        $amount_to_pad = PKCS7Encoder::$blockSize - (strlen($text) % PKCS7Encoder::$blockSize);
         if ($amount_to_pad == 0) {
-            $amount_to_pad = PKCS7Encoder::$block_size;
+            $amount_to_pad = PKCS7Encoder::$blockSize;
         }
         list($pad_chr, $tmp) = [chr($amount_to_pad), ''];
         for ($index = 0; $index < $amount_to_pad; $index++) {
@@ -47,10 +47,10 @@ class PKCS7Encoder
     function decode($text)
     {
         $pad = ord(substr($text, -1));
-        if ($pad < 1 || $pad > PKCS7Encoder::$block_size) {
+        if ($pad < 1 || $pad > PKCS7Encoder::$blockSize) {
             $pad = 0;
         }
-        return substr($text, 0, (strlen($text) - $pad));
+        return substr($text, 0, strlen($text) - $pad);
     }
 
 }
@@ -119,7 +119,6 @@ class Prpcrypt
         } catch (Exception $e) {
             return [ErrorCode::$IllegalBuffer, null];
         }
-
     }
 
     /**
@@ -176,13 +175,13 @@ class ErrorCode
 
     /**
      * 获取错误消息内容
-     * @param string $err
+     * @param string $code 错误代码
      * @return bool
      */
-    public static function getErrText($err)
+    public static function getErrText($code)
     {
-        if (isset(self::$errCode[$err])) {
-            return self::$errCode[$err];
+        if (isset(self::$errCode[$code])) {
+            return self::$errCode[$code];
         }
         return false;
     }
