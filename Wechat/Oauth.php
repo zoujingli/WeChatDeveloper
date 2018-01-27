@@ -53,7 +53,7 @@ class Oauth extends Wechat
     }
 
     /**
-     * 刷新access token并续期
+     * 刷新AccessToken并续期
      * @param string $refresh_token
      * @return bool|array
      */

@@ -10,8 +10,8 @@
     "wxpay"
   ],
   "require": {
+    "php": ">=5.4",
     "ext-curl": "*",
-    "php": ">=5.3.3",
     "ext-openssl": "*"
   },
   "autoload": {
