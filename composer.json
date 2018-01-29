@@ -7,7 +7,7 @@
   "keywords": [
    "WeChatDeveloper",
     "wechat",
-    "wxsdk",
+    "wxsdk"
   ],
   "require": {
     "php": ">=5.4",
