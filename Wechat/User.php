@@ -42,11 +42,12 @@ class User extends Wechat
     /**
      * 获取用户基本信息（包括UnionID机制）
      * @param string $openid
+     * @param string $lang
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function getUserInfo($openid)
+    public function getUserInfo($openid, $lang = 'zh_CN')
     {
         $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&openid={$openid}&lang=zh_CN";
         $this->registerApi($url, __FUNCTION__, func_get_args());

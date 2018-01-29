@@ -34,7 +34,7 @@ class Qrcode extends Wechat
      */
     public function create($scene, $expire_seconds = 0)
     {
-        if (is_numeric($scene)) {
+        if (is_integer($scene)) {
             $data = ['action_name' => 'QR_LIMIT_SCENE', 'action_info' => ['scene' => ['scene_id' => $scene]]];
         } else {
             $data = ['action_name' => 'QR_LIMIT_STR_SCENE', 'action_info' => ['scene' => ['scene_str' => $scene]]];

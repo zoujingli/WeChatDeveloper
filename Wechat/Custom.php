@@ -184,7 +184,7 @@ class Custom extends Wechat
      */
     public function massGet($msg_id)
     {
-        $url = "https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token=ACCESS_TOKEN";
+        $url = "https://api.weixin.qq.com/cgi-bin/message/mass/get?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['msg_id' => $msg_id]);
     }
