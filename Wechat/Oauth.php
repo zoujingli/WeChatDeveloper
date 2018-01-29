@@ -14,7 +14,6 @@
 
 namespace Wechat;
 
-
 use Wechat\Contracts\Wechat;
 
 /**

@@ -113,8 +113,8 @@ class Tools
      */
     public static function createCurlFile($filename, $mimetype = '', $postname = '')
     {
-        $basename = $postname ?: basename($filename);
-        $basemine = $mimetype ?: self::getExtMine(pathinfo($filename, 4));
+        $basename = $postname || basename($filename);
+        $basemine = $mimetype || self::getExtMine(pathinfo($filename, 4));
         if (function_exists('curl_file_create')) {
             return curl_file_create($filename, $basemine, $basename);
         }

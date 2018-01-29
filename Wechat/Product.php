@@ -70,7 +70,7 @@ class Product extends Wechat
     public function getQrcode($keystandard, $keystr, $qrcode_size, $extinfo = [])
     {
         $data = ['keystandard' => $keystandard, 'keystr' => $keystr, 'qrcode_size' => $qrcode_size];
-        empty($extinfo) ?: $data['extinfo'] = $extinfo;
+        empty($extinfo) || $data['extinfo'] = $extinfo;
         $url = "https://api.weixin.qq.com/scan/product/getqrcode?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -87,7 +87,7 @@ class Product extends Wechat
     public function getProduct($keystandard, $keystr)
     {
         $data = ['keystandard' => $keystandard, 'keystr' => $keystr];
-        empty($extinfo) ?: $data['extinfo'] = $extinfo;
+        empty($extinfo) || $data['extinfo'] = $extinfo;
         $url = "https://api.weixin.qq.com/scan/product/get?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -106,8 +106,8 @@ class Product extends Wechat
     public function getProductList($offset, $limit = 10, $status = null, $keystr = '')
     {
         $data = ['offset' => $offset, 'limit' => $limit];
-        is_null($status) ?: $data['status'] = $status;
-        empty($keystr) ?: $data['keystr'] = $keystr;
+        is_null($status) || $data['status'] = $status;
+        empty($keystr) || $data['keystr'] = $keystr;
         $url = "https://api.weixin.qq.com/scan/product/get?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);

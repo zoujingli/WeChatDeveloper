@@ -155,7 +155,7 @@ class Custom extends Wechat
     public function massDelete($msg_id, $article_idx = null)
     {
         $data = ['msg_id' => $msg_id];
-        is_null($article_idx) ?: $article_idx;
+        is_null($article_idx) || $article_idx;
         $url = "https://api.weixin.qq.com/cgi-bin/message/mass/delete?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);

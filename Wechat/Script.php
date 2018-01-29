@@ -32,9 +32,9 @@ class Script extends Wechat
      * @param string $appid 强制指定有效APPID
      * @return void
      */
-    public function delTicket($type = 'jsapi', $appid = '')
+    public function delTicket($type = 'jsapi', $appid = null)
     {
-        empty($appid) ?: $appid = $this->config->get('appid');
+        is_null($appid) && $appid = $this->config->get('appid');
         $cache_name = "wechat_{$type}_ticket_{$appid}";
         Tools::delCache($cache_name);
     }
@@ -47,9 +47,9 @@ class Script extends Wechat
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function getTicket($type = 'jsapi', $appid = '')
+    public function getTicket($type = 'jsapi', $appid = null)
     {
-        empty($appid) ?: $appid = $this->config->get('appid');
+        is_null($appid) && $appid = $this->config->get('appid');
         $cache_name = "wechat_{$type}_ticket_{$appid}";
         $ticket = Tools::getCache($cache_name);
         if (empty($ticket)) {
@@ -59,7 +59,8 @@ class Script extends Wechat
             if (empty($result['ticket'])) {
                 throw new InvalidResponseException('Invalid Resoponse Ticket.', '0');
             }
-            Tools::setCache($cache_name, $ticket = $result['ticket']);
+            $ticket = $result['ticket'];
+            Tools::setCache($cache_name, $ticket, 5000);
         }
         return $ticket;
     }
@@ -73,12 +74,12 @@ class Script extends Wechat
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function getJsSign($url, $appid = '', $ticket = '')
+    public function getJsSign($url, $appid = null, $ticket = null)
     {
         list($url,) = explode('#', $url);
-        empty($ticket) ?: $ticket = $this->getTicket('jsapi');
-        empty($appid) ?: $appid = $this->config->get('appid');
-        $data = ["url" => $url, "timestamp" => time(), "jsapi_ticket" => $ticket, "noncestr" => Tools::createNoncestr(16)];
+        is_null($ticket) && $ticket = $this->getTicket('jsapi');
+        is_null($appid) && $appid = $this->config->get('appid');
+        $data = ["url" => $url, "timestamp" => '' . time(), "jsapi_ticket" => $ticket, "noncestr" => Tools::createNoncestr(16)];
         return [
             'debug'     => false,
             "appId"     => $appid,

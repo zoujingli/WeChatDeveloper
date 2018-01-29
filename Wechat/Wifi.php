@@ -24,6 +24,7 @@ use Wechat\Contracts\Wechat;
  */
 class Wifi extends Wechat
 {
+
     /**
      * 获取 Wi-Fi 门店列表
      * @param integer $pageindex 分页下标，默认从1开始
@@ -66,7 +67,7 @@ class Wifi extends Wechat
     public function upShopWifi($shop_id, $old_ssid, $ssid, $password = null)
     {
         $data = ['shop_id' => $shop_id, 'old_ssid' => $old_ssid, 'ssid' => $ssid];
-        is_null($password) ?: $data['password'] = $password;
+        is_null($password) || $data['password'] = $password;
         $url = 'https://api.weixin.qq.com/bizwifi/shop/update?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -132,9 +133,9 @@ class Wifi extends Wechat
     public function queryShopWifi($shop_id = null, $pageindex = null, $pagesize = null)
     {
         $data = [];
-        is_null($pagesize) ?: $data['pagesize'] = $pagesize;
-        is_null($pageindex) ?: $data['pageindex'] = $pageindex;
-        is_null($shop_id) ?: $data['shop_id'] = $shop_id;
+        is_null($pagesize) || $data['pagesize'] = $pagesize;
+        is_null($pageindex) || $data['pageindex'] = $pageindex;
+        is_null($shop_id) || $data['shop_id'] = $shop_id;
         $url = 'https://api.weixin.qq.com/bizwifi/device/list?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -182,7 +183,7 @@ class Wifi extends Wechat
     public function setHomePage($shop_id, $template_id, $url = null)
     {
         $data = ['shop_id' => $shop_id, 'template_id' => $template_id];
-        is_null($url) ?: $data['struct'] = ['url' => $url];
+        is_null($url) && $data['struct'] = ['url' => $url];
         $url = 'https://api.weixin.qq.com/bizwifi/homepage/set?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);

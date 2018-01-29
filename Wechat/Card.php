@@ -181,8 +181,8 @@ class Card extends Wechat
     public function getCode($code, $card_id = null, $check_consume = null)
     {
         $data = ['code' => $code];
-        is_null($card_id) ?: $data['card_id'] = $card_id;
-        is_null($check_consume) ?: $data['check_consume'] = $check_consume;
+        is_null($card_id) || $data['card_id'] = $card_id;
+        is_null($check_consume) || $data['check_consume'] = $check_consume;
         $url = "https://api.weixin.qq.com/card/code/get?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -199,7 +199,7 @@ class Card extends Wechat
     public function consume($code, $card_id = null)
     {
         $data = ['code' => $code];
-        is_null($card_id) ?: $data['card_id'] = $card_id;
+        is_null($card_id) || $data['card_id'] = $card_id;
         $url = "https://api.weixin.qq.com/card/code/consume?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -230,7 +230,7 @@ class Card extends Wechat
     public function getCardList($openid, $card_id = null)
     {
         $data = ['openid' => $openid];
-        is_null($card_id) ?: $data['card_id'] = $card_id;
+        is_null($card_id) || $data['card_id'] = $card_id;
         $url = "https://api.weixin.qq.com/card/user/getcardlist?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -262,7 +262,7 @@ class Card extends Wechat
     public function batchGet($offset, $count = 50, array $status_list = [])
     {
         $data = ['offset' => $offset, 'count' => $count];
-        empty($status_list) ?: $data['status_list'] = $status_list;
+        empty($status_list) || $data['status_list'] = $status_list;
         $url = "https://api.weixin.qq.com/card/batchget?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -295,8 +295,8 @@ class Card extends Wechat
     public function modifyStock($card_id, $increase_stock_value = null, $reduce_stock_value = null)
     {
         $data = ['card_id' => $card_id];
-        is_null($increase_stock_value) ?: $data['increase_stock_value'] = $increase_stock_value;
-        is_null($reduce_stock_value) ?: $data['reduce_stock_value'] = $reduce_stock_value;
+        is_null($increase_stock_value) || $data['increase_stock_value'] = $increase_stock_value;
+        is_null($reduce_stock_value) || $data['reduce_stock_value'] = $reduce_stock_value;
         $url = "https://api.weixin.qq.com/card/modifystock?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -314,7 +314,7 @@ class Card extends Wechat
     public function updateCode($code, $new_code, $card_id = null)
     {
         $data = ['code' => $code, 'new_code' => $new_code];
-        is_null($card_id) ?: $data['card_id'] = $card_id;
+        is_null($card_id) || $data['card_id'] = $card_id;
         $url = "https://api.weixin.qq.com/card/code/update?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -346,7 +346,7 @@ class Card extends Wechat
     public function unAvailable($code, $card_id, $reason = null)
     {
         $data = ['code' => $code, 'card_id' => $card_id];
-        is_null($reason) ?: $data['reason'] = $reason;
+        is_null($reason) || $data['reason'] = $reason;
         $url = "https://api.weixin.qq.com/card/code/unavailable?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -382,7 +382,7 @@ class Card extends Wechat
     public function getCardCardinfo($begin_date, $end_date, $cond_source, $card_id = null)
     {
         $data = ['begin_date' => $begin_date, 'end_date' => $end_date, 'cond_source' => $cond_source];
-        is_null($card_id) ?: $data['card_id'] = $card_id;
+        is_null($card_id) || $data['card_id'] = $card_id;
         $url = "https://api.weixin.qq.com/datacube/getcardcardinfo?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);

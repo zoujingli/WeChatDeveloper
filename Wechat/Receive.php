@@ -37,7 +37,7 @@ class Receive extends Request
             'FromUserName' => $this->getToOpenid(),
             'MsgType'      => 'transfer_customer_service',
         ];
-        empty($account) ?: $this->message['TransInfo'] = ['KfAccount' => $account];
+        empty($account) || $this->message['TransInfo'] = ['KfAccount' => $account];
         return $this;
     }
 

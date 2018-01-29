@@ -65,8 +65,8 @@ class Shake extends Wechat
     public function createApply($quantity, $apply_reason, $comment = null, $poi_id = null)
     {
         $data = ['quantity' => $quantity, 'apply_reason' => $apply_reason];
-        is_null($poi_id) ?: $data['poi_id'] = $poi_id;
-        is_null($comment) ?: $data['comment'] = $comment;
+        is_null($poi_id) || $data['poi_id'] = $poi_id;
+        is_null($comment) || $data['comment'] = $comment;
         $url = "https://api.weixin.qq.com/shakearound/device/applyid?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -74,16 +74,16 @@ class Shake extends Wechat
 
     /**
      * 查询设备ID申请审核状态
-     * @param integer $apply_id 批次ID，申请设备ID时所返回的批次ID
+     * @param integer $applyId 批次ID，申请设备ID时所返回的批次ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function getApplyStatus($apply_id)
+    public function getApplyStatus($applyId)
     {
         $url = "https://api.weixin.qq.com/shakearound/device/applyid?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['apply_id' => $apply_id]);
+        return $this->httpPostForJson($url, ['apply_id' => $applyId]);
     }
 
     /**

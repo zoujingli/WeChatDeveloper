@@ -39,7 +39,7 @@ class Qrcode extends Wechat
         } else {
             $data = ['action_name' => 'QR_LIMIT_STR_SCENE', 'action_info' => ['scene' => ['scene_str' => $scene]]];
         }
-        empty($expire_seconds) ?: $data['expire_seconds'] = $expire_seconds;
+        empty($expire_seconds) || $data['expire_seconds'] = $expire_seconds;
         $url = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);

@@ -96,7 +96,7 @@ class Scan extends Wechat
     public function getQrc($keystandard, $keystr, $extinfo = null, $qrcode_size = 64)
     {
         $data = ['keystandard' => $keystandard, 'keystr' => $keystr, 'qrcode_size' => $qrcode_size];
-        is_null($extinfo) ?: $data['extinfo'] = $extinfo;
+        is_null($extinfo) || $data['extinfo'] = $extinfo;
         $url = "https://api.weixin.qq.com/scan/product/getqrcode?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
@@ -130,8 +130,8 @@ class Scan extends Wechat
     public function getProductList($offset = 1, $limit = 10, $status = null, $keystr = null)
     {
         $data = ['offset' => $offset, 'limit' => $limit];
-        is_null($status) ?: $data['status'] = $status;
-        is_null($keystr) ?: $data['keystr'] = $keystr;
+        is_null($status) || $data['status'] = $status;
+        is_null($keystr) || $data['keystr'] = $keystr;
         $url = "https://api.weixin.qq.com/scan/product/getlist?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
