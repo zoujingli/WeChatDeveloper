@@ -33,7 +33,7 @@ class Media extends Wechat
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function upload($filename, $type = 'image')
+    public function add($filename, $type = 'image')
     {
         if (!in_array($type, ['image', 'voice', 'video', 'thumb'])) {
             throw new InvalidResponseException('Invalid Media Type.', '0');
@@ -171,7 +171,7 @@ class Media extends Wechat
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function batchGetMaterial($type, $offset = 0, $count = 20)
+    public function batchGetMaterial($type = 'image', $offset = 0, $count = 20)
     {
         if (!in_array($type, ['image', 'voice', 'video', 'news'])) {
             throw new InvalidResponseException('Invalid Media Type.', '0');

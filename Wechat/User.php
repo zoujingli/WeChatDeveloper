@@ -32,7 +32,7 @@ class User extends Wechat
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function updatereMark($openid, $remark)
+    public function updateMark($openid, $remark)
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/user/info/updateremark?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());

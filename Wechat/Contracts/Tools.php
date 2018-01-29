@@ -111,14 +111,14 @@ class Tools
      * @return \CURLFile|string
      * @throws LocalCacheException
      */
-    public static function createCurlFile($filename, $mimetype = '', $postname = '')
+    public static function createCurlFile($filename, $mimetype = null, $postname = null)
     {
-        $basename = $postname || basename($filename);
-        $basemine = $mimetype || self::getExtMine(pathinfo($filename, 4));
+        is_null($postname) && $postname = basename($filename);
+        is_null($mimetype) && $mimetype = self::getExtMine(pathinfo($filename, 4));
         if (function_exists('curl_file_create')) {
-            return curl_file_create($filename, $basemine, $basename);
+            return curl_file_create($filename, $mimetype, $postname);
         }
-        return "@{$filename};filename={$basename};type={$basemine}";
+        return "@{$filename};filename={$postname};type={$mimetype}";
     }
 
     /**
