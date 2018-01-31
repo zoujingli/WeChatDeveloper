@@ -58,7 +58,7 @@ class Media extends WeChat
     }
 
     /**
-     * 新增临时素材
+     * 新增图文素材
      * @param array $data 文件名称
      * @return array
      * @throws Exceptions\LocalCacheException
@@ -72,7 +72,7 @@ class Media extends WeChat
     }
 
     /**
-     * 新增临时素材
+     * 更新图文素材
      * @param string $media_id 要修改的图文消息的id
      * @param int $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      * @param array $news 文章内容
