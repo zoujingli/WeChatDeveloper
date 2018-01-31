@@ -16,14 +16,14 @@ namespace WeChat;
 
 
 use WeChat\Contracts\Tools;
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 揺一揺周边
  * Class Shake
  * @package WeChat
  */
-class Shake extends WePay
+class Shake extends WeChat
 {
     /**
      * 申请开通功能

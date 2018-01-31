@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 模板消息
  * Class Template
  * @package WeChat
  */
-class Template extends WePay
+class Template extends WeChat
 {
     /**
      * 设置所属行业

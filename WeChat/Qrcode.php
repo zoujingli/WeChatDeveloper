@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 二维码管理
  * Class Qrcode
  * @package WeChat
  */
-class Qrcode extends WePay
+class Qrcode extends WeChat
 {
 
     /**

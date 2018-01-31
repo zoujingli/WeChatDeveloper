@@ -9,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
-// | github开源项目：https://github.com/zoujingli/WePayDeveloper
+// | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
 namespace WeChat;
@@ -40,7 +40,7 @@ class Pay
     protected $config;
 
     /**
-     * WePay constructor.
+     * WeChat constructor.
      * @param array $options
      */
     public function __construct(array $options)

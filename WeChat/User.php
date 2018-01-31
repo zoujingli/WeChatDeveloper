@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 微信粉丝管理
  * Class User
  * @package WeChat
  */
-class User extends WePay
+class User extends WeChat
 {
 
     /**
@@ -30,7 +30,6 @@ class User extends WePay
      * @param string $remark
      * @return array
      * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
      */
     public function updateMark($openid, $remark)
     {

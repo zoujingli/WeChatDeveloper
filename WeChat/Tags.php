@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 用户标签管理
  * Class Tags
  * @package WeChat
  */
-class Tags extends WePay
+class Tags extends WeChat
 {
     /**
      * 获取粉丝标签列表

@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WePay;
+use WeChat\Contracts\WeChat;
 
 /**
  * 客服消息处理
  * Class Custom
  * @package WeChat
  */
-class Custom extends WePay
+class Custom extends WeChat
 {
     /**
      * 添加客服帐号
