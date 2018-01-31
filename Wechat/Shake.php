@@ -12,18 +12,18 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
 
-use Wechat\Contracts\Tools;
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\Tools;
+use WeChat\Contracts\WePay;
 
 /**
  * 揺一揺周边
  * Class Shake
- * @package Wechat
+ * @package WeChat
  */
-class Shake extends Wechat
+class Shake extends WePay
 {
     /**
      * 申请开通功能

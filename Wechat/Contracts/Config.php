@@ -59,6 +59,20 @@ class Config implements ArrayAccess
     }
 
     /**
+     * 合并数据到对象
+     * @param array $data 需要合并的数据
+     * @param bool $append 是否追加数据
+     * @return array
+     */
+    public function merge(array $data, $append = false)
+    {
+        if ($append) {
+            return $this->config = array_merge($this->config, $data);
+        }
+        return array_merge($this->config, $data);
+    }
+
+    /**
      * 设置配置项值
      * @param string $offset
      * @param string|array|null|integer $value

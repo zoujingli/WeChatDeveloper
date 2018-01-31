@@ -12,18 +12,18 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Tools;
-use Wechat\Contracts\Wechat;
-use Wechat\Exceptions\InvalidResponseException;
+use WeChat\Contracts\Tools;
+use WeChat\Contracts\WePay;
+use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信前端支持
  * Class Script
- * @package Wechat
+ * @package WeChat
  */
-class Script extends Wechat
+class Script extends WePay
 {
 
     /**
@@ -35,7 +35,7 @@ class Script extends Wechat
     public function delTicket($type = 'jsapi', $appid = null)
     {
         is_null($appid) && $appid = $this->config->get('appid');
-        $cache_name = "wechat_{$type}_ticket_{$appid}";
+        $cache_name = "WeChat_{$type}_ticket_{$appid}";
         Tools::delCache($cache_name);
     }
 
@@ -50,7 +50,7 @@ class Script extends Wechat
     public function getTicket($type = 'jsapi', $appid = null)
     {
         is_null($appid) && $appid = $this->config->get('appid');
-        $cache_name = "wechat_{$type}_ticket_{$appid}";
+        $cache_name = "WeChat_{$type}_ticket_{$appid}";
         $ticket = Tools::getCache($cache_name);
         if (empty($ticket)) {
             $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type={$type}";

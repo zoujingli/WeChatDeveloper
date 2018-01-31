@@ -12,12 +12,12 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Exceptions;
+namespace WeChat\Exceptions;
 
 /***
  * 本地缓存异常
  * Class LocalCacheException
- * @package Wechat
+ * @package WeChat
  */
 class LocalCacheException extends \Exception
 {

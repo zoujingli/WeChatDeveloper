@@ -12,12 +12,12 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Exceptions;
+namespace WeChat\Exceptions;
 
 /**
  * 返回异常
  * Class InvalidResponseException
- * @package Wechat
+ * @package WeChat
  */
 class InvalidDecryptException extends \Exception
 {

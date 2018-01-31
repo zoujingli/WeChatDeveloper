@@ -12,16 +12,16 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 二维码管理
  * Class Qrcode
- * @package Wechat
+ * @package WeChat
  */
-class Qrcode extends Wechat
+class Qrcode extends WePay
 {
 
     /**

@@ -12,14 +12,14 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Request;
+use WeChat\Contracts\Request;
 
 /**
  * 公众号推送管理
  * Class Receive
- * @package Wechat
+ * @package WeChat
  */
 class Receive extends Request
 {

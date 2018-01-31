@@ -12,18 +12,18 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Tools;
-use Wechat\Contracts\Wechat;
-use Wechat\Exceptions\InvalidResponseException;
+use WeChat\Contracts\Tools;
+use WeChat\Contracts\WePay;
+use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信素材管理
  * Class Media
- * @package Wechat
+ * @package WeChat
  */
-class Media extends Wechat
+class Media extends WePay
 {
     /**
      * 新增临时素材

@@ -12,12 +12,12 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Exceptions;
+namespace WeChat\Exceptions;
 
 /**
  * 参数异常
  * Class InvalidArgumentException
- * @package Wechat
+ * @package WeChat
  */
 class InvalidArgumentException extends \InvalidArgumentException
 {

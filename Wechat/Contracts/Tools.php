@@ -67,6 +67,22 @@ class Tools
     }
 
     /**
+     * 生成支付签名
+     * @param array $data
+     * @param string $mchKey 商户密钥
+     * @return string
+     */
+    public static function getPaySign(array $data, $mchKey)
+    {
+        ksort($data);
+        $string = "";
+        foreach ($data as $key => $value) {
+            $string .= "{$key}={$value}&";
+        }
+        return strtoupper(hash_hmac('SHA256', "{$string}key={$mchKey}", $mchKey));
+    }
+
+    /**
      * 根据文件后缀获取文件MINE
      * @param array $ext 文件后缀
      * @param array $mine 文件后缀MINE信息

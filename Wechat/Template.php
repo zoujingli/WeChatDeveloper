@@ -12,16 +12,16 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 模板消息
  * Class Template
- * @package Wechat
+ * @package WeChat
  */
-class Template extends Wechat
+class Template extends WePay
 {
     /**
      * 设置所属行业

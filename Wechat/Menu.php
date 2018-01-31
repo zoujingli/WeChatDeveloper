@@ -12,16 +12,16 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 微信菜单管理
  * Class Menu
- * @package Wechat
+ * @package WeChat
  */
-class Menu extends Wechat
+class Menu extends WePay
 {
 
     /**

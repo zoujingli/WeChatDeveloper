@@ -12,17 +12,17 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 商店管理
  * Class Product
- * @package Wechat
+ * @package WeChat
  */
-class Product extends Wechat
+class Product extends WePay
 {
     /**
      * 提交审核/取消发布商品

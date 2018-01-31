@@ -12,17 +12,17 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 门店 WIFI 管理
  * Class Wifi
- * @package Wechat
+ * @package WeChat
  */
-class Wifi extends Wechat
+class Wifi extends WePay
 {
 
     /**

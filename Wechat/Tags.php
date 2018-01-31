@@ -12,16 +12,16 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\WePay;
 
 /**
  * 用户标签管理
  * Class Tags
- * @package Wechat
+ * @package WeChat
  */
-class Tags extends Wechat
+class Tags extends WePay
 {
     /**
      * 获取粉丝标签列表
