@@ -35,9 +35,14 @@ try {
     $user = new \WeChat\User($config);
 
     // 4. 调用接口对象方法
-    $list = $user->getUserList();
+    $result = $user->getUserList();
     echo '<pre>';
-    var_export($list);
+    var_export($result);
+
+    // 5. 分配获取用户信息
+    foreach (array_chunk($result['data']['openid'], 100) as $item) {
+        $batch = $user->getBatchUserInfo($item);
+    }
 
 } catch (Exception $e) {
 
