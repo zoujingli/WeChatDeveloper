@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "WeChat\\": "./WeChat"
+      "WeChat\\": "WeChat"
     }
   }
 }
