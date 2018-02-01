@@ -12,11 +12,7 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-// 1. 手动加载入口文件
-include 'include.php';
-
-// 2. 准备公众号配置参数
-$config = [
+return [
     'token'          => 'test',
     'appid'          => 'wx60a43dd8161666d4',
     'appsecret'      => '71308e96a204296c57d7cd4b21b883e8',
@@ -28,27 +24,3 @@ $config = [
     'ssl_key'        => '',
     'ssl_cer'        => '',
 ];
-
-try {
-
-    // 3. 实例对应的接口对象
-    $user = new \WeChat\User($config);
-
-    // 4. 调用接口对象方法
-    $result = $user->getUserList();
-    echo '<pre>';
-    var_export($result);
-
-    // 5. 分配获取用户信息
-    foreach (array_chunk($result['data']['openid'], 100) as $item) {
-        $batch = $user->getBatchUserInfo($item);
-    }
-
-} catch (Exception $e) {
-
-    // 出错啦，处理下吧
-    echo $e->getMessage() . PHP_EOL;
-
-}
-
-

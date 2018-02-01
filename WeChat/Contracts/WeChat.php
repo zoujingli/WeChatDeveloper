@@ -74,7 +74,7 @@ class WeChat
         if (!empty($this->access_token)) {
             return $this->access_token;
         }
-        $cacheKey = $this->config->get('appid') . '_accesstoken';
+        $cacheKey = $this->config->get('appid') . '_access_token';
         $this->access_token = Tools::getCache($cacheKey);
         if (!empty($this->access_token)) {
             return $this->access_token;
@@ -95,7 +95,7 @@ class WeChat
     public function delAccessToken()
     {
         $this->access_token = '';
-        return Tools::delCache($this->config->get('appid') . '_accesstoken');
+        return Tools::delCache($this->config->get('appid') . '_access_token');
     }
 
     /**

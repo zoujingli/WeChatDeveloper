@@ -35,7 +35,7 @@ class Script extends WeChat
     public function delTicket($type = 'jsapi', $appid = null)
     {
         is_null($appid) && $appid = $this->config->get('appid');
-        $cache_name = "WeChat_{$type}_ticket_{$appid}";
+        $cache_name = "{$appid}_ticket_{$type}";
         Tools::delCache($cache_name);
     }
 
@@ -50,7 +50,7 @@ class Script extends WeChat
     public function getTicket($type = 'jsapi', $appid = null)
     {
         is_null($appid) && $appid = $this->config->get('appid');
-        $cache_name = "WeChat_{$type}_ticket_{$appid}";
+        $cache_name = "{$appid}_ticket_{$type}";
         $ticket = Tools::getCache($cache_name);
         if (empty($ticket)) {
             $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type={$type}";
