@@ -12,7 +12,7 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Contracts;
+namespace WeChat\Contracts;
 
 use Wechat\Exceptions\InvalidArgumentException;
 use Wechat\Exceptions\InvalidDecryptException;
@@ -21,7 +21,7 @@ use Wechat\Exceptions\InvalidResponseException;
 /**
  * 微信通知处理基本类
  * Class Request
- * @package Wechat\Contracts
+ * @package WeChat\Contracts
  */
 class Request
 {

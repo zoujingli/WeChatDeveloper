@@ -12,7 +12,7 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Contracts;
+namespace WeChat\Contracts;
 
 use ArrayAccess;
 

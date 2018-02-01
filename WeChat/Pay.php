@@ -22,7 +22,7 @@ use WeChat\Exceptions\InvalidResponseException;
 /**
  * 微信支付商户
  * Class Pay
- * @package Wechat\Contracts
+ * @package WeChat\Contracts
  */
 class Pay
 {

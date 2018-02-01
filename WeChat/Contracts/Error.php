@@ -12,12 +12,12 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat\Contracts;
+namespace WeChat\Contracts;
 
 /**
  * 错误消息处理
  * Class Error
- * @package Wechat\Contracts
+ * @package WeChat\Contracts
  */
 class Error
 {

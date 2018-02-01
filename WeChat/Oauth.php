@@ -14,7 +14,7 @@
 
 namespace Wechat;
 
-use Wechat\Contracts\Wechat;
+use WeChat\Contracts\Wechat;
 
 /**
  * 微信网页授权

@@ -19,7 +19,7 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * Class Wechat
- * @package Wechat\Contracts
+ * @package WeChat\Contracts
  */
 class WeChat
 {
