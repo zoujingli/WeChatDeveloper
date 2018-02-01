@@ -63,8 +63,9 @@ class Pay
      * 统一下单
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
-    public function order(array $options)
+    public function createOrder(array $options)
     {
         $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
         return $this->callPostApi($url, $options);
@@ -74,6 +75,7 @@ class Pay
      * 查询订单
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
     public function queryOrder(array $options)
     {
@@ -85,6 +87,7 @@ class Pay
      * 关闭订单
      * @param string $out_trade_no 商户订单号
      * @return array
+     * @throws InvalidResponseException
      */
     public function closeOrder($out_trade_no)
     {
@@ -96,6 +99,7 @@ class Pay
      * 申请退款
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
     public function refund(array $options)
     {
@@ -107,6 +111,7 @@ class Pay
      * 查询退款
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
     public function queryRefund(array $options)
     {
@@ -118,6 +123,7 @@ class Pay
      * 交易保障
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
     public function report(array $options)
     {
@@ -129,6 +135,7 @@ class Pay
      * 授权码查询openid
      * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
      * @return array
+     * @throws InvalidResponseException
      */
     public function queryAuthCode($authCode)
     {
@@ -140,6 +147,7 @@ class Pay
      * 转换短链接
      * @param string $longUrl 需要转换的URL，签名用原串，传输需URLencode
      * @return array
+     * @throws InvalidResponseException
      */
     public function shortUrl($longUrl)
     {
@@ -151,8 +159,9 @@ class Pay
      * 下载对账单
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
-    public function bill(array $options)
+    public function billDownload(array $options)
     {
         $url = 'https://api.mch.weixin.qq.com/pay/downloadbill';
         return $this->callPostApi($url, $options);
@@ -163,6 +172,7 @@ class Pay
      * 拉取订单评价数据
      * @param array $options
      * @return array
+     * @throws InvalidResponseException
      */
     public function billCommtent(array $options)
     {
@@ -195,8 +205,8 @@ class Pay
     {
         ksort($data);
         list($key, $str) = [$this->config->get('mch_key'), ''];
-        foreach ($data as $key => $value) {
-            $str .= "{$key}={$value}&";
+        foreach ($data as $k => $v) {
+            $str .= "{$k}={$v}&";
         }
         return strtoupper(hash_hmac('SHA256', "{$str}key={$key}", $key));
     }
@@ -207,13 +217,14 @@ class Pay
      * @param array $data 接口参数
      * @param bool $isCert 是否需要使用双向证书
      * @return array
+     * @throws InvalidResponseException
      */
     public function callPostApi($url, array $data, $isCert = false)
     {
         $option = [];
         if ($isCert) {
             foreach (['ssl_cer', 'ssl_key'] as $key) {
-                if (empty($options['ssl_cer'])) {
+                if (empty($options[$key])) {
                     throw new InvalidArgumentException("Missing Config -- [{$key}]", '0');
                 }
             }
@@ -223,6 +234,10 @@ class Pay
         $params = $this->params->merge($data);
         $params['sign_type'] = 'HMAC-SHA256';
         $params['sign'] = $this->getPaySign($params);
-        return Tools::xml2arr(Tools::post($url, Tools::arr2xml($params), $option));
+        $result = Tools::xml2arr(Tools::post($url, Tools::arr2xml($params), $option));
+        if ($result['return_code'] !== 'SUCCESS') {
+            throw new InvalidResponseException($result['return_msg'], '0');
+        }
+        return $result;
     }
 }
