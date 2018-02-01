@@ -185,12 +185,11 @@ class Open extends WeChat
             'component_appid'    => $this->config->get('component_appid'),
             'authorization_code' => $_GET['auth_code'],
         ]);
-        if (empty($result['authorizer_access_token'])) {
+        if (empty($result['authorizer_appid']) || empty($result['authorizer_access_token'])) {
             throw new InvalidResponseException('GetQueryAuthorizerInfo Faild.', '0');
         }
-        $authorizer_appid = $result['authorizer_appid'];
         // 缓存授权公众号访问 ACCESS_TOKEN
-        Tools::setCache("{$authorizer_appid}_access_token", $result['authorizer_access_token'], 7000);
+        Tools::setCache("{$result['authorizer_appid']}_access_token", $result['authorizer_access_token'], 7000);
         return $result;
     }
 
