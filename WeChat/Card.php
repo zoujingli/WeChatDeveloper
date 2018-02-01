@@ -54,7 +54,7 @@ class Card extends WeChat
     }
 
     /**
-     * 设置买单接口
+     * 设置自助核销接口
      * @param string $card_id
      * @param bool $is_open
      * @return array
