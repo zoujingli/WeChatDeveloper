@@ -66,8 +66,8 @@ class WeChat
     /**
      * 获取访问accessToken
      * @return string
-     * @throws \Wechat\Exceptions\InvalidResponseException
-     * @throws \Wechat\Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getAccesstoken()
     {
@@ -143,8 +143,8 @@ class WeChat
      * @param string $method 当前接口方法
      * @param array $arguments 请求参数
      * @return mixed
-     * @throws \Wechat\Exceptions\InvalidResponseException
-     * @throws \Wechat\Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     protected function registerApi(&$url, $method, $arguments = [])
     {
@@ -162,7 +162,7 @@ class WeChat
      * @param bool $isBuildJson
      * @return array
      * @throws InvalidResponseException
-     * @throws \Wechat\Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function callPostApi($url, array $data, $isBuildJson = true)
     {
@@ -175,7 +175,7 @@ class WeChat
      * @param string $url 接口URL
      * @return array
      * @throws InvalidResponseException
-     * @throws \Wechat\Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function callGetApi($url)
     {

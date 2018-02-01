@@ -14,9 +14,9 @@
 
 namespace WeChat\Contracts;
 
-use Wechat\Exceptions\InvalidArgumentException;
-use Wechat\Exceptions\InvalidDecryptException;
-use Wechat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidDecryptException;
+use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信通知处理基本类

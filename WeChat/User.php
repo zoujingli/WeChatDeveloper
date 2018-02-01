@@ -30,7 +30,7 @@ class User extends WeChat
      * @param string $remark
      * @return array
      * @throws Exceptions\InvalidResponseException
-     * @throws \Wechat\Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateMark($openid, $remark)
     {

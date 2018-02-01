@@ -14,14 +14,14 @@
 
 namespace WeChat\Contracts;
 
-use Wechat\Exceptions\InvalidArgumentException;
-use Wechat\Exceptions\InvalidResponseException;
-use Wechat\Exceptions\LocalCacheException;
+use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 网络请求支持
- * Class Request
- * @package Wechat
+ * Class Tools
+ * @package WeChat\Contracts
  */
 class Tools
 {
