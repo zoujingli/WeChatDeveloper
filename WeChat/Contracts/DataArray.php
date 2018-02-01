@@ -20,7 +20,7 @@ use ArrayAccess;
  * Class Config
  * @package Wechat
  */
-class Config implements ArrayAccess
+class DataArray implements ArrayAccess
 {
 
     /**

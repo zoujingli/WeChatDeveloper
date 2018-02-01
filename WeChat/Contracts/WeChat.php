@@ -26,7 +26,7 @@ class WeChat
 
     /**
      * 当前微信配置
-     * @var Config
+     * @var DataArray
      */
     public $config;
 
@@ -60,7 +60,7 @@ class WeChat
         if (empty($options['appsecret'])) {
             throw new InvalidArgumentException("Missing Config -- [appsecret]");
         }
-        $this->config = new Config($options);
+        $this->config = new DataArray($options);
     }
 
     /**
@@ -97,7 +97,6 @@ class WeChat
         $this->access_token = '';
         return Tools::delCache($this->config->get('appid') . '_accesstoken');
     }
-
 
     /**
      * 以GET获取接口数据并转为数组

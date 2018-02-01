@@ -45,19 +45,19 @@ class Request
 
     /**
      * 当前公众号配置对象
-     * @var Config
+     * @var DataArray
      */
     protected $config;
 
     /**
      * 公众号的推送请求参数
-     * @var Config
+     * @var DataArray
      */
     protected $params;
 
     /**
      * 公众号推送内容对象
-     * @var Config
+     * @var DataArray
      */
     protected $receive;
 
@@ -84,8 +84,8 @@ class Request
             throw new InvalidArgumentException("Missing Config -- [token]");
         }
         // 参数初始化
-        $this->config = new Config($options);
-        $this->params = new Config($_REQUEST);
+        $this->config = new DataArray($options);
+        $this->params = new DataArray($_REQUEST);
         $this->appid = $this->config->get('appid');
         // 推送消息处理
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
@@ -106,7 +106,7 @@ class Request
                 }
                 list($this->postxml, $this->appid) = [$array[1], $array[2]];
             }
-            $this->receive = new Config(Tools::xml2arr($this->postxml));
+            $this->receive = new DataArray(Tools::xml2arr($this->postxml));
         } elseif ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
             @ob_clean();
             exit($this->params->get('echostr'));

@@ -14,7 +14,7 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\Config;
+use WeChat\Contracts\DataArray;
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidResponseException;
@@ -28,16 +28,17 @@ class Pay
 {
 
     /**
+     * 商户配置
+     * @var DataArray
+     */
+    protected $config;
+
+    /**
      * 当前请求数据
-     * @var Config
+     * @var DataArray
      */
     protected $params;
 
-    /**
-     * 商户配置
-     * @var Config
-     */
-    protected $config;
 
     /**
      * WeChat constructor.
@@ -50,8 +51,8 @@ class Pay
                 throw new InvalidArgumentException("Missing Config -- [{$key}]", '0');
             }
         }
-        $this->config = new Config($options);
-        $this->params = new Config([
+        $this->config = new DataArray($options);
+        $this->params = new DataArray([
             'appid'     => $this->config->get('appid'),
             'mch_id'    => $this->config->get('mch_id'),
             'nonce_str' => Tools::createNoncestr(),
@@ -85,7 +86,7 @@ class Pay
      * @param string $out_trade_no 商户订单号
      * @return array
      */
-    public function close($out_trade_no)
+    public function closeOrder($out_trade_no)
     {
         $url = 'https://api.mch.weixin.qq.com/pay/closeorder';
         return $this->callPostApi($url, ['out_trade_no' => $out_trade_no]);
@@ -178,11 +179,26 @@ class Pay
     {
         $data = Tools::xml2arr(file_get_contents('php://input'));
         if (!empty($data['sign'])) {
-            if (Tools::getPaySign($data, $this->config->get('mch_key')) === $data['sign']) {
+            if ($this->getPaySign($data) === $data['sign']) {
                 return $data;
             }
         }
         throw new InvalidResponseException('Invalid Notify.', '0');
+    }
+
+    /**
+     * 生成支付签名
+     * @param array $data
+     * @return string
+     */
+    public function getPaySign(array $data)
+    {
+        ksort($data);
+        list($key, $str) = [$this->config->get('mch_key'), ''];
+        foreach ($data as $key => $value) {
+            $str .= "{$key}={$value}&";
+        }
+        return strtoupper(hash_hmac('SHA256', "{$str}key={$key}", $key));
     }
 
     /**
@@ -206,7 +222,7 @@ class Pay
         }
         $params = $this->params->merge($data);
         $params['sign_type'] = 'HMAC-SHA256';
-        $params['sign'] = Tools::getPaySign($params, $this->config->get('mch_key'));
+        $params['sign'] = $this->getPaySign($params);
         return Tools::xml2arr(Tools::post($url, Tools::arr2xml($params), $option));
     }
 }
