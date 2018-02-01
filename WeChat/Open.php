@@ -253,4 +253,21 @@ class Open extends WeChat
         return $result !== false ? $result : false;
     }
 
+    /**
+     * 创建需要的接口实例
+     * @param string $type 需要加载的接口实例名称
+     * @param string $authorizer_appid 授权公众号的appid
+     * @return Card|Custom|Media|Menu|Oauth|Pay|Product|Qrcode|Receive|Scan|Script|Shake|Tags|Template|User|Wifi
+     */
+    public function instance($type, $authorizer_appid)
+    {
+        $className = 'WeChat\\' . ucfirst(strtolower($type));
+        $config = $this->config->get();
+        $config['appid'] = $authorizer_appid;
+        $config['token'] = $this->config->get('component_token');
+        $config['appsecret'] = $this->config->get('component_appsecret');
+        $config['encodingaeskey'] = $this->config->get('component_encodingaeskey');
+        return new $className($config);
+    }
+
 }

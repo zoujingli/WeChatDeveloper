@@ -49,6 +49,12 @@ class WeChat
     private $isTry = false;
 
     /**
+     * 注册代替函数
+     * @var string
+     */
+    private $GetAccessTokenCallback;
+
+    /**
      * Wechat constructor.
      * @param array $options
      */
@@ -60,6 +66,9 @@ class WeChat
         if (empty($options['appsecret'])) {
             throw new InvalidArgumentException("Missing Config -- [appsecret]");
         }
+        if (isset($options['GetAccessTokenCallback']) && is_callable($options['GetAccessTokenCallback'])) {
+            $this->GetAccessTokenCallback = $options['GetAccessTokenCallback'];
+        }
         $this->config = new DataArray($options);
     }
 
@@ -69,7 +78,7 @@ class WeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getAccesstoken()
+    public function getAccessToken()
     {
         if (!empty($this->access_token)) {
             return $this->access_token;
@@ -79,11 +88,19 @@ class WeChat
         if (!empty($this->access_token)) {
             return $this->access_token;
         }
+        // 处理开放平台授权公众号获取AccessToken
+        if (!empty($this->GetAccessTokenCallback) && is_callable($this->GetAccessTokenCallback)) {
+            $this->access_token = call_user_func_array($this->GetAccessTokenCallback, [$this->config->get('appid'), $this]);
+            if (!empty($this->access_token)) {
+                Tools::setCache($cache, $this->access_token, 7000);
+            }
+            return $this->access_token;
+        }
         list($appid, $secret) = [$this->config->get('appid'), $this->config->get('appsecret')];
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$secret}";
         $result = Tools::json2arr(Tools::get($url));
         if (!empty($result['access_token'])) {
-            Tools::setCache($cache, $result['access_token'], 6000);
+            Tools::setCache($cache, $result['access_token'], 7000);
         }
         return $result['access_token'];
     }
@@ -149,7 +166,7 @@ class WeChat
     {
         $this->currentMethod = ['method' => $method, 'arguments' => $arguments];
         if (empty($this->access_token)) {
-            $this->access_token = $this->getAccesstoken();
+            $this->access_token = $this->getAccessToken();
         }
         return $url = str_replace('ACCESS_TOKEN', $this->access_token, $url);
     }
