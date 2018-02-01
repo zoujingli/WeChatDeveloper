@@ -74,8 +74,8 @@ class WeChat
         if (!empty($this->access_token)) {
             return $this->access_token;
         }
-        $cacheKey = $this->config->get('appid') . '_access_token';
-        $this->access_token = Tools::getCache($cacheKey);
+        $cache = $this->config->get('appid') . '_access_token';
+        $this->access_token = Tools::getCache($cache);
         if (!empty($this->access_token)) {
             return $this->access_token;
         }
@@ -83,7 +83,7 @@ class WeChat
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={$appid}&secret={$secret}";
         $result = Tools::json2arr(Tools::get($url));
         if (!empty($result['access_token'])) {
-            Tools::setCache($cacheKey, $result['access_token'], 6000);
+            Tools::setCache($cache, $result['access_token'], 6000);
         }
         return $result['access_token'];
     }
