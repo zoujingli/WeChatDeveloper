@@ -127,10 +127,10 @@ class Open extends WeChat
         $component_access_token = $this->getComponentAccessToken();
         $url = "https://api.weixin.qq.com/cgi-bin/component/ api_set_authorizer_option?component_access_token={$component_access_token}";
         $result = $this->callPostApi($url, [
-            'authorizer_appid' => $authorizer_appid,
-            'component_appid'  => $this->config->get('component_appid'),
             'option_name'      => $option_name,
             'option_value'     => $option_value,
+            'authorizer_appid' => $authorizer_appid,
+            'component_appid'  => $this->config->get('component_appid'),
         ]);
         return $result;
     }
@@ -221,38 +221,37 @@ class Open extends WeChat
 
     /**
      * oauth 授权跳转接口
-     * @param string $appid
+     * @param string $authorizer_appid 授权公众号或小程序的appid
      * @param string $redirect_uri 回调地址
      * @param string $scope snsapi_userinfo|snsapi_base
      * @return string
      */
-    public function getOauthRedirect($appid, $redirect_uri, $scope = 'snsapi_userinfo')
+    public function getOauthRedirect($authorizer_appid, $redirect_uri, $scope = 'snsapi_userinfo')
     {
         $redirect_url = urlencode($redirect_uri);
         $component_appid = $this->config->get('component_appid');
-        return "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$redirect_url}"
-            . "&response_type=code&scope={$scope}&state={$appid}&component_appid={$component_appid}#wechat_redirect";
+        return "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$authorizer_appid}&redirect_uri={$redirect_url}"
+            . "&response_type=code&scope={$scope}&state={$authorizer_appid}&component_appid={$component_appid}#wechat_redirect";
     }
 
     /**
      * 通过code获取AccessToken
-     * @param string $appid
+     * @param string $authorizer_appid 授权公众号或小程序的appid
      * @return bool|array
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function getOauthAccessToken($appid)
+    public function getOauthAccessToken($authorizer_appid)
     {
         if (empty($_GET['code'])) {
             return false;
         }
         $component_appid = $this->config->get('component_appid');
         $component_access_token = $this->getComponentAccessToken();
-        $url = "https://api.weixin.qq.com/sns/oauth2/component/access_token?appid={$appid}&code={$_GET['code']}&grant_type=authorization_code&"
+        $url = "https://api.weixin.qq.com/sns/oauth2/component/access_token?appid={$authorizer_appid}&code={$_GET['code']}&grant_type=authorization_code&"
             . "component_appid={$component_appid}&component_access_token={$component_access_token}";
         $result = $this->callGetApi($url);
         return $result !== false ? $result : false;
     }
-
 
 }
