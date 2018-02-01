@@ -174,7 +174,7 @@ class Open extends WeChat
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function queryAuthorizerInfo()
+    public function getQueryAuthorizerInfo()
     {
         if (empty($_GET['auth_code'])) {
             return false;
