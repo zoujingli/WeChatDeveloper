@@ -22,7 +22,7 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 第三方平台支持
- * Class Qrcode
+ * Class Open
  * @package WeChat
  */
 class Open extends WeChat
@@ -34,6 +34,9 @@ class Open extends WeChat
      */
     public function __construct(array $options)
     {
+        if (empty($options['component_token'])) {
+            throw new InvalidArgumentException("Missing Config -- [component_token]");
+        }
         if (empty($options['component_appid'])) {
             throw new InvalidArgumentException("Missing Config -- [component_appid]");
         }
@@ -42,9 +45,6 @@ class Open extends WeChat
         }
         if (empty($options['component_encodingaeskey'])) {
             throw new InvalidArgumentException("Missing Config -- [component_encodingaeskey]");
-        }
-        if (empty($options['component_token'])) {
-            throw new InvalidArgumentException("Missing Config -- [component_token]");
         }
         $this->config = new DataArray($options);
     }
@@ -88,7 +88,7 @@ class Open extends WeChat
                 'component_verify_ticket' => Tools::get('component_verify_ticket'),
             ]);
             if (empty($result['component_access_token'])) {
-                throw new InvalidResponseException('Get getComponentAccessToken Faild', '0');
+                throw new InvalidResponseException('GetComponentAccessToken Faild', '0');
             }
             Tools::setCache($cache, $component_access_token, 7000);
         }
@@ -186,10 +186,10 @@ class Open extends WeChat
             'authorization_code' => $_GET['auth_code'],
         ]);
         if (empty($result['authorizer_access_token'])) {
-            throw new InvalidResponseException('GetQueryComponent Faild.', '0');
+            throw new InvalidResponseException('GetQueryAuthorizerInfo Faild.', '0');
         }
         $authorizer_appid = $result['authorizer_appid'];
-        // 缓存授权公众号访问ACCESS_TOKEN
+        // 缓存授权公众号访问 ACCESS_TOKEN
         Tools::setCache("{$authorizer_appid}_access_token", $result['authorizer_access_token'], 7000);
         return $result;
     }
@@ -214,7 +214,7 @@ class Open extends WeChat
         if (empty($result['authorizer_access_token'])) {
             throw new InvalidResponseException('RefreshAccessToken Faild', '0');
         }
-        // 缓存授权公众号访问ACCESS_TOKEN
+        // 缓存授权公众号访问 ACCESS_TOKEN
         Tools::setCache("{$authorizer_appid}_access_token", $result['authorizer_access_token'], 7000);
         return $result;
     }
