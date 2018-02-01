@@ -1,38 +1,38 @@
+[![Latest Unstable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/unstable)](https://packagist.org/packages/zoujingli/wechat-developer)·[![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/wechat-developer)·[![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/wechat-developer)·[![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/wechat-developer)
+
 WeChatDeveloper for PHP
 --
-[![Latest Unstable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/unstable)](https://packagist.org/packages/zoujingli/wechat-developer).[![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/wechat-developer).[![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/wechat-developer).[![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/wechat-developer)
-
----
-
-* WeChatDeveloper 是基于 [wechat-php-sdk](https://github.com/zoujingli/wechat-php-sdk) 的重构，优化并完善
-* 微信 SDK 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能
-* WeChatDeveloper 针对 access_token 失效增加了自动重试机制
-* 微信的部分接口需要缓存数据在本地，因此对目录需要有写权限
-* 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作
-* WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目
+* WeChatDeveloper 是基于 [wechat-php-sdk](https://github.com/zoujingli/wechat-php-sdk) 的重构，优化并完善；
+* 微信 SDK 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能；
+* WeChatDeveloper 针对 access_token 失效增加了自动重试机制；
+* 微信的部分接口需要缓存数据在本地，因此对目录需要有写权限；
+* 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
+* WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
 
-WeChatDeveloper Help
+Documentation and Help
 --
-* PHP开发技术交流 QQ群：513350915
+PHP开发技术交流（QQ群 513350915）
+
 [![PHP微信开发群 (SDK)](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=ae25cf789dafbef62e50a980ffc31242f150bc61a61164458216dd98c411832a) 
----
-* WeChatDeveloper是基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
-* 微信官方文档： http://mp.weixin.qq.com/wiki
-* 微信商户文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
----
-* 看云文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
-* Think.Admin：https://github.com/zoujingli/Think.Admin
+
+> WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
+>* 微信官方文档： http://mp.weixin.qq.com/wiki
+>* 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
+
+> 针对 WeChatDeveloper 也有一准备了帮助资料可供参考。
+>* 看云文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
+>* Think.Admin：https://github.com/zoujingli/Think.Admin
 
 
-WeChatDeveloper Code
+Code Repositorie
 --
-* WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
-* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
-* OSChina 托管地址：http://git.oschina.net/zoujingli/WeChatDeveloper
+ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
+>* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
+>* OSChina 托管地址：http://git.oschina.net/zoujingli/WeChatDeveloper
 
 
-WeChatDeveloper Encapsulation
+Encapsulation
 --
 * 接入验证 （初级权限）
 * 自动回复（文本、图片、语音、视频、音乐、图文） （初级权限）
@@ -56,7 +56,7 @@ WeChatDeveloper Encapsulation
 
 
 
-Interface Permission Notes
+Permission Notes
 --
 * 初级权限：基本权限，任何正常的公众号都有此权限
 * 菜单权限：正常的服务号、认证后的订阅号拥有此权限
@@ -64,7 +64,7 @@ Interface Permission Notes
 * 支付权限：仅认证后的服务号可以申请此权限
 
 
-WeChatDeveloper Copyright
+Copyright
 --
 * WeChatDeveloper 基于`MIT`协议发布，任何人可以用在任何地方，不受约束
 * WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
