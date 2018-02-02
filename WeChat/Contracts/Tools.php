@@ -48,7 +48,6 @@ class Tools
     }
 
 
-
     /**
      * 根据文件后缀获取文件MINE
      * @param array $ext 文件后缀
@@ -102,32 +101,6 @@ class Tools
             return curl_file_create($filename, $mimetype, $postname);
         }
         return "@{$filename};filename={$postname};type={$mimetype}";
-    }
-
-    /**
-     * 以get访问模拟访问
-     * @param string $url 访问URL
-     * @param array $query GET数
-     * @param array $options
-     * @return bool|string
-     */
-    public static function get($url, $query = [], $options = [])
-    {
-        $options['query'] = $query;
-        return self::doRequest('get', $url, $options);
-    }
-
-    /**
-     * 以post访问模拟访问
-     * @param string $url 访问URL
-     * @param array $data POST数据
-     * @param array $options
-     * @return bool|string
-     */
-    public static function post($url, $data = [], $options = [])
-    {
-        $options['data'] = $data;
-        return self::doRequest('post', $url, $options);
     }
 
     /**
@@ -200,6 +173,32 @@ class Tools
             throw new InvalidResponseException($result['errmsg'], $result['errcode'], $result);
         }
         return $result;
+    }
+
+    /**
+     * 以get访问模拟访问
+     * @param string $url 访问URL
+     * @param array $query GET数
+     * @param array $options
+     * @return bool|string
+     */
+    public static function get($url, $query = [], $options = [])
+    {
+        $options['query'] = $query;
+        return self::doRequest('get', $url, $options);
+    }
+
+    /**
+     * 以post访问模拟访问
+     * @param string $url 访问URL
+     * @param array $data POST数据
+     * @param array $options
+     * @return bool|string
+     */
+    public static function post($url, $data = [], $options = [])
+    {
+        $options['data'] = $data;
+        return self::doRequest('post', $url, $options);
     }
 
     /**
