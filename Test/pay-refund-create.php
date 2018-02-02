@@ -29,7 +29,7 @@ try {
         'total_fee'      => '1',
         'refund_fee'     => '1',
     ];
-    $result = $wechat->refund($options);
+    $result = $wechat->createRefund($options);
 
     var_export($result);
 

@@ -108,7 +108,7 @@ class Pay
      * @return array
      * @throws InvalidResponseException
      */
-    public function refund(array $options)
+    public function createRefund(array $options)
     {
         $url = 'https://api.mch.weixin.qq.com/secapi/pay/refund';
         return $this->callPostApi($url, $options, true);
