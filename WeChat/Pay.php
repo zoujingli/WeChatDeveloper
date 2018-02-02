@@ -46,10 +46,17 @@ class Pay
      */
     public function __construct(array $options)
     {
-        foreach (['appid', 'mch_id', 'mch_key'] as $key) {
-            if (empty($options[$key])) {
-                throw new InvalidArgumentException("Missing Config -- [{$key}]", '0');
-            }
+        if (empty($options['appid'])) {
+            throw new InvalidArgumentException("Missing Config -- [appid]");
+        }
+        if (empty($options['mch_id'])) {
+            throw new InvalidArgumentException("Missing Config -- [mch_id]");
+        }
+        if (empty($options['mch_key'])) {
+            throw new InvalidArgumentException("Missing Config -- [mch_key]");
+        }
+        if (!empty($options['cache_path'])) {
+            Tools::$cache_path = $options['cache_path'];
         }
         $this->config = new DataArray($options);
         $this->params = new DataArray([

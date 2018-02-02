@@ -69,6 +69,9 @@ class WeChat
         if (isset($options['GetAccessTokenCallback']) && is_callable($options['GetAccessTokenCallback'])) {
             $this->GetAccessTokenCallback = $options['GetAccessTokenCallback'];
         }
+        if (!empty($options['cache_path'])) {
+            Tools::$cache_path = $options['cache_path'];
+        }
         $this->config = new DataArray($options);
     }
 
