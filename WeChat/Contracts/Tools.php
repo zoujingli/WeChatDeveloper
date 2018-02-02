@@ -47,24 +47,7 @@ class Tools
         return $str;
     }
 
-    /**
-     * 数据生成签名
-     * @param array $data 签名数组
-     * @param string $method 签名方法
-     * @return bool|string 签名值
-     */
-    public static function getSignature($data, $method = "sha1")
-    {
-        if (!function_exists($method)) {
-            return false;
-        }
-        ksort($data);
-        $params = [];
-        foreach ($data as $key => $value) {
-            $params[] = "{$key}={$value}";
-        }
-        return $method(join('&', $params));
-    }
+
 
     /**
      * 根据文件后缀获取文件MINE

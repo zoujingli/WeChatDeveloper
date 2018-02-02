@@ -85,7 +85,7 @@ class Script extends WeChat
             "appId"     => $appid,
             "nonceStr"  => $data['noncestr'],
             "timestamp" => $data['timestamp'],
-            "signature" => Tools::getSignature($data, 'sha1'),
+            "signature" => $this->getSignature($data, 'sha1'),
             'jsApiList' => [
                 'onWXDeviceBluetoothStateChange', 'onWXDeviceStateChange',
                 'openProductSpecificView', 'addCard', 'chooseCard', 'openCard',
@@ -98,5 +98,24 @@ class Script extends WeChat
                 'openWXDeviceLib', 'closeWXDeviceLib', 'getWXDeviceInfos', 'sendDataToWXDevice', 'disconnectWXDevice', 'getWXDeviceTicket', 'connectWXDevice',
             ],
         ];
+    }
+
+    /**
+     * 数据生成签名
+     * @param array $data 签名数组
+     * @param string $method 签名方法
+     * @return bool|string 签名值
+     */
+    protected function getSignature($data, $method = "sha1")
+    {
+        if (!function_exists($method)) {
+            return false;
+        }
+        ksort($data);
+        $params = [];
+        foreach ($data as $key => $value) {
+            $params[] = "{$key}={$value}";
+        }
+        return $method(join('&', $params));
     }
 }
