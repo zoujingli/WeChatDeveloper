@@ -15,10 +15,27 @@
 namespace WeChat\Exceptions;
 
 /**
- * 接口请求返回异常
+ * 返回异常
  * Class InvalidResponseException
  * @package WeChat
  */
 class InvalidResponseException extends \Exception
 {
+    /**
+     * @var array
+     */
+    public $raw = [];
+
+    /**
+     * InvalidResponseException constructor.
+     * @param string $message
+     * @param integer $code
+     * @param array $raw
+     */
+    public function __construct($message, $code, $raw = [])
+    {
+        parent::__construct($message, intval($code));
+        $this->raw = $raw;
+    }
+
 }

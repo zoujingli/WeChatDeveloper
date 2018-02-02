@@ -22,4 +22,21 @@ namespace WeChat\Exceptions;
 class LocalCacheException extends \Exception
 {
 
+    /**
+     * @var array
+     */
+    public $raw = [];
+
+    /**
+     * LocalCacheException constructor.
+     * @param string $message
+     * @param integer $code
+     * @param array $raw
+     */
+    public function __construct($message, $code, $raw = [])
+    {
+        parent::__construct($message, intval($code));
+        $this->raw = $raw;
+    }
+
 }
