@@ -16,10 +16,10 @@ namespace WeChat\Contracts;
 
 /**
  * 错误消息处理
- * Class Error
+ * Class DataError
  * @package WeChat\Contracts
  */
-class Error
+class DataError
 {
     /**
      * 接口代码错误
