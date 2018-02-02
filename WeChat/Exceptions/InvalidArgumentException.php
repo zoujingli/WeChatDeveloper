@@ -15,11 +15,10 @@
 namespace WeChat\Exceptions;
 
 /**
- * 参数异常
+ * 接口参数异常
  * Class InvalidArgumentException
  * @package WeChat
  */
 class InvalidArgumentException extends \InvalidArgumentException
 {
-
 }
