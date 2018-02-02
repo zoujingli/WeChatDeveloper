@@ -9,6 +9,61 @@ WeChatDeveloper for PHP
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
+Install and Use
+--
+1.1 通过 Composer 来管理安装
+```shell
+# 首次安装 线上版本（稳定）
+composer require zoujingli/wechat-developer
+
+# 首次安装 开发版本 
+composer require zoujingli/wechat-developer dev-master
+
+# 更新 WeChatDeveloper
+composer update zoujingli/wechat-developer
+```
+1.2 如果不使用 Composer， 可以下载 WeChatDeveloper 并解压到项目中
+```php
+# 在项目中加载初始化文件
+include "您的目录/WeChatDeveloper/include.php";
+```
+2.1 接口实例所需参数
+```php
+$config = [
+    'token'          => 'test',
+    'appid'          => 'wx60a43dd8161666d4',
+    'appsecret'      => '71308e96a204296c57d7cd4b21b883e8',
+    'encodingaeskey' => 'BJIUzE0gqlWy0GxfPp4J1oPTBmOrNDIGPNav1YFH5Z5',
+    // 配置商户支付参数（可选）
+    'mch_id'         => "1235704602",
+    'mch_key'        => 'IKI4kpHjU94ji3oqre5zYaQMwLHuZPmj',
+    // 配置商户支付双向证书目录（可选）
+    'ssl_key'        => '',
+    'ssl_cer'        => '',
+    // 缓存目录配置（可选，需拥有读写权限）
+];
+```
+3.1 实例指定接口
+```php
+try {
+
+    // 实例对应的接口对象
+    $user = new \WeChat\User($config);
+    
+    // 调用接口对象方法
+    $list = $user->getUserList();
+    
+    // 处理返回的结果
+    echo '<pre>';
+    var_export($list);
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
 
 Documentation and Help
 --
