@@ -15,14 +15,14 @@
 namespace WeChat;
 
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 商店管理
  * Class Product
  * @package WeChat
  */
-class Product extends WeChat
+class Product extends BasicWeChat
 {
     /**
      * 提交审核/取消发布商品

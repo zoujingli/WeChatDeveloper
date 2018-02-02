@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信菜单管理
  * Class Menu
  * @package WeChat
  */
-class Menu extends WeChat
+class Menu extends BasicWeChat
 {
 
     /**

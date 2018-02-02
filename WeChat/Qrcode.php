@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 二维码管理
  * Class Qrcode
  * @package WeChat
  */
-class Qrcode extends WeChat
+class Qrcode extends BasicWeChat
 {
 
     /**

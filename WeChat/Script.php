@@ -15,7 +15,7 @@
 namespace WeChat;
 
 use WeChat\Contracts\Tools;
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 use WeChat\Exceptions\InvalidResponseException;
 
 /**
@@ -23,7 +23,7 @@ use WeChat\Exceptions\InvalidResponseException;
  * Class Script
  * @package WeChat
  */
-class Script extends WeChat
+class Script extends BasicWeChat
 {
 
     /**

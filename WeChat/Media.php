@@ -15,7 +15,7 @@
 namespace WeChat;
 
 use WeChat\Contracts\Tools;
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 use WeChat\Exceptions\InvalidResponseException;
 
 /**
@@ -23,7 +23,7 @@ use WeChat\Exceptions\InvalidResponseException;
  * Class Media
  * @package WeChat
  */
-class Media extends WeChat
+class Media extends BasicWeChat
 {
     /**
      * 新增临时素材

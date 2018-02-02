@@ -15,14 +15,14 @@
 namespace Wechat;
 
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 卡券管理
  * Class Card
  * @package Wechat
  */
-class Card extends WeChat
+class Card extends BasicWeChat
 {
     /**
      * 创建卡券

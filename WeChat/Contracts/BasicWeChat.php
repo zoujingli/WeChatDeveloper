@@ -18,10 +18,10 @@ use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidResponseException;
 
 /**
- * Class Wechat
+ * Class BasicWeChat
  * @package WeChat\Contracts
  */
-class WeChat
+class BasicWeChat
 {
 
     /**
@@ -55,7 +55,7 @@ class WeChat
     private $GetAccessTokenCallback;
 
     /**
-     * Wechat constructor.
+     * BasicWeChat constructor.
      * @param array $options
      */
     public function __construct(array $options)

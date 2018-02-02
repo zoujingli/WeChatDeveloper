@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\Request;
+use WeChat\Contracts\BasicPushEvent;
 
 /**
  * 公众号推送管理
  * Class Receive
  * @package WeChat
  */
-class Receive extends Request
+class Receive extends BasicPushEvent
 {
 
     /**

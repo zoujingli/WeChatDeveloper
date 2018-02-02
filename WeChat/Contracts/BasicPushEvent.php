@@ -20,10 +20,10 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信通知处理基本类
- * Class Request
+ * Class BasicPushEvent
  * @package WeChat\Contracts
  */
-class Request
+class BasicPushEvent
 {
     /**
      * 公众号APPID
@@ -68,7 +68,7 @@ class Request
     protected $message;
 
     /**
-     * Request constructor.
+     * BasicPushEvent constructor.
      * @param array $options
      * @throws InvalidResponseException
      */

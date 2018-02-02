@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 扫一扫接入管理
  * Class Scan
  * @package WeChat
  */
-class Scan extends WeChat
+class Scan extends BasicWeChat
 {
     /**
      * 获取商户信息

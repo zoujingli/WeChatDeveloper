@@ -14,14 +14,14 @@
 
 namespace WeChat;
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 模板消息
  * Class Template
  * @package WeChat
  */
-class Template extends WeChat
+class Template extends BasicWeChat
 {
     /**
      * 设置所属行业

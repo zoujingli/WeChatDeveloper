@@ -14,14 +14,14 @@
 
 namespace Wechat;
 
-use WeChat\Contracts\Wechat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信网页授权
  * Class Oauth
  * @package Wechat
  */
-class Oauth extends Wechat
+class Oauth extends BasicWeChat
 {
 
     /**

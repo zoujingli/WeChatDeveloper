@@ -15,14 +15,14 @@
 namespace WeChat;
 
 
-use WeChat\Contracts\WeChat;
+use WeChat\Contracts\BasicWeChat;
 
 /**
  * 门店 WIFI 管理
  * Class Wifi
  * @package WeChat
  */
-class Wifi extends WeChat
+class Wifi extends BasicWeChat
 {
 
     /**
