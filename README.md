@@ -9,6 +9,29 @@ WeChatDeveloper for PHP
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
+
+Documentation and Help
+--
+PHP开发技术交流（QQ群 513350915）
+
+[![PHP微信开发群 (SDK)](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=ae25cf789dafbef62e50a980ffc31242f150bc61a61164458216dd98c411832a) 
+
+> WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
+>* 微信官方文档： http://mp.weixin.qq.com/wiki
+>* 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
+
+> 针对 WeChatDeveloper 也有一准备了帮助资料可供参考。
+>* 看云文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
+>* Think.Admin：https://github.com/zoujingli/Think.Admin
+
+
+Code Repositorie
+--
+ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
+>* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
+>* OSChina 托管地址：http://git.oschina.net/zoujingli/WeChatDeveloper
+
+
 Install and Use
 --
 1.1 通过 Composer 来管理安装
@@ -64,28 +87,6 @@ try {
     
 }
 ```
-
-Documentation and Help
---
-PHP开发技术交流（QQ群 513350915）
-
-[![PHP微信开发群 (SDK)](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=ae25cf789dafbef62e50a980ffc31242f150bc61a61164458216dd98c411832a) 
-
-> WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
->* 微信官方文档： http://mp.weixin.qq.com/wiki
->* 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
-
-> 针对 WeChatDeveloper 也有一准备了帮助资料可供参考。
->* 看云文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
->* Think.Admin：https://github.com/zoujingli/Think.Admin
-
-
-Code Repositorie
---
- WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
->* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
->* OSChina 托管地址：http://git.oschina.net/zoujingli/WeChatDeveloper
-
 
 Encapsulation
 --
