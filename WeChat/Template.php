@@ -79,7 +79,7 @@ class Template extends BasicWeChat
     }
 
     /**
-     * 获得模板ID
+     * 删除模板ID
      * @param string $tpl_id 公众帐号下模板消息ID
      * @return array
      * @throws Exceptions\InvalidResponseException
