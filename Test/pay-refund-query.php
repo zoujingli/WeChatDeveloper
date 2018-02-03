@@ -26,10 +26,11 @@ try {
     // 4. 组装参数，可以参考官方商户文档
     $options = [
         'transaction_id' => '1008450740201411110005820873',
-        'total_fee'      => '1',
-        'refund_fee'     => '1',
+        // 'out_trade_no'   => '商户订单号',
+        // 'out_refund_no' => '商户退款单号'
+        // 'refund_id' => '微信退款单号',
     ];
-    $result = $wechat->refund($options);
+    $result = $wechat->queryRefund($options);
 
     var_export($result);
 
