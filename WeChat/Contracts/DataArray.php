@@ -18,7 +18,7 @@ use ArrayAccess;
 
 /**
  * Class Config
- * @package Wechat
+ * @package WeChat
  */
 class DataArray implements ArrayAccess
 {

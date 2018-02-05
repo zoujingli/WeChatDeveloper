@@ -12,7 +12,7 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
 
 use WeChat\Contracts\BasicWeChat;
@@ -20,7 +20,7 @@ use WeChat\Contracts\BasicWeChat;
 /**
  * 卡券管理
  * Class Card
- * @package Wechat
+ * @package WeChat
  */
 class Card extends BasicWeChat
 {

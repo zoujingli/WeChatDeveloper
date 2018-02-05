@@ -12,14 +12,14 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace Wechat;
+namespace WeChat;
 
 use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信网页授权
  * Class Oauth
- * @package Wechat
+ * @package WeChat
  */
 class Oauth extends BasicWeChat
 {
