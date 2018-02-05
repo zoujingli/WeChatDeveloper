@@ -47,7 +47,7 @@ class Oauth extends BasicWeChat
         $appid = $this->config->get('appid');
         $appsecret = $this->config->get('appsecret');
         $code = isset($_GET['code']) ? $_GET['code'] : '';
-        $url = " https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$appsecret}&code={$code}&grant_type=authorization_code";
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$appsecret}&code={$code}&grant_type=authorization_code";
         return $this->httpGetForJson($url);
     }
 
