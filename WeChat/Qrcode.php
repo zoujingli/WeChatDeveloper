@@ -52,7 +52,7 @@ class Qrcode extends BasicWeChat
 
     /**
      * 通过ticket换取二维码
-     * @param string $ticket
+     * @param string $ticket 获取的二维码ticket，凭借此ticket可以在有效时间内换取二维码。
      * @return string
      */
     public function url($ticket)
