@@ -2,12 +2,14 @@
   "type": "library",
   "name": "zoujingli/wechat-developer",
   "homepage": "https://github.com/zoujingli/WeChatDeveloper",
-  "description": "WeChat development of SDK",
+  "description": "WeChat platform and WeChat payment development tools",
   "license": "MIT",
   "keywords": [
     "WeChatDeveloper",
+    "developer",
     "wechat",
-    "wxsdk"
+    "wxsdk",
+    "wxpay"
   ],
   "require": {
     "php": ">=5.4",
