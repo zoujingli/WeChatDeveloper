@@ -190,7 +190,7 @@ class BasicPushEvent
     }
 
     /**
-     * 获取当前推送消息内容
+     * 获取当前推送消息类型
      * @return string
      */
     public function getMsgType()
