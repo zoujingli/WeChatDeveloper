@@ -3,7 +3,7 @@
 WeChatDeveloper for PHP
 --
 * WeChatDeveloper 是基于 [wechat-php-sdk](https://github.com/zoujingli/wechat-php-sdk) 重构，优化并完善；
-* 微信 SDK 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能；
+* 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能；
 * WeChatDeveloper 针对 access_token 失效增加了自动刷新机制；
 * 微信的部分接口需要缓存数据在本地，因此对目录需要有写权限；
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
