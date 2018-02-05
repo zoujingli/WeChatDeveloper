@@ -1,4 +1,4 @@
-[![Latest Unstable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/unstable)](https://packagist.org/packages/zoujingli/wechat-developer)·[![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/wechat-developer)·[![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/wechat-developer)·[![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/wechat-developer)
+[![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/wechat-developer)　[![Latest Unstable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/unstable)](https://packagist.org/packages/zoujingli/wechat-developer)　[![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/wechat-developer)　[![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/wechat-developer)
 
 WeChatDeveloper for PHP
 --
@@ -10,29 +10,29 @@ WeChatDeveloper for PHP
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
 
-Documentation and Help
+Documentation
 --
 PHP开发技术交流（QQ群 513350915）
 
 [![PHP微信开发群 (SDK)](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=ae25cf789dafbef62e50a980ffc31242f150bc61a61164458216dd98c411832a) 
 
 > WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
->* 微信官方文档： http://mp.weixin.qq.com/wiki
+>* 微信官方文档：http://mp.weixin.qq.com/wiki
 >* 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
 
 > 针对 WeChatDeveloper 也有一准备了帮助资料可供参考。
->* 看云文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
+>* 开发文档地址：http://www.kancloud.cn/zoujingli/wechat-developer
 >* Think.Admin：https://github.com/zoujingli/Think.Admin
 
 
-Code Repositorie
+Repositorie
 --
  WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
 >* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
 >* OSChina 托管地址：http://git.oschina.net/zoujingli/WeChatDeveloper
 
 
-Install and Use
+Install
 --
 1.1 通过 Composer 来管理安装
 ```shell
@@ -45,11 +45,13 @@ composer require zoujingli/wechat-developer dev-master
 # 更新 WeChatDeveloper
 composer update zoujingli/wechat-developer
 ```
+
 1.2 如果不使用 Composer， 可以下载 WeChatDeveloper 并解压到项目中
 ```php
 # 在项目中加载初始化文件
 include "您的目录/WeChatDeveloper/include.php";
 ```
+
 2.1 接口实例所需参数
 ```php
 $config = [
@@ -67,6 +69,7 @@ $config = [
     'cache_path'     => '',
 ];
 ```
+
 3.1 实例指定接口
 ```php
 try {
@@ -112,8 +115,7 @@ Encapsulation
 * 微信支付（网页支付、扫码支付、交易退款、给粉丝打款）（认证服务号并开通支付功能）
 
 
-
-Permission Notes
+Permission
 --
 * 初级权限：基本权限，任何正常的公众号都有此权限
 * 菜单权限：正常的服务号、认证后的订阅号拥有此权限
@@ -127,7 +129,7 @@ Copyright
 * WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
 
 
-Sponsor Me
+Sponsor
 --
 ![赞助](http://zoujingli.oschina.io/static/pay.png)
 
