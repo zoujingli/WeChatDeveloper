@@ -116,34 +116,6 @@ class BasicPushEvent
     }
 
     /**
-     * 验证来自微信服务器
-     * @param string $str
-     * @return bool
-     */
-    private function checkSignature($str = '')
-    {
-        $nonce = $this->params->get('nonce');
-        $timestamp = $this->params->get('timestamp');
-        $msg_signature = $this->params->get('msg_signature');
-        $signature = empty($msg_signature) ? $this->params->get('signature') : $msg_signature;
-        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, $str];
-        sort($tmpArr, SORT_STRING);
-        if (sha1(implode($tmpArr)) == $signature) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 获取公众号推送对象
-     * @return array
-     */
-    public function getReceive()
-    {
-        return $this->receive->get();
-    }
-
-    /**
      * 回复消息
      * @param array $data 消息内容
      * @param bool $return 是否返回XML内容
@@ -178,6 +150,34 @@ class BasicPushEvent
         }
         @ob_clean();
         echo $xml;
+    }
+
+    /**
+     * 验证来自微信服务器
+     * @param string $str
+     * @return bool
+     */
+    private function checkSignature($str = '')
+    {
+        $nonce = $this->params->get('nonce');
+        $timestamp = $this->params->get('timestamp');
+        $msg_signature = $this->params->get('msg_signature');
+        $signature = empty($msg_signature) ? $this->params->get('signature') : $msg_signature;
+        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, $str];
+        sort($tmpArr, SORT_STRING);
+        if (sha1(implode($tmpArr)) == $signature) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 获取公众号推送对象
+     * @return array
+     */
+    public function getReceive()
+    {
+        return $this->receive->get();
     }
 
     /**
