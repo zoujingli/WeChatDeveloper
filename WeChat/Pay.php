@@ -210,6 +210,7 @@ class Pay
      */
     public function getPaySign(array $data)
     {
+        unset($data['sign']);
         ksort($data);
         list($key, $str) = [$this->config->get('mch_key'), ''];
         foreach ($data as $k => $v) {
