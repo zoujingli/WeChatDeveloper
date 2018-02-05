@@ -34,14 +34,16 @@ class Qrcode extends BasicWeChat
      */
     public function create($scene, $expire_seconds = 0)
     {
-        if (is_integer($scene)) {
-            $data = ['action_name' => 'QR_LIMIT_SCENE', 'action_info' => ['scene' => ['scene_id' => $scene]]];
+        if (is_integer($scene)) { // 二维码场景类型
+            $data = ['action_info' => ['scene' => ['scene_id' => $scene]]];
         } else {
-            $data = ['action_name' => 'QR_LIMIT_STR_SCENE', 'action_info' => ['scene' => ['scene_str' => $scene]]];
+            $data = ['action_info' => ['scene' => ['scene_str' => $scene]]];
         }
-        if ($expire_seconds > 0) {
+        if ($expire_seconds > 0) { // 临时二维码
             $data['expire_seconds'] = $expire_seconds;
             $data['action_name'] = is_integer($scene) ? 'QR_SCENE' : 'QR_STR_SCENE';
+        } else { // 永久二维码
+            $data['action_name'] = is_integer($scene) ? 'QR_LIMIT_SCENE' : 'QR_LIMIT_STR_SCENE';
         }
         $url = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
