@@ -17,7 +17,7 @@ namespace WeChat\Contracts;
 use ArrayAccess;
 
 /**
- * Class Config
+ * Class DataArray
  * @package WeChat
  */
 class DataArray implements ArrayAccess

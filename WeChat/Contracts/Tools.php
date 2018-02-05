@@ -230,7 +230,7 @@ class Tools
                 curl_setopt($curl, CURLOPT_SSLCERTTYPE, 'PEM');
                 curl_setopt($curl, CURLOPT_SSLCERT, $options['ssl_cer']);
             } else {
-                throw new InvalidArgumentException("Certificate files that do not exist. --- [{$options['ssl_cer']}]");
+                throw new InvalidArgumentException("Certificate files that do not exist. --- [ssl_cer]");
             }
         }
         // 证书文件设置
@@ -239,7 +239,7 @@ class Tools
                 curl_setopt($curl, CURLOPT_SSLKEYTYPE, 'PEM');
                 curl_setopt($curl, CURLOPT_SSLKEY, $options['ssl_key']);
             } else {
-                throw new InvalidArgumentException("Certificate files that do not exist. --- [{$options['ssl_key']}]");
+                throw new InvalidArgumentException("Certificate files that do not exist. --- [ssl_key]");
             }
         }
         curl_setopt($curl, CURLOPT_URL, $url);
