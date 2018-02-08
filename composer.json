@@ -4,12 +4,17 @@
   "homepage": "https://github.com/zoujingli/WeChatDeveloper",
   "description": "WeChat platform and WeChat payment development tools",
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Anyon",
+      "email": "zoujingli@qq.com",
+      "homepage": "http://ctolog.com"
+    }
+  ],
   "keywords": [
-    "WeChatDeveloper",
-    "developer",
-    "wechat",
-    "wxsdk",
-    "wxpay"
+    "WeChat",
+    "WeChatPay",
+    "WeChatDeveloper"
   ],
   "require": {
     "php": ">=5.4",
