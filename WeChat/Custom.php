@@ -15,6 +15,7 @@
 namespace WeChat;
 
 use WeChat\Contracts\BasicWeChat;
+use WeChat\Contracts\Tools;
 
 /**
  * 客服消息处理
@@ -85,6 +86,21 @@ class Custom extends BasicWeChat
         $url = "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpGetForJson($url);
+    }
+
+    /**
+     * 设置客服帐号的头像
+     * @param string $kf_account 客户账号
+     * @param string $image 头像文件位置
+     * @return array
+     * @throws Exceptions\InvalidResponseException
+     * @throws Exceptions\LocalCacheException
+     */
+    public function uploadHeadimg($kf_account, $image)
+    {
+        $url = "http://api.weixin.qq.com/customservice/kfaccount/uploadheadimg?access_token=ACCESS_TOKEN&kf_account={$kf_account}";
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($image)]);
     }
 
     /**
