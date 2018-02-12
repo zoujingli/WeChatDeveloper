@@ -67,7 +67,7 @@ class Receive extends BasicPushEvent
     {
         $this->message = [
             'CreateTime'   => time(),
-            'MsgType'      => 'mpnews',
+            'MsgType'      => 'news',
             'Articles'     => $newsData,
             'ToUserName'   => $this->getOpenid(),
             'FromUserName' => $this->getToOpenid(),
