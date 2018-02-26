@@ -173,11 +173,12 @@ class BasicPushEvent
 
     /**
      * 获取公众号推送对象
+     * @param null|string $field 指定获取字段
      * @return array
      */
-    public function getReceive()
+    public function getReceive($field = null)
     {
-        return $this->receive->get();
+        return $this->receive->get($field);
     }
 
     /**
