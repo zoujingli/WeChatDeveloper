@@ -122,6 +122,7 @@ class Tools
     private static function _arr2xml($data, $content = '')
     {
         foreach ($data as $key => $val) {
+            is_numeric($key) && $key = 'item';
             $content .= "<{$key}>";
             if (is_array($val) || is_object($val)) {
                 $content .= self::_arr2xml($val);
