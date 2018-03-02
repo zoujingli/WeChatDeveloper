@@ -188,6 +188,30 @@ class Pay
     }
 
     /**
+     * 企业付款到零钱
+     * @param array $options
+     * @return array
+     * @throws InvalidResponseException
+     */
+    public function createTransfers(array $options)
+    {
+        $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers';
+        return $this->callPostApi($url, $options, true);
+    }
+
+    /**
+     * 查询企业付款到零钱
+     * @param string $partner_trade_no 商户调用企业付款API时使用的商户订单号
+     * @return array
+     * @throws InvalidResponseException
+     */
+    public function queryTransfers($partner_trade_no)
+    {
+        $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo';
+        return $this->callPostApi($url, ['partner_trade_no' => $partner_trade_no], true);
+    }
+
+    /**
      * 获取微信支付通知
      * @return array
      * @throws InvalidResponseException
