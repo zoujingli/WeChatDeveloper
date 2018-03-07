@@ -50,6 +50,21 @@ class Tags extends BasicWeChat
     }
 
     /**
+     * 更新粉丝标签
+     * @param integer $id 标签ID
+     * @param string $name 标签名称
+     * @return array
+     * @throws Exceptions\InvalidResponseException
+     * @throws Exceptions\LocalCacheException
+     */
+    public function updateTags($id, $name)
+    {
+        $url = "https://api.weixin.qq.com/cgi-bin/tags/update?access_token=ACCESS_TOKEN";
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, ['tag' => ['name' => $name, 'id' => $id]]);
+    }
+
+    /**
      * 删除粉丝标签
      * @param int $tagId
      * @return array
