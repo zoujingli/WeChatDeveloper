@@ -12,16 +12,33 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-// 动态注册SDK自动加载
-spl_autoload_register(function ($classname) {
-    $separator = DIRECTORY_SEPARATOR;
-    $filename = __DIR__ . $separator . str_replace('\\', $separator, $classname) . '.php';
-    if (file_exists($filename)) {
-        if (stripos($classname, 'WeChat') === 0) {
-            include $filename;
+namespace WeMini;
+
+use WeChat\Contracts\BasicWeChat;
+
+/**
+ * 数据加密处理
+ * Class Crypt
+ * @package WeMini
+ */
+class Crypt extends BasicWeChat
+{
+
+    /**
+     * 数据签名校验
+     * @param string $iv
+     * @param string $encryptedData
+     * @param string $sessionKey
+     * @return bool
+     */
+    public function decode($iv, $encryptedData, $sessionKey)
+    {
+        require_once __DIR__ . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
+        $pc = new \WXBizDataCrypt($this->config->get('appid'), $sessionKey);
+        $errCode = $pc->decryptData($encryptedData, $iv, $data);
+        if ($errCode == 0) {
+            return $data;
         }
-        if (stripos($classname, 'WeMini') === 0) {
-            include $filename;
-        }
+        return false;
     }
-});
+}
