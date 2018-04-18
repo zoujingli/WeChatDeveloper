@@ -16,6 +16,8 @@ namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
 
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'crypt' . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
+
 /**
  * 数据加密处理
  * Class Crypt
@@ -27,13 +29,12 @@ class Crypt extends BasicWeChat
     /**
      * 数据签名校验
      * @param string $iv
-     * @param string $encryptedData
      * @param string $sessionKey
+     * @param string $encryptedData
      * @return bool
      */
-    public function decode($iv, $encryptedData, $sessionKey)
+    public function decode($iv, $sessionKey, $encryptedData)
     {
-        require_once __DIR__ . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
         $pc = new \WXBizDataCrypt($this->config->get('appid'), $sessionKey);
         $errCode = $pc->decryptData($encryptedData, $iv, $data);
         if ($errCode == 0) {
