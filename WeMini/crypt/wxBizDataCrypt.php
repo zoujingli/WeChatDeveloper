@@ -6,7 +6,6 @@
  * @copyright Copyright (c) 1998-2014 Tencent Inc.
  */
 
-include_once __DIR__ . DIRECTORY_SEPARATOR . "errorCode.php";
 
 class WXBizDataCrypt
 {
@@ -22,6 +21,7 @@ class WXBizDataCrypt
     {
         $this->appid = $appid;
         $this->sessionKey = $sessionKey;
+        include_once __DIR__ . DIRECTORY_SEPARATOR . "errorCode.php";
     }
 
     /**
