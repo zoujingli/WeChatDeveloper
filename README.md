@@ -39,7 +39,7 @@ Install
 # 首次安装 线上版本（稳定）
 composer require zoujingli/wechat-developer
 
-# 首次安装 开发版本 （开发）
+# 首次安装 开发版本（开发）
 composer require zoujingli/wechat-developer dev-master
 
 # 更新 WeChatDeveloper
