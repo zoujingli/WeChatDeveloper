@@ -10,11 +10,12 @@ $config = [
 
 $mini = new WeMini\Qrcode($config);
 
-echo '<pre>';
+//echo '<pre>';
 try {
-//    var_dump($mini->getCode('pages/index?query=1'));
-//    var_dump($mini->getCodeUnlimit('432432', 'pages/index/index'));
-    var_dump($mini->createQrcode('pages/index?query=1'));
+    header('Content-type:image/jpeg');//输出的类型
+//    echo $mini->createDefault('pages/index?query=1');
+//    echo $mini->createMiniScene('432432', 'pages/index/index');
+    echo $mini->createMiniPath('pages/index?query=1');
 } catch (Exception $e) {
     var_dump($e->getMessage());
 }

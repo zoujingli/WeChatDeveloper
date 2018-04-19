@@ -36,7 +36,7 @@ class Qrcode extends BasicWeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getCode($path, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"])
+    public function createMiniPath($path, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"])
     {
         $url = 'https://api.weixin.qq.com/wxa/getwxacode?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
@@ -57,7 +57,7 @@ class Qrcode extends BasicWeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getCodeUnlimit($scene, $page, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"])
+    public function createMiniScene($scene, $page, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"])
     {
         $url = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN';
         $data = ['scene' => $scene, 'width' => $width, 'auto_color' => $auto_color, 'page' => $page, 'line_color' => $line_color];
@@ -75,11 +75,11 @@ class Qrcode extends BasicWeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function createQrcode($path, $width = 430)
+    public function createDefault($path, $width = 430)
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        $result = Tools::post($url, Tools::arr2json(['path' => urlencode($path), 'width' => $width]));
+        $result = Tools::post($url, Tools::arr2json(['path' => $path, 'width' => $width]));
         return strlen($result) > 256 ? $result : Tools::json2arr($result);
     }
 
