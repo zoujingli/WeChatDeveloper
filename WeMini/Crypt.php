@@ -41,7 +41,7 @@ class Crypt extends BasicWeChat
         $pc = new \WXBizDataCrypt($this->config->get('appid'), $sessionKey);
         $errCode = $pc->decryptData($encryptedData, $iv, $data);
         if ($errCode == 0) {
-            return $data;
+            return json_decode($data, true);
         }
         return false;
     }
@@ -72,7 +72,7 @@ class Crypt extends BasicWeChat
     {
         $result = $this->session($code);
         if (empty($result['session_key'])) {
-            throw new InvalidResponseException('Code换取SessionKey失败', 403);
+            throw new InvalidResponseException('Code 换取 SessionKey 失败', 403);
         }
         $userinfo = $this->decode($iv, $result['session_key'], $encryptedData);
         if (empty($userinfo)) {
