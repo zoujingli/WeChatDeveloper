@@ -61,7 +61,7 @@ class Plugs extends BasicWeChat
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->callPostApi($url, ['action' => 'list', 'plugin_appid' => $plugin_appid], true);
+        return $this->callPostApi($url, ['action' => 'unbind', 'plugin_appid' => $plugin_appid], true);
     }
 
 
