@@ -14,7 +14,7 @@ echo '<pre>';
 try {
 //    var_dump($mini->getCode('pages/index?query=1'));
 //    var_dump($mini->getCodeUnlimit('432432', 'pages/index/index'));
-//    var_dump($mini->createQrcode('pages/index?query=1'));
+    var_dump($mini->createQrcode('pages/index?query=1'));
 } catch (Exception $e) {
     var_dump($e->getMessage());
 }
