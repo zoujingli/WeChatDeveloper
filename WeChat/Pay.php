@@ -78,6 +78,25 @@ class Pay
         return $this->callPostApi($url, $options);
     }
 
+
+    /**
+     * 创建JsApi及H5支付参数
+     * @param string $prepay_id 统一下单预支付码
+     * @return array
+     */
+    public function createParamsForJsApi($prepay_id)
+    {
+        $option = [];
+        $option["appId"] = $this->config->get('appid');
+        $option["timeStamp"] = (string)time();
+        $option["nonceStr"] = Tools::createNoncestr();
+        $option["package"] = "prepay_id={$prepay_id}";
+        $option["signType"] = "MD5";
+        $option["paySign"] = $this->getPaySign($option, 'MD5');
+        $option['timestamp'] = $option['timeStamp'];
+        return $option;
+    }
+
     /**
      * 查询订单
      * @param array $options
