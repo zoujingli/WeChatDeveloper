@@ -98,6 +98,24 @@ class Pay
     }
 
     /**
+     * 获取支付规则二维码
+     * @param string $product_id 商户定义的商品id 或者订单号
+     * @return string
+     */
+    public function createParamsForRuleQrc($product_id)
+    {
+        $data = [
+            'appid'      => $this->config->get('appid'),
+            'mch_id'     => $this->config->get('mch_id'),
+            'time_stamp' => (string)time(),
+            'nonce_str'  => Tools::createNoncestr(),
+            'product_id' => (string)$product_id,
+        ];
+        $data['sign'] = $this->getPaySign($data, 'MD5');
+        return "weixin://wxpay/bizpayurl?" . http_build_query($data);
+    }
+
+    /**
      * 查询订单
      * @param array $options
      * @return array
