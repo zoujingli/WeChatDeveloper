@@ -43,8 +43,8 @@ class Qrcode extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $data = ['path' => $path, 'width' => $width, 'auto_color' => $auto_color, 'line_color' => $line_color];
         $result = Tools::post($url, Tools::arr2json($data));
-        if (($json = Tools::json2arr($result))) {
-            return $json;
+        if (json_decode($result)) {
+            return Tools::json2arr($result);
         }
         return is_null($outType) ? $result : $outType($result);
     }
@@ -68,8 +68,8 @@ class Qrcode extends BasicWeChat
         $data = ['scene' => $scene, 'width' => $width, 'auto_color' => $auto_color, 'page' => $page, 'line_color' => $line_color];
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $result = Tools::post($url, Tools::arr2json($data));
-        if (($json = Tools::json2arr($result))) {
-            return $json;
+        if (json_decode($result)) {
+            return Tools::json2arr($result);
         }
         return is_null($outType) ? $result : $outType($result);
     }
@@ -89,8 +89,8 @@ class Qrcode extends BasicWeChat
         $url = 'https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $result = Tools::post($url, Tools::arr2json(['path' => $path, 'width' => $width]));
-        if (($json = Tools::json2arr($result))) {
-            return $json;
+        if (json_decode($result)) {
+            return Tools::json2arr($result);
         }
         return is_null($outType) ? $result : $outType($result);
     }

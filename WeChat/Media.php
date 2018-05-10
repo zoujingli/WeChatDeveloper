@@ -56,8 +56,8 @@ class Media extends BasicWeChat
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id={$media_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $result = Tools::get($url);
-        if (($json = Tools::json2arr($result))) {
-            return $json;
+        if (json_decode($result)) {
+            return Tools::json2arr($result);
         }
         return is_null($outType) ? $result : $outType($result);
     }
@@ -139,8 +139,8 @@ class Media extends BasicWeChat
         $url = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $result = Tools::post($url, ['media_id' => $media_id]);
-        if (($json = Tools::json2arr($result))) {
-            return $json;
+        if (json_decode($result)) {
+            return Tools::json2arr($result);
         }
         return is_null($outType) ? $result : $outType($result);
     }
