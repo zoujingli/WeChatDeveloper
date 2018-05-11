@@ -232,6 +232,10 @@ class Pay
      */
     public function createTransfers(array $options)
     {
+        $this->params->set('mchid', $this->config->get('mch_id'));
+        $this->params->set('mch_appid', $this->config->get('appid'));
+        $this->params->offsetUnset('appid');
+        $this->params->offsetUnset('mch_id');
         $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers';
         return $this->callPostApi($url, $options, true, 'MD5', false);
     }
