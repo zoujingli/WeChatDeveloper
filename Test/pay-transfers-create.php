@@ -26,7 +26,7 @@ try {
     // 4. 组装参数，可以参考官方商户文档
     $options = [
         'partner_trade_no' => '1008450740201411110005820873',
-        'openid'           => '商户退款单号',
+        'openid'           => '用户的openid',
         'check_name'       => 'NO_CHECK',
         'amount'           => '100',
         'desc'             => '企业付款操作说明信息',
