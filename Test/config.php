@@ -19,7 +19,7 @@ return [
     'encodingaeskey' => 'BJIUzE0gqlWy0GxfPp4J1oPTBmOrNDIGPNav1YFH5Z5',
     // 配置商户支付参数
     'mch_id'         => "1332187001",
-    'mch_key'        => '11bd3d66d85f322a1e803cb587d18c3f',
+    'mch_key'        => 'A82DC5BD1F3359081049C568D8502BC5',
     // 配置商户支付双向证书目录
     'ssl_key'        => '',
     'ssl_cer'        => '',
