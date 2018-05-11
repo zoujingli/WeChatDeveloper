@@ -21,8 +21,8 @@ return [
     'mch_id'         => "1332187001",
     'mch_key'        => 'A82DC5BD1F3359081049C568D8502BC5',
     // 配置商户支付双向证书目录
-    'ssl_key'        => '',
-    'ssl_cer'        => '',
+    'ssl_key'        => __DIR__ . DIRECTORY_SEPARATOR . 'cert' . DIRECTORY_SEPARATOR . 'apiclient_key.pem',
+    'ssl_cer'        => __DIR__ . DIRECTORY_SEPARATOR . 'cert' . DIRECTORY_SEPARATOR . 'apiclient_cert.pem',
     // 配置缓存目录，需要拥有写权限
     'cache_path'     => '',
 ];
