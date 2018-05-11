@@ -250,6 +250,10 @@ class Pay
     public function queryTransfers($partner_trade_no)
     {
         $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo';
+        $this->params->set('appid', $this->config->get('appid'));
+        $this->params->set('mch_id', $this->config->get('mch_id'));
+        $this->params->offsetUnset('mchid');
+        $this->params->offsetUnset('mch_appid');
         return $this->callPostApi($url, ['partner_trade_no' => $partner_trade_no], true, 'MD5', false);
     }
 
