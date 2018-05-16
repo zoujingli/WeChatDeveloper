@@ -202,14 +202,23 @@ class Pay
 
     /**
      * 下载对账单
-     * @param array $options
-     * @return array
+     * @param array $options 静音参数
+     * @param null|string $outType 输出类型
+     * @return bool|string
      * @throws InvalidResponseException
      */
-    public function billDownload(array $options)
+    public function billDownload(array $options, $outType = null)
     {
-        $url = 'https://api.mch.weixin.qq.com/pay/downloadbill';
-        return $this->callPostApi($url, $options);
+        $this->params->set('sign_type', 'MD5');
+        $params = $this->params->merge($options);
+        $params['sign'] = $this->getPaySign($params, 'MD5');
+        $result = Tools::post('https://api.mch.weixin.qq.com/pay/downloadbill', Tools::arr2xml($params));
+        if (($jsonData = Tools::xml2arr($result))) {
+            if ($jsonData['return_code'] !== 'SUCCESS') {
+                throw new InvalidResponseException($jsonData['return_msg'], '0');
+            }
+        }
+        return is_null($outType) ? $result : $outType($result);
     }
 
 
