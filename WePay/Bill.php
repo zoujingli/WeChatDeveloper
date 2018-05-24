@@ -30,7 +30,7 @@ class Bill extends BasicPay
      * @param array $options 静音参数
      * @param null|string $outType 输出类型
      * @return bool|string
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function download(array $options, $outType = null)
     {
@@ -51,7 +51,7 @@ class Bill extends BasicPay
      * 拉取订单评价数据
      * @param array $options
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function commtent(array $options)
     {

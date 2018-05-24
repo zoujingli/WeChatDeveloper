@@ -32,8 +32,8 @@ class TransFresBank extends BasicPay
      * 企业付款到银行卡
      * @param array $options
      * @return array
-     * @throws InvalidDecryptException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create(array $options)
@@ -68,7 +68,7 @@ class TransFresBank extends BasicPay
      * 商户企业付款到银行卡操作进行结果查询
      * @param string $partnerTradeNo 商户订单号，需保持唯一
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function query($partnerTradeNo)
     {
@@ -82,8 +82,8 @@ class TransFresBank extends BasicPay
      * @param string $string
      * @param string $encrypted
      * @return string
-     * @throws InvalidDecryptException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     private function rsaEncode($string, $encrypted = '')
@@ -102,7 +102,7 @@ class TransFresBank extends BasicPay
     /**
      * 获取签名文件内容
      * @return string
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     private function getRsaContent()
