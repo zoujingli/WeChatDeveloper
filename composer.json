@@ -12,6 +12,8 @@
     }
   ],
   "keywords": [
+    "WePay",
+    "WeMini",
     "WeChat",
     "WeChatPay",
     "WeChatDeveloper"
@@ -23,6 +25,7 @@
   },
   "autoload": {
     "psr-4": {
+      "WePay\\": "WePay",
       "WeChat\\": "WeChat",
       "WeMini\\": "WeMini"
     }
