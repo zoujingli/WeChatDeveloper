@@ -82,8 +82,9 @@ class We
     }
 
     /**
-     * @param $name
-     * @param $arguments
+     * 静态魔术加载方法
+     * @param string $name 静态类名
+     * @param array $arguments 参数集合
      * @return mixed
      * @throws InvalidInstanceException
      */
