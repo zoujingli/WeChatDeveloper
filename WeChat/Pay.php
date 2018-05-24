@@ -15,7 +15,6 @@
 namespace WeChat;
 
 use WeChat\Contracts\BasicPay;
-use WeChat\Contracts\DataArray;
 use WeChat\Exceptions\InvalidResponseException;
 use WePay\Bill;
 use WePay\Order;
@@ -30,18 +29,6 @@ use WePay\TransFresBank;
  */
 class Pay extends BasicPay
 {
-
-    /**
-     * 商户配置
-     * @var DataArray
-     */
-    protected $config;
-
-    /**
-     * 当前请求数据
-     * @var DataArray
-     */
-    protected $params;
 
     /**
      * 统一下单
