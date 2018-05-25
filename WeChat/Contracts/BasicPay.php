@@ -56,6 +56,7 @@ class BasicPay
             Tools::$cache_path = $options['cache_path'];
         }
         $this->config = new DataArray($options);
+        // 商户基础参数
         $this->params = new DataArray([
             'appid'     => $this->config->get('appid'),
             'mch_id'    => $this->config->get('mch_id'),
