@@ -61,6 +61,13 @@ class BasicPay
             'mch_id'    => $this->config->get('mch_id'),
             'nonce_str' => Tools::createNoncestr(),
         ]);
+        // 商户参数支持
+        if ($this->config->get('sub_appid')) {
+            $this->params->set('sub_appid', $this->config->get('sub_appid'));
+        }
+        if ($this->config->get('sub_mch_id')) {
+            $this->params->set('sub_mch_id', $this->config->get('sub_mch_id'));
+        }
     }
 
     /**
