@@ -54,6 +54,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WePay\Bill WePayBill($options = []) static 微信商户账单及评论
  * @method \WePay\Order WePayOrder($options = []) static 微信商户订单
  * @method \WePay\Refund WePayRefund($options = []) static 微信商户退款
+ * @method \WePay\Redpack WePayRedpack($options = []) static 微信红包支持
  * @method \WePay\Transfers WePayTransfers($options = []) static 微信商户打款到零钱
  * @method \WePay\TransFresBank WePayTransFresBank($options = []) static 微信商户打款到银行卡
  */
