@@ -80,18 +80,6 @@ class Order extends BasicPay
     }
 
     /**
-     * 授权码查询openid
-     * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     */
-    public function queryAuthCode($authCode)
-    {
-        $url = 'https://api.mch.weixin.qq.com/tools/authcodetoopenid';
-        return $this->callPostApi($url, ['auth_code' => $authCode]);
-    }
-
-    /**
      * 获取支付规则二维码
      * @param string $productId 商户定义的商品id或者订单号
      * @return string
@@ -110,7 +98,31 @@ class Order extends BasicPay
     }
 
     /**
-     * 交易保障
+     * 刷卡支付 撤销订单
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function reverse(array $options)
+    {
+        $url = 'https://api.mch.weixin.qq.com/secapi/pay/reverse';
+        return $this->callPostApi($url, $options, true);
+    }
+
+    /**
+     * 刷卡支付 授权码查询openid
+     * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function queryAuthCode($authCode)
+    {
+        $url = 'https://api.mch.weixin.qq.com/tools/authcodetoopenid';
+        return $this->callPostApi($url, ['auth_code' => $authCode]);
+    }
+
+    /**
+     * 刷卡支付 交易保障
      * @param array $options
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
