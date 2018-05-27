@@ -63,7 +63,7 @@ class We
 {
     /**
      * 静态配置
-     * @var array
+     * @var DataArray
      */
     private static $config;
 
