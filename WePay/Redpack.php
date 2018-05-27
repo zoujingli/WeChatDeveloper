@@ -54,16 +54,16 @@ class Redpack extends BasicPay
 
     /**
      * 查询红包记录
-     * @param array $mch_billno 商户发放红包的商户订单号
+     * @param string $mchBillno 商户发放红包的商户订单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function query($mch_billno)
+    public function query($mchBillno)
     {
         $this->params->offsetUnset('wxappid');
         $this->params->set('appid', $this->config->get('appid'));
         $url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/gethbinfo";
-        return $this->callPostApi($url, ['mch_billno' => $mch_billno, 'bill_type' => 'MCHT'], true, 'MD5', false);
+        return $this->callPostApi($url, ['mch_billno' => $mchBillno, 'bill_type' => 'MCHT'], true, 'MD5', false);
     }
 
 }
