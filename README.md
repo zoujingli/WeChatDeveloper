@@ -36,6 +36,7 @@ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何�
 
 ClassMap
 --
+
 |  文件名  |  类名  |  描述 | 类型 | 加载 ① |
 | --- | --- | --- | --- | --- | --- |
 |  Card.php  | WeChat\Card   |  微信卡券接口支持  | 认证服务号 | \We::WeChatCard() |
