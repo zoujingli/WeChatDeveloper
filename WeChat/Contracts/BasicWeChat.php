@@ -109,6 +109,28 @@ class BasicWeChat
     }
 
     /**
+     * 直接设置accessToken
+     * @param string $access_token
+     * @return void
+     * @throws \WeCaht\Exceptions\InvalidArgumentException
+     * @author 高一平 <iam@gaoyiping.com>
+     *
+     * 当用户使用自己的缓存驱动时，直接实例化对象后可直接设置AccessToekn
+     * - 多用于分布式项目时保持AccessToekn统一
+     * - 使用此方法后就由用户来保证传入的AccessToekn为有效AccessToekn
+     */
+    public function setAccessToken($access_token) {
+        if (!is_string($access_token)) {
+            throw new InvalidArgumentException("Invalid AccessToken type, need string.");
+        }
+        // 使用默认获取access_token的方法
+        if (is_null($access_token) || empty($access_token)) {
+            $this->access_token = '';
+        }
+        $this->access_token = $access_token;
+    }
+
+    /**
      * 清理删除accessToken
      * @return bool
      */
