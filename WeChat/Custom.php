@@ -28,14 +28,13 @@ class Custom extends BasicWeChat
      * 添加客服帐号
      * @param string $kf_account 客服账号
      * @param string $nickname 客服昵称
-     * @param string $password 账号密码
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function addAccount($kf_account, $nickname, $password)
+    public function addAccount($kf_account, $nickname)
     {
-        $data = ['kf_account' => $kf_account, 'nickname' => $nickname, 'password' => $password];
+        $data = ['kf_account' => $kf_account, 'nickname' => $nickname];
         $url = "https://api.weixin.qq.com/customservice/kfaccount/add?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
