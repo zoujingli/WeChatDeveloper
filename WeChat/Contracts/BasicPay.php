@@ -169,9 +169,7 @@ class BasicPay
         $params = $this->params->merge($data);
         $needSignType && ($params['sign_type'] = strtoupper($signType));
         $params['sign'] = $this->getPaySign($params, $signType);
-        print_r($params);
         $result = Tools::xml2arr(Tools::post($url, Tools::arr2xml($params), $option));
-        print_r($result);
         if ($result['return_code'] !== 'SUCCESS') {
             throw new InvalidResponseException($result['return_msg'], '0');
         }
