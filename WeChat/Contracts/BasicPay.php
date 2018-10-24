@@ -53,7 +53,7 @@ class BasicPay
             throw new InvalidArgumentException("Missing Config -- [mch_key]");
         }
         if (!empty($options['cache_path'])) {
-            Tools::$CachePath = $options['cache_path'];
+            Tools::$cache_path = $options['cache_path'];
         }
         $this->config = new DataArray($options);
         // 商户基础参数

@@ -29,7 +29,7 @@ class Tools
      * 缓存路径
      * @var null
      */
-    public static $CachePath = null;
+    public static $cache_path = null;
 
 
     /**
@@ -320,11 +320,11 @@ class Tools
      */
     private static function getCacheName($name)
     {
-        if (empty(self::$CachePath)) {
-            self::$CachePath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR;
+        if (empty(self::$cache_path)) {
+            self::$cache_path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR;
         }
-        self::$CachePath = rtrim(self::$CachePath, '/\\') . DIRECTORY_SEPARATOR;
-        file_exists(self::$CachePath) || mkdir(self::$CachePath, 0755, true);
-        return self::$CachePath . $name;
+        self::$cache_path = rtrim(self::$cache_path, '/\\') . DIRECTORY_SEPARATOR;
+        file_exists(self::$cache_path) || mkdir(self::$cache_path, 0755, true);
+        return self::$cache_path . $name;
     }
 }

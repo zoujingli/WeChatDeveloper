@@ -70,7 +70,7 @@ class BasicWeChat
             $this->GetAccessTokenCallback = $options['GetAccessTokenCallback'];
         }
         if (!empty($options['cache_path'])) {
-            Tools::$CachePath = $options['cache_path'];
+            Tools::$cache_path = $options['cache_path'];
         }
         $this->config = new DataArray($options);
     }
