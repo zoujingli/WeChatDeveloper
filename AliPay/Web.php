@@ -41,7 +41,7 @@ class Web extends BasicAliPay
      */
     public function apply($options)
     {
-        parent::buildData($options);
+        parent::applyData($options);
         return $this->buildPayHtml();
     }
 }

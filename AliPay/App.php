@@ -42,7 +42,7 @@ class App extends BasicAliPay
      */
     public function apply($options)
     {
-        $this->buildData($options);
+        $this->applyData($options);
         return http_build_query($this->options->get());
     }
 }

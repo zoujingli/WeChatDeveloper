@@ -175,7 +175,7 @@ abstract class BasicAliPay
      * 数据包生成及数据签名
      * @param array $options
      */
-    protected function buildData($options)
+    protected function applyData($options)
     {
         $this->options['biz_content'] = json_encode($options, JSON_UNESCAPED_UNICODE);
         $this->options['sign'] = $this->getSign();
@@ -189,7 +189,7 @@ abstract class BasicAliPay
      */
     protected function getResult($options)
     {
-        $this->buildData($options);
+        $this->applyData($options);
         $data = json_decode(Tools::post($this->gateway, $this->options->get()), true);
         $method = str_replace('.', '_', $this->options['method']) . '_response';
         if (!isset($data[$method]['code']) || $data[$method]['code'] !== '10000') {
