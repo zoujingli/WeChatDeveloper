@@ -133,9 +133,10 @@ abstract class BasicAliPay
             throw new InvalidArgumentException('Missing Config -- [public_key]');
         }
         $sign = is_null($sign) ? $data['sign'] : $sign;
-        $str = $sync ? json_encode($data) : $this->getSignContent($data, true);
-        $res = "-----BEGIN PUBLIC KEY-----\n" . wordwrap($this->config->get('public_key'), 64, "\n", true) . "\n-----END PUBLIC KEY-----";
-        return openssl_verify($str, base64_decode($sign), $res, OPENSSL_ALGO_SHA256) === 1 ? $data : false;
+        $content = wordwrap($this->config->get('public_key'), 64, "\n", true);
+        $string = $sync ? json_encode($data) : $this->getSignContent($data, true);
+        $res = "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
+        return openssl_verify($string, base64_decode($sign), $res, OPENSSL_ALGO_SHA256) === 1 ? $data : false;
     }
 
     /**
