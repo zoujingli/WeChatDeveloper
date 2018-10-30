@@ -12,13 +12,37 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-spl_autoload_register(function ($classname) {
-    $filename = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
-    if (file_exists($filename)) {
-        if (stripos($classname, 'WeChat') === 0) include $filename;
-        elseif (stripos($classname, 'WeMini') === 0) include $filename;
-        elseif (stripos($classname, 'WePay') === 0) include $filename;
-        elseif (stripos($classname, 'AliPay') === 0) include $filename;
-        elseif ($classname === 'We') include $filename;
+namespace AliPay;
+
+use AliPay\Contracts\AliPay;
+
+/**
+ * 支付宝网站支付
+ * Class Web
+ * @package AliPay
+ */
+class Web extends AliPay
+{
+
+    /**
+     * Web constructor.
+     * @param array $options
+     */
+    public function __construct(array $options)
+    {
+        parent::__construct($options);
+        $this->options->set('method', 'alipay.trade.page.pay');
+        $this->params->set('product_code', 'FAST_INSTANT_TRADE_PAY');
     }
-});
+
+    /**
+     * 创建数据操作
+     * @param array $options
+     * @return string
+     */
+    public function apply($options)
+    {
+        parent::buildData($options);
+        return $this->buildPayHtml();
+    }
+}

@@ -28,6 +28,7 @@ class Coupon extends BasicPay
      * @param array $options
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create(array $options)
     {
@@ -40,6 +41,7 @@ class Coupon extends BasicPay
      * @param array $options
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function queryStock(array $options)
     {
@@ -52,6 +54,7 @@ class Coupon extends BasicPay
      * @param array $options
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function queryInfo(array $options)
     {

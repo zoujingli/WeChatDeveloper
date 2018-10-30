@@ -30,7 +30,8 @@ class Refund extends BasicPay
      * 创建退款订单
      * @param array $options
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create(array $options)
     {
@@ -42,7 +43,8 @@ class Refund extends BasicPay
      * 查询退款
      * @param array $options
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query(array $options)
     {

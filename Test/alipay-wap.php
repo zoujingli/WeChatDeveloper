@@ -12,13 +12,27 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-spl_autoload_register(function ($classname) {
-    $filename = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
-    if (file_exists($filename)) {
-        if (stripos($classname, 'WeChat') === 0) include $filename;
-        elseif (stripos($classname, 'WeMini') === 0) include $filename;
-        elseif (stripos($classname, 'WePay') === 0) include $filename;
-        elseif (stripos($classname, 'AliPay') === 0) include $filename;
-        elseif ($classname === 'We') include $filename;
-    }
-});
+// 1. 手动加载入口文件
+include "../include.php";
+
+// 2. 准备公众号配置参数
+$config = include "./alipay.php";
+// 参考公共参数  https://docs.open.alipay.com/203/107090/
+$config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
+$config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
+
+try {
+// 实例支付对象
+    $pay = new \AliPay\Wap($config);
+    $result = $pay->apply([
+        'out_trade_no' => time(), // 商户订单号
+        'total_amount' => '1', // 支付金额
+        'subject'      => '支付订单描述', // 支付订单描述
+    ]);
+    echo '<pre>';
+    var_export($result);
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+

@@ -12,13 +12,22 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-spl_autoload_register(function ($classname) {
-    $filename = __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
-    if (file_exists($filename)) {
-        if (stripos($classname, 'WeChat') === 0) include $filename;
-        elseif (stripos($classname, 'WeMini') === 0) include $filename;
-        elseif (stripos($classname, 'WePay') === 0) include $filename;
-        elseif (stripos($classname, 'AliPay') === 0) include $filename;
-        elseif ($classname === 'We') include $filename;
-    }
-});
+// 1. 手动加载入口文件
+include "../include.php";
+
+// 2. 准备公众号配置参数
+$config = include "./alipay.php";
+
+// 原商户订单号
+$out_trade_no = '56737188841424';
+// 申请退款金额
+$refund_fee = '1.00';
+
+try {
+    $pay = new \AliPay\App($config);
+    $result = $pay->refund($out_trade_no, $refund_fee);
+    echo '<pre>';
+    var_export($result);
+} catch (Exception $e) {
+    echo $e->getMessage();
+}

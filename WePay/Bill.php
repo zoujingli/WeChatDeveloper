@@ -51,7 +51,8 @@ class Bill extends BasicPay
      * 拉取订单评价数据
      * @param array $options
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function comment(array $options)
     {
