@@ -12,12 +12,12 @@ WeChatDeveloper for PHP
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
-支持范围
+功能描述
 ----
-* 微信小程序，支持服务端接口
-* 微信认证服务号，支持服务端接口
-* 微信支付（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付）
-* 支付宝支付（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付）
+* 微信小程序，服务端接口支持
+* 微信认证服务号，服务端接口支持
+* 微信支付（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付等）
+* 支付宝支付（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付等）
 
 技术帮助
 ----
@@ -142,14 +142,13 @@ try {
 }
 ```
 
-赞助支持
-----
-![赞助](http://zoujingli.oschina.io/static/pay.png)
-
 开源协议
 ----
 * WeChatDeveloper 基于`MIT`协议发布，任何人可以用在任何地方，不受约束
 * WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
 
+赞助支持
+----
+![赞助](http://zoujingli.oschina.io/static/pay.png)
 
 
