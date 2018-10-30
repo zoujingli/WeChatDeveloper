@@ -23,7 +23,6 @@ use WeChat\Contracts\BasicAliPay;
  */
 class Wap extends BasicAliPay
 {
-
     /**
      * Wap constructor.
      * @param array $options

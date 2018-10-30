@@ -14,7 +14,6 @@
 
 namespace AliPay;
 
-
 use WeChat\Contracts\BasicAliPay;
 
 /**
@@ -24,7 +23,6 @@ use WeChat\Contracts\BasicAliPay;
  */
 class Scan extends BasicAliPay
 {
-
     /**
      * Scan constructor.
      * @param array $options
