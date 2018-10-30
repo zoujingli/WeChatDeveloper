@@ -20,7 +20,8 @@ $config = include "./alipay.php";
 
 try {
     // 实例支付对象
-    $pay = new \AliPay\Scan($config);
+    $pay = We::AliPayScan($config);
+    // $pay = new \AliPay\Scan($config);
     // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.precreate
     $result = $pay->apply([
         'out_trade_no' => '14321412', // 订单号

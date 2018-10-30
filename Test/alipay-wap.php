@@ -23,7 +23,8 @@ $config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
 
 try {
     // 实例支付对象
-    $pay = new \AliPay\Wap($config);
+    $pay = We::AliPayWap($config);
+    // $pay = new \AliPay\Wap($config);
     // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.wap.pay
     $result = $pay->apply([
         'out_trade_no' => time(), // 商户订单号

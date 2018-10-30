@@ -20,7 +20,8 @@ $config = include "./alipay.php";
 
 try {
     // 实例支付对象
-    $pay = new \AliPay\Scan($config);
+    $pay = We::AliPayTransfer($config);
+    // $pay = new \AliPay\Scan($config);
     // 参考链接：https://docs.open.alipay.com/api_28/alipay.fund.trans.toaccount.transfer
     $result = $pay->apply([
         'out_biz_no'      => '', // 订单号

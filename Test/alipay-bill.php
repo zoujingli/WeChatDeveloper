@@ -20,7 +20,8 @@ $config = include "./alipay.php";
 
 try {
     // 实例支付对象
-    $pay = new \AliPay\Bill($config);
+    $pay = \We::AliPayBill($config);
+    // $pay = new \AliPay\Bill($config);
     // 请参考（请求参数）：https://docs.open.alipay.com/api_15/alipay.data.dataservice.bill.downloadurl.query
     $result = $pay->apply([
         'bill_date' => '2017-11-03', // 账单时间(日账单yyyy-MM-dd,月账单 yyyy-MM)

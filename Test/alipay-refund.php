@@ -25,7 +25,8 @@ $refund_fee = '1.00';
 
 try {
     // 实例支付对象
-    $pay = new \AliPay\App($config);
+    $pay = We::AliPayApp($config);
+    // $pay = new \AliPay\App($config);
     // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.refund
     $result = $pay->refund($out_trade_no, $refund_fee);
     echo '<pre>';

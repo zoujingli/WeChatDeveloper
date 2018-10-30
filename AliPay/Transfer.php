@@ -17,7 +17,7 @@ namespace AliPay;
 use AliPay\Contracts\AliPay;
 
 /**
- * 支付宝转账
+ * 支付宝转账到账户
  * Class Transfer
  * @package AliPay
  */

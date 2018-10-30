@@ -19,7 +19,8 @@ include "../include.php";
 $config = include "./alipay.php";
 
 // 实例支付对象
-$pay = new \AliPay\App($config);
+$pay = \We::AliPayApp($config);
+// $pay = new \AliPay\App($config);
 if ($pay->verify($_POST)) {
     file_put_contents('notify.txt', "收到来自支付宝的异步通知\r\n", FILE_APPEND);
     file_put_contents('notify.txt', '订单号：' . $_POST['out_trade_no'] . "\r\n", FILE_APPEND);
