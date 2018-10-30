@@ -17,8 +17,8 @@ spl_autoload_register(function ($classname) {
     if (file_exists($filename)) {
         if (stripos($classname, 'WeChat') === 0) include $filename;
         elseif (stripos($classname, 'WeMini') === 0) include $filename;
-        elseif (stripos($classname, 'WePay') === 0) include $filename;
         elseif (stripos($classname, 'AliPay') === 0) include $filename;
+        elseif (stripos($classname, 'WePay') === 0) include $filename;
         elseif ($classname === 'We') include $filename;
     }
 });
