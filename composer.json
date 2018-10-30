@@ -31,8 +31,8 @@
     "psr-4": {
       "WePay\\": "WePay",
       "WeMini\\": "WeMini",
-      "AliPay\\": "AliPay",
-      "WeChat\\": "WeChat"
+      "WeChat\\": "WeChat",
+      "AliPay\\": "AliPay"
     }
   }
 }
