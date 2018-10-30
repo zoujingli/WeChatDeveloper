@@ -59,6 +59,12 @@ abstract class BasicAliPay
         if (empty($options['appid'])) {
             throw new InvalidArgumentException("Missing Config -- [appid]");
         }
+        if (empty($options['public_key'])) {
+            throw new InvalidArgumentException("Missing Config -- [public_key]");
+        }
+        if (empty($options['private_key'])) {
+            throw new InvalidArgumentException("Missing Config -- [private_key]");
+        }
         if (!empty($options['debug'])) {
             $this->gateway = 'https://openapi.alipaydev.com/gateway.do?charset=utf-8';
         }
