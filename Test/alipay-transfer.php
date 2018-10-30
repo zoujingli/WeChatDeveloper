@@ -19,7 +19,9 @@ include "../include.php";
 $config = include "./alipay.php";
 
 try {
+    // 实例支付对象
     $pay = new \AliPay\Scan($config);
+    // 参考链接：https://docs.open.alipay.com/api_28/alipay.fund.trans.toaccount.transfer
     $result = $pay->apply([
         'out_biz_no'      => '', // 订单号
         'payee_type'      => 'ALIPAY_LOGONID', // 收款方账户类型(ALIPAY_LOGONID | ALIPAY_USERID)
