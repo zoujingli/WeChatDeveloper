@@ -14,7 +14,7 @@
 
 namespace WePay;
 
-use WeChat\Contracts\BasicPay;
+use WeChat\Contracts\BasicWePay;
 use WeChat\Contracts\Tools;
 
 /**
@@ -22,7 +22,7 @@ use WeChat\Contracts\Tools;
  * Class Order
  * @package WePay
  */
-class Order extends BasicPay
+class Order extends BasicWePay
 {
 
     /**

@@ -14,14 +14,14 @@
 
 namespace AliPay;
 
-use AliPay\Contracts\Ali;
+use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝App支付网关
  * Class App
  * @package AliPay
  */
-class App extends Ali
+class App extends BasicAliPay
 {
 
     /**

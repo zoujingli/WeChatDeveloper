@@ -14,14 +14,14 @@
 
 namespace WePay;
 
-use WeChat\Contracts\BasicPay;
+use WeChat\Contracts\BasicWePay;
 
 /**
  * 微信红包支持
  * Class Redpack
  * @package WePay
  */
-class Redpack extends BasicPay
+class Redpack extends BasicWePay
 {
 
     /**

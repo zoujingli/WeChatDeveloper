@@ -14,14 +14,14 @@
 
 namespace WePay;
 
-use WeChat\Contracts\BasicPay;
+use WeChat\Contracts\BasicWePay;
 
 /**
  * 微信商户代金券
  * Class Coupon
  * @package WePay
  */
-class Coupon extends BasicPay
+class Coupon extends BasicWePay
 {
     /**
      * 发放代金券

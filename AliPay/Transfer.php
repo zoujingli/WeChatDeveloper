@@ -14,14 +14,15 @@
 
 namespace AliPay;
 
-use AliPay\Contracts\Ali;
+
+use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝转账到账户
  * Class Transfer
  * @package AliPay
  */
-class Transfer extends Ali
+class Transfer extends BasicAliPay
 {
 
     /**

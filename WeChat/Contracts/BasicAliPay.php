@@ -12,10 +12,8 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace AliPay\Contracts;
+namespace WeChat\Contracts;
 
-use WeChat\Contracts\DataArray;
-use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
 
 /**
@@ -23,7 +21,7 @@ use WeChat\Exceptions\InvalidArgumentException;
  * Class AliPay
  * @package AliPay\Contracts
  */
-abstract class Ali
+abstract class BasicAliPay
 {
 
     /**
@@ -227,6 +225,5 @@ abstract class Ali
      * @return mixed
      */
     abstract public function apply($options);
-
 
 }

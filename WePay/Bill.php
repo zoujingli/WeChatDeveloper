@@ -14,7 +14,7 @@
 
 namespace WePay;
 
-use WeChat\Contracts\BasicPay;
+use WeChat\Contracts\BasicWePay;
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidResponseException;
 
@@ -23,7 +23,7 @@ use WeChat\Exceptions\InvalidResponseException;
  * Class Bill
  * @package WePay
  */
-class Bill extends BasicPay
+class Bill extends BasicWePay
 {
     /**
      * 下载对账单
