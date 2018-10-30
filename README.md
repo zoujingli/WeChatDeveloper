@@ -12,8 +12,14 @@ WeChatDeveloper for PHP
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
+支持范围
+--
+* 微信小程序
+* 微信认证服务号
+* 微信商户（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付）
+* 支付宝（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付）
 
-Documentation
+技术帮助
 --
 PHP开发技术交流（QQ群 513350915）
 
@@ -28,18 +34,24 @@ WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先�
 * 开发文档地址：https://www.kancloud.cn/zoujingli/wechat-developer
 
 
-Repositorie
+代码仓库
 --
 WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
 * Gitee 托管地址：https://gitee.com/zoujingli/WeChatDeveloper
 * GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
 
-ClassMap
+文件说明
 --
-
 
 |文件名|类名|描述|类型|加载 ①|
 |---|---|---|---|---|
+|  App.php  |  AliPay\App  |  支付宝App支付  |  支付宝  |  \We::AliPayApp() |
+|  Bill.php  |  AliPay\Bill  |  支付宝账单下载  |  支付宝  |  \We::AliPayBill() |
+|  Pos.php  |  AliPay\Pos  |  支付宝刷卡支付  |  支付宝  |  \We::AliPayPos() |
+|  Scan.php  |  AliPay\Scan  |  支付宝扫码支付  |  支付宝  |  \We::AliPayScan() |
+|  Transfer.php  |  AliPay\Transfer  |  支付宝转账  |  支付宝  |  \We::AliPayTransfer() |
+|  Wap.php  |  AliPay\Wap  |  支付宝Wap支付  |  支付宝  |  \We::AliPayWap() |
+|  Web.php  |  AliPay\Web  |  支付宝Web支付  |  支付宝  |  \We::AliPayWeb() |
 |  Card.php  |  WeChat\Card  |  微信卡券接口支持  |  认证服务号  |  \We::WeChatCard() |
 |  Custom.php  | WeChat\Custom   |  微信客服消息接口支持   |  认证服务号 | \We::WeChatCustom() |
 |  Media.php  | WeChat\Media   |  微信媒体素材接口支持  |  认证服务号 | \We::WeChatMedia() |
