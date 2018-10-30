@@ -148,10 +148,9 @@ abstract class BasicAliPay
         if (is_null($this->config->get('private_key'))) {
             throw new InvalidArgumentException('Missing Config -- [private_key]');
         }
-        $res = "-----BEGIN RSA PRIVATE KEY-----\n" .
-            wordwrap($this->config->get('private_key'), 64, "\n", true) .
-            "\n-----END RSA PRIVATE KEY-----";
-        openssl_sign($this->getSignContent($this->options->get()), $sign, $res, OPENSSL_ALGO_SHA256);
+        $content = wordwrap($this->config->get('private_key'), 64, "\n", true);
+        $string = "-----BEGIN RSA PRIVATE KEY-----\n{$content}\n-----END RSA PRIVATE KEY-----";
+        openssl_sign($this->getSignContent($this->options->get()), $sign, $string, OPENSSL_ALGO_SHA256);
         return base64_encode($sign);
     }
 
