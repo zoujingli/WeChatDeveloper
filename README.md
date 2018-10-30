@@ -13,14 +13,14 @@ WeChatDeveloper for PHP
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 
 支持范围
---
+---
 * 微信小程序
 * 微信认证服务号
 * 微信支付（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付）
 * 支付宝支付（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付）
 
 技术帮助
---
+---
 PHP开发技术交流（QQ群 513350915）
 
 [![PHP微信开发群 (SDK)](http://pub.idqqimg.com/wpa/images/group.png)](http://shang.qq.com/wpa/qunwpa?idkey=ae25cf789dafbef62e50a980ffc31242f150bc61a61164458216dd98c411832a) 
@@ -35,13 +35,13 @@ WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先�
 
 
 代码仓库
---
+---
 WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
 * Gitee 托管地址：https://gitee.com/zoujingli/WeChatDeveloper
 * GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
 
 文件说明
---
+---
 
 |文件名|类名|描述|类型|加载 ①|
 |---|---|---|---|---|
@@ -83,7 +83,7 @@ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何�
 
 
 安装使用
---
+---
 1.1 通过 Composer 来管理安装
 ```shell
 # 首次安装 线上版本（稳定）
@@ -143,13 +143,13 @@ try {
 ```
 
 版权说明
---
+---
 * WeChatDeveloper 基于`MIT`协议发布，任何人可以用在任何地方，不受约束
 * WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
 
 
 赞助支持
---
+---
 ![赞助](http://zoujingli.oschina.io/static/pay.png)
 
 
