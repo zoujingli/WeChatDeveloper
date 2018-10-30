@@ -14,14 +14,14 @@
 
 namespace AliPay;
 
-use AliPay\Contracts\AliPay;
+use AliPay\Contracts\Ali;
 
 /**
  * 支付宝电子面单下载
  * Class Bill
  * @package AliPay
  */
-class Bill extends AliPay
+class Bill extends Ali
 {
     /**
      * Bill constructor.

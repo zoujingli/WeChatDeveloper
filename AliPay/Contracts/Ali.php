@@ -23,7 +23,7 @@ use WeChat\Exceptions\InvalidArgumentException;
  * Class AliPay
  * @package AliPay\Contracts
  */
-abstract class AliPay
+abstract class Ali
 {
 
     /**

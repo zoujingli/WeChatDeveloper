@@ -14,14 +14,14 @@
 
 namespace AliPay;
 
-use AliPay\Contracts\AliPay;
+use AliPay\Contracts\Ali;
 
 /**
  * 支付宝刷卡支付
  * Class Pos
  * @package AliPay
  */
-class Pos extends AliPay
+class Pos extends Ali
 {
     /**
      * Pos constructor.

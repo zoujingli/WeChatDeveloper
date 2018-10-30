@@ -14,14 +14,14 @@
 
 namespace AliPay;
 
-use AliPay\Contracts\AliPay;
+use AliPay\Contracts\Ali;
 
 /**
  * 手机WAP网站支付支持
  * Class Wap
  * @package AliPay
  */
-class Wap extends AliPay
+class Wap extends Ali
 {
 
     /**
