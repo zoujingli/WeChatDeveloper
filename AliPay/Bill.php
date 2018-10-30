@@ -23,6 +23,10 @@ use AliPay\Contracts\AliPay;
  */
 class Bill extends AliPay
 {
+    /**
+     * Bill constructor.
+     * @param array $options
+     */
     public function __construct(array $options)
     {
         parent::__construct($options);
