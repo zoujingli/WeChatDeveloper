@@ -27,13 +27,14 @@ use WePay\TransfersBank;
  * Class Pay
  * @package WeChat\Contracts
  */
-class WePay extends BasicWePay
+class Pay extends BasicWePay
 {
 
     /**
      * 统一下单
      * @param array $options
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function createOrder(array $options)
@@ -69,6 +70,7 @@ class WePay extends BasicWePay
      * 查询订单
      * @param array $options
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function queryOrder(array $options)
@@ -81,6 +83,7 @@ class WePay extends BasicWePay
      * 关闭订单
      * @param string $out_trade_no 商户订单号
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function closeOrder($out_trade_no)
@@ -93,6 +96,7 @@ class WePay extends BasicWePay
      * 申请退款
      * @param array $options
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function createRefund(array $options)
@@ -105,6 +109,7 @@ class WePay extends BasicWePay
      * 查询退款
      * @param array $options
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function queryRefund(array $options)
@@ -117,6 +122,7 @@ class WePay extends BasicWePay
      * 交易保障
      * @param array $options
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function report(array $options)
@@ -129,6 +135,7 @@ class WePay extends BasicWePay
      * 授权码查询openid
      * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function queryAuthCode($authCode)
@@ -167,7 +174,8 @@ class WePay extends BasicWePay
      * 企业付款到零钱
      * @param array $options
      * @return array
-     * @throws Exceptions\InvalidResponseException
+     * @throws Exceptions\LocalCacheException
+     * @throws InvalidResponseException
      */
     public function createTransfers(array $options)
     {
@@ -179,6 +187,7 @@ class WePay extends BasicWePay
      * 查询企业付款到零钱
      * @param string $partner_trade_no 商户调用企业付款API时使用的商户订单号
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function queryTransfers($partner_trade_no)
@@ -205,6 +214,7 @@ class WePay extends BasicWePay
      * 商户企业付款到银行卡操作进行结果查询
      * @param string $partner_trade_no 商户订单号，需保持唯一
      * @return array
+     * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
     public function queryTransFresBank($partner_trade_no)
