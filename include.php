@@ -21,4 +21,5 @@ spl_autoload_register(function ($classname) {
         elseif (stripos($classname, 'WePay') === 0) include $filename;
         elseif ($classname === 'We') include $filename;
     }
+    return false;
 });
