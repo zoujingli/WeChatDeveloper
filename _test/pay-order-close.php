@@ -21,7 +21,7 @@ try {
     $config = include "./config.php";
 
     // 3. 创建接口实例
-    $wechat = new \WeChat\WePay($config);
+    $wechat = new \WeChat\Pay($config);
 
     // 4. 组装参数，可以参考官方商户文档
     $options = '1217752501201407033233368018';

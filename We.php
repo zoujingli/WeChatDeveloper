@@ -30,7 +30,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WeChat\Media WeChatMedia($options = []) static 微信素材管理
  * @method \WeChat\Menu WeChatMenu($options = []) static 微信菜单管理
  * @method \WeChat\Oauth WeChatOauth($options = []) static 微信网页授权
- * @method \WeChat\WePay WeChatPay($options = []) static 微信支付商户
+ * @method \WeChat\Pay WeChatPay($options = []) static 微信支付商户
  * @method \WeChat\Product WeChatProduct($options = []) static 微信商店管理
  * @method \WeChat\Qrcode WeChatQrcode($options = []) static 微信二维码管理
  * @method \WeChat\Receive WeChatReceive($options = []) static 微信推送管理
