@@ -190,14 +190,13 @@ abstract class BasicAliPay
     /**
      * 请求接口并验证访问数据
      * @param array $options
-     * @param string $method
      * @return array|boolean
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    protected function getResult($options, $method = 'post')
+    protected function getResult($options)
     {
         $this->applyData($options);
-        $data = json_decode(Tools::$method($this->gateway, $this->options->get()), true);
+        $data = json_decode(Tools::get($this->gateway, $this->options->get()), true);
         $method = str_replace('.', '_', $this->options['method']) . '_response';
         if (!isset($data[$method]['code']) || $data[$method]['code'] !== '10000') {
             throw new \WeChat\Exceptions\InvalidResponseException(

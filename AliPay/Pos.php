@@ -42,6 +42,6 @@ class Pos extends BasicAliPay
      */
     public function apply($options)
     {
-        return $this->getResult($options, 'get');
+        return $this->getResult($options);
     }
 }
