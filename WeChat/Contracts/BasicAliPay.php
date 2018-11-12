@@ -200,11 +200,10 @@ abstract class BasicAliPay
         $method = str_replace('.', '_', $this->options['method']) . '_response';
         if (!isset($data[$method]['code']) || $data[$method]['code'] !== '10000') {
             throw new \WeChat\Exceptions\InvalidResponseException(
-                "\nResultError" .
-                (empty($data[$method]['code']) ? '' : "\n{$data[$method]['msg']}[{$data[$method]['code']}]") .
-                (empty($data[$method]['sub_code']) ? '' : "\n{$data[$method]['sub_msg']}[{$data[$method]['sub_code']}]\n"),
-                $data[$method]['code'],
-                $data
+                "Error: " .
+                (empty($data[$method]['code']) ? '' : "{$data[$method]['msg']} [{$data[$method]['code']}]\r\n") .
+                (empty($data[$method]['sub_code']) ? '' : "{$data[$method]['sub_msg']} [{$data[$method]['sub_code']}]\r\n"),
+                $data[$method]['code'], $data
             );
         }
         return $this->verify($data[$method], $data['sign'], true);
