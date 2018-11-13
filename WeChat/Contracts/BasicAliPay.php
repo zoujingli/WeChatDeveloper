@@ -183,7 +183,7 @@ abstract class BasicAliPay
      */
     protected function applyData($options)
     {
-        $this->options['biz_content'] = json_encode($options, JSON_UNESCAPED_UNICODE);
+        $this->options['biz_content'] = json_encode($this->params->merge($options), JSON_UNESCAPED_UNICODE);
         $this->options['sign'] = $this->getSign();
     }
 
@@ -216,7 +216,7 @@ abstract class BasicAliPay
     protected function buildPayHtml()
     {
         $html = "<form id='alipaysubmit' name='alipaysubmit' action='{$this->gateway}' method='post'>";
-        foreach ($this->params->get() as $key => $value) {
+        foreach ($this->options->get() as $key => $value) {
             $value = str_replace("'", '&apos;', $value);
             $html .= "<input type='hidden' name='{$key}' value='{$value}'/>";
         }
