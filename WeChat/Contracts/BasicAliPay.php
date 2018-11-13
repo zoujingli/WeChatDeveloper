@@ -196,8 +196,8 @@ abstract class BasicAliPay
     protected function getResult($options)
     {
         $this->applyData($options);
-        $data = json_decode(Tools::get($this->gateway, $this->options->get()), true);
         $method = str_replace('.', '_', $this->options['method']) . '_response';
+        $data = json_decode(Tools::get($this->gateway, $this->options->get()), true);
         if (!isset($data[$method]['code']) || $data[$method]['code'] !== '10000') {
             throw new \WeChat\Exceptions\InvalidResponseException(
                 "Error: " .
