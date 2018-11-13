@@ -142,6 +142,42 @@ try {
 }
 ```
 
+微信支付
+---
+```php
+  // 创建接口实例
+  $wechat = new \WeChat\Pay($config);
+  
+  // 组装参数，可以参考官方商户文档
+  $options = [
+      'body'             => '测试商品',
+      'out_trade_no'     => time(),
+      'total_fee'        => '1',
+      'openid'           => 'o38gpszoJoC9oJYz3UHHf6bEp0Lo',
+      'trade_type'       => 'JSAPI',
+      'notify_url'       => 'http://a.com/text.html',
+      'spbill_create_ip' => '127.0.0.1',
+  ];
+    
+try {
+
+    // 生成预支付码
+    $result = $wechat->createOrder($options);
+    
+    // 创建JSAPI参数签名
+    $options = $wechat->createParamsForJsApi($result['prepay_id']);
+    
+    // @todo 把 $options 传到前端用js发起支付就可以了
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
+* 更新功能请阅读测试代码或SDK封装源码
+
 支付宝支付
 ----
 * 支付参数配置（可用沙箱模式）
@@ -163,7 +199,6 @@ $config = [
 ```
 * 支付宝发起PC网站支付
 ```php
-
 // 参考公共参数  https://docs.open.alipay.com/203/107090/
 $config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
 $config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
@@ -192,7 +227,6 @@ try {
 ```
 * 支付宝发起手机网站支付
 ```php
-
 // 参考公共参数  https://docs.open.alipay.com/203/107090/
 $config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
 $config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
@@ -213,7 +247,7 @@ try {
 
     // 异常处理
     echo $e->getMessage();
-    
+
 }
 ```
 * 更新功能请阅读测试代码或SDK封装源码
