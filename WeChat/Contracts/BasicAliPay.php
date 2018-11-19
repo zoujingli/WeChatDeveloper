@@ -149,7 +149,7 @@ abstract class BasicAliPay
     }
 
     /**
-     * 验证支付宝支付宝通知
+     * 验证接口返回的数据签名
      * @param array $data 通知数据
      * @param null|string $sign 数据签名
      * @return array|boolean
