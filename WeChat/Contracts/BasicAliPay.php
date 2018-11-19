@@ -96,7 +96,7 @@ abstract class BasicAliPay
      */
     public function query($out_trade_no = '')
     {
-        $this->options['method'] = 'alipay.trade.query';
+        $this->options->set('method', 'alipay.trade.query');
         return $this->getResult(['out_trade_no' => $out_trade_no]);
     }
 
@@ -110,7 +110,7 @@ abstract class BasicAliPay
     public function refund($options, $refund_amount = null)
     {
         if (!is_array($options)) $options = ['out_trade_no' => $options, 'refund_amount' => $refund_amount];
-        $this->options['method'] = 'alipay.trade.refund';
+        $this->options->set('method', 'alipay.trade.refund');
         return $this->getResult($options);
     }
 
@@ -123,7 +123,7 @@ abstract class BasicAliPay
     public function close($options)
     {
         if (!is_array($options)) $options = ['out_trade_no' => $options];
-        $this->options['method'] = 'alipay.trade.close';
+        $this->options->set('method', 'alipay.trade.close');
         return $this->getResult($options);
     }
 
