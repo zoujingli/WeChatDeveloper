@@ -267,18 +267,16 @@ class Tools
     private static function _buildHttpData($data, $build = true)
     {
         if (!is_array($data)) return $data;
-        foreach ($data as $key => $value) {
-            if (is_object($value) && $value instanceof \CURLFile) {
+        foreach ($data as $key => $value) if (is_object($value) && $value instanceof \CURLFile) {
+            $build = false;
+        } elseif (is_object($value) && isset($value->datatype) && $value->datatype === 'MY_CURL_FILE') {
+            $build = false;
+            $data[$key] = ($myCurlFile = new MyCurlFile((array)$value))->get();
+            array_push(self::$cache_curl, $myCurlFile->tempname);
+        } elseif (is_string($value) && class_exists('CURLFile', false) && stripos($value, '@') === 0) {
+            if (($filename = realpath(trim($value, '@'))) && file_exists($filename)) {
                 $build = false;
-            } elseif (is_object($value) && isset($value->datatype) && $value->datatype === 'MY_CURL_FILE') {
-                $build = false;
-                $data[$key] = ($myCurlFile = new MyCurlFile((array)$value))->get();
-                array_push(self::$cache_curl, $myCurlFile->tempname);
-            } elseif (is_string($value) && class_exists('CURLFile', false) && stripos($value, '@') === 0) {
-                if (($filename = realpath(trim($value, '@'))) && file_exists($filename)) {
-                    $build = false;
-                    $data[$key] = self::createCurlFile($filename);
-                }
+                $data[$key] = self::createCurlFile($filename);
             }
         }
         return $build ? http_build_query($data) : $data;
@@ -324,7 +322,8 @@ class Tools
      */
     public static function getCache($name)
     {
-        if (file_exists($file = self::_getCacheName($name)) && ($content = file_get_contents($file))) {
+        $file = self::_getCacheName($name);
+        if (file_exists($file) && ($content = file_get_contents($file))) {
             $data = unserialize($content);
             if (isset($data['expired']) && (intval($data['expired']) === 0 || intval($data['expired']) >= time())) {
                 return $data['value'];
