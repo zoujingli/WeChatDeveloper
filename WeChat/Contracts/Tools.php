@@ -50,7 +50,7 @@ class Tools
 
     /**
      * 根据文件后缀获取文件MINE
-     * @param array $ext 文件后缀
+     * @param string|array $ext 文件后缀
      * @param array $mine 文件后缀MINE信息
      * @return string
      * @throws LocalCacheException
