@@ -108,12 +108,12 @@ class Order extends BasicWePay
     public function appParams($prepayId)
     {
         $data = [
-            'appid'      => $this->config->get('appid'),
-            'partnerid'  => $this->config->get('mch_id'),
-            'prepayid'   => (string)$prepayId,
-            'package'    => 'Sign=WXPay',
-            'time_stamp' => (string)time(),
-            'nonce_str'  => Tools::createNoncestr(),
+            'appid'     => $this->config->get('appid'),
+            'partnerid' => $this->config->get('mch_id'),
+            'prepayid'  => (string)$prepayId,
+            'package'   => 'Sign=WXPay',
+            'timestamp' => (string)time(),
+            'noncestr'  => Tools::createNoncestr(),
         ];
         $data['sign'] = $this->getPaySign($data, 'MD5');
         return $data;

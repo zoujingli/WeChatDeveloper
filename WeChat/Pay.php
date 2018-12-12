@@ -76,7 +76,7 @@ class Pay extends BasicWePay
         $pay = new Order($this->config->get());
         return $pay->qrcParams($product_id);
     }
-    
+
     /**
      * 查询订单
      * @param array $options
