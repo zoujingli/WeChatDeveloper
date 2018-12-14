@@ -96,12 +96,15 @@ class Tools
      */
     public static function createCurlFile($filename, $mimetype = null, $postname = null)
     {
-        if (is_null($postname)) $postname = basename($filename);
-        if (is_null($mimetype)) $mimetype = self::getExtMine(pathinfo($filename, 4));
-        if (function_exists('curl_file_create')) {
-            return curl_file_create($filename, $mimetype, $postname);
+        if (is_string($filename) && file_exists($filename)) {
+            if (is_null($postname)) $postname = basename($filename);
+            if (is_null($mimetype)) $mimetype = self::getExtMine(pathinfo($filename, 4));
+            if (function_exists('curl_file_create')) {
+                return curl_file_create($filename, $mimetype, $postname);
+            }
+            return "@{$filename};filename={$postname};type={$mimetype}";
         }
-        return "@{$filename};filename={$postname};type={$mimetype}";
+        return $filename;
     }
 
     /**
