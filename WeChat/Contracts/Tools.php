@@ -274,8 +274,9 @@ class Tools
             $build = false;
         } elseif (is_object($value) && isset($value->datatype) && $value->datatype === 'MY_CURL_FILE') {
             $build = false;
-            $data[$key] = ($myCurlFile = new MyCurlFile((array)$value))->get();
-            array_push(self::$cache_curl, $myCurlFile->tempname);
+            $mycurl = new MyCurlFile((array)$value);
+            $data[$key] = $mycurl->get();
+            array_push(self::$cache_curl, $mycurl->tempname);
         } elseif (is_string($value) && class_exists('CURLFile', false) && stripos($value, '@') === 0) {
             if (($filename = realpath(trim($value, '@'))) && file_exists($filename)) {
                 $build = false;
