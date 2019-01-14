@@ -113,6 +113,8 @@ class We
             $class = 'WeMini\\' . substr($name, 6);
         } elseif (substr($name, 0, 6) === 'AliPay') {
             $class = 'AliPay\\' . substr($name, 6);
+        } elseif (substr($name, 0, 5) === 'WePay') {
+            $class = 'WePay\\' . substr($name, 5);
         }
         if (!empty($class) && class_exists($class)) {
             $option = array_shift($arguments);
