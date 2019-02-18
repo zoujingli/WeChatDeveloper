@@ -150,7 +150,7 @@ class Tools
         $entity = libxml_disable_entity_loader(true);
         $data = (array)simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         libxml_disable_entity_loader($entity);
-        return json_decode(self::arr2json($data), true);
+        return json_decode(json_encode($data), true);
     }
 
     /**
@@ -162,7 +162,7 @@ class Tools
     {
         return preg_replace_callback('/\\\\u([0-9a-f]{4})/i', function ($matches) {
             return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE");
-        }, ($jsonData = json_encode($data)) == '[]' ? '{}' : $jsonData);
+        }, ($json = json_encode($data)) == '[]' ? '{}' : $json);
     }
 
     /**
