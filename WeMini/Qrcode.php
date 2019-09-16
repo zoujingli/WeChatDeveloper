@@ -108,5 +108,5 @@ class Qrcode extends BasicWeChat
         }
         return is_null($outType) ? $result : $outType($result);
     }
-    
+
 }

@@ -78,7 +78,7 @@ class Crypt extends BasicWeChat
         }
         $userinfo = $this->decode($iv, $result['session_key'], $encryptedData);
         if (empty($userinfo)) {
-            throw  new InvalidDecryptException('用户信息解析失败', 403);
+            throw new InvalidDecryptException('用户信息解析失败', 403);
         }
         return array_merge($result, $userinfo);
     }

@@ -19,10 +19,10 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 小程序图像处理
- * Class Img
+ * Class Image
  * @package WeMini
  */
-class Img extends BasicWeChat
+class Image extends BasicWeChat
 {
 
     /**

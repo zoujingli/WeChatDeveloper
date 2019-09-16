@@ -107,20 +107,4 @@ class Template extends BasicWeChat
         return $this->callPostApi($url, $data, true);
     }
 
-    /**
-     * 下发小程序和公众号统一的服务消息
-     * @param array $data
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public function uniformSend($data)
-    {
-        $url = 'https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->callPostApi($url, $data, true);
-    }
-
-
-
 }
