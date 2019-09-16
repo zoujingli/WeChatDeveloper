@@ -53,6 +53,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WeMini\Poi WeMiniPoi($options = []) static 小程序地址管理
  * @method \WeMini\Qrcode WeMiniQrcode($options = []) static 小程序二维码管理
  * @method \WeMini\Security WeMiniSecurity($options = []) static 小程序内容安全
+ * @method \WeMini\Soter WeMiniSoter($options = []) static 小程序生物认证
  * @method \WeMini\Template WeMiniTemplate($options = []) static 小程序模板消息支持
  * @method \WeMini\Total WeMiniTotal($options = []) static 小程序数据接口
  *
