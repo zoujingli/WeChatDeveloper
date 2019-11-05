@@ -52,7 +52,7 @@ class BasicWeChat
      * 静态缓存
      * @var static
      */
-    private static $cache;
+    protected static $cache;
 
     /**
      * 注册代替函数

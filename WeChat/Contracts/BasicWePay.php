@@ -40,7 +40,7 @@ class BasicWePay
      * 静态缓存
      * @var static
      */
-    private static $cache;
+    protected static $cache;
 
     /**
      * WeChat constructor.

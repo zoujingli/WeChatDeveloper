@@ -47,7 +47,7 @@ abstract class BasicAliPay
      * 静态缓存
      * @var static
      */
-    private static $cache;
+    protected static $cache;
 
     /**
      * 正常请求网关
