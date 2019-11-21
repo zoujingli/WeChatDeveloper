@@ -92,6 +92,7 @@ class Order extends BasicWePay
         $option["signType"] = "MD5";
         $option["paySign"] = $this->getPaySign($option, 'MD5');
         $option['timestamp'] = $option['timeStamp'];
+        $option['mwebUrl'] = $option['mweb_url'] ? $option['mweb_url'] : '';
         return $option;
     }
 
