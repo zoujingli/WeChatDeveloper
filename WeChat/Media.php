@@ -46,15 +46,24 @@ class Media extends BasicWeChat
     /**
      * 获取临时素材
      * @param string $media_id
-     * @return bool|string
+     * @param string $outType 返回处理函数
+     * @return array|string
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function get($media_id)
+    public function get($media_id, $outType = null)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id={$media_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return Tools::get($url);
+        $result = Tools::get($url);
+        if (is_array($json = json_decode($result, true))) {
+            if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
+                [$this->delAccessToken(), $this->isTry = true];
+                return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+            }
+            return Tools::json2arr($result);
+        }
+        return is_null($outType) ? $result : $outType($result);
     }
 
     /**
@@ -124,15 +133,24 @@ class Media extends BasicWeChat
     /**
      * 获取永久素材
      * @param string $media_id
-     * @return array
+     * @param null|string $outType 输出类型
+     * @return array|string
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function getMaterial($media_id)
+    public function getMaterial($media_id, $outType = null)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media_id' => $media_id]);
+        $result = Tools::post($url, ['media_id' => $media_id]);
+        if (is_array($json = json_decode($result, true))) {
+            if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
+                [$this->delAccessToken(), $this->isTry = true];
+                return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+            }
+            return Tools::json2arr($result);
+        }
+        return is_null($outType) ? $result : $outType($result);
     }
 
     /**

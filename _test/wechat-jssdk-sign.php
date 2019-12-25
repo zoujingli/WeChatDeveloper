@@ -21,16 +21,12 @@ try {
     $config = include "./config.php";
 
     // 3. 创建接口实例
-    $wechat = new \WeChat\Pay($config);
+    // $wechat = \We::WeChatScript($config);
+    // $wechat = new \WeChat\Script($config);
+    $wechat = \WeChat\Script::instance($config);
 
-    // 4. 组装参数，可以参考官方商户文档
-    $options = [
-        'transaction_id' => '1008450740201411110005820873',
-        // 'out_trade_no'   => '商户订单号',
-        // 'out_refund_no' => '商户退款单号'
-        // 'refund_id' => '微信退款单号',
-    ];
-    $result = $wechat->queryRefund($options);
+    // 4. 获取JSSDK网址签名配置
+    $result = $wechat->getJsSign('http://a.com/test.php');
 
     var_export($result);
 

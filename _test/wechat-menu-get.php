@@ -12,17 +12,27 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-return [
-    'token'          => 'test',
-    'appid'          => 'wx60a43dd8161666d4',
-    'appsecret'      => '71308e96a204296c57d7cd4b21b883e8',
-    'encodingaeskey' => 'BJIUzE0gqlWy0GxfPp4J1oPTBmOrNDIGPNav1YFH5Z5',
-    // 配置商户支付参数
-    'mch_id'         => "1332187001",
-    'mch_key'        => '11bd3d66d85f322a1e803cb587d18c3f',
-    // 配置商户支付双向证书目录
-    'ssl_key'        => '',
-    'ssl_cer'        => '',
-    // 配置缓存目录，需要拥有写权限
-    'cache_path'     => '',
-];
+try {
+
+    // 1. 手动加载入口文件
+    include "../include.php";
+
+    // 2. 准备公众号配置参数
+    $config = include "./config.php";
+
+    // 3. 创建接口实例
+    // $menu = \We::WeChatMenu($config);
+    // $menu = new \WeChat\Menu($config);
+    $menu = \WeChat\Menu::instance($config);
+
+    // 4. 获取菜单数据
+    $result = $menu->get();
+
+    var_export($result);
+
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+
+}

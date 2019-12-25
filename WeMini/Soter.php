@@ -12,29 +12,29 @@
 // | github开源项目：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-try {
+namespace WeMini;
 
-    // 1. 手动加载入口文件
-    include "../include.php";
+use WeChat\Contracts\BasicWeChat;
 
-    // 2. 准备公众号配置参数
-    $config = include "./config.php";
-
-    // 3. 创建接口实例
-    $wechat = new \WeChat\Pay($config);
-
-    // 4. 组装参数，可以参考官方商户文档
-    $options = [
-        'transaction_id' => '1008450740201411110005820873',
-//        'out_trade_no'   => '商户订单号',
-    ];
-    $result = $wechat->queryOrder($options);
-
-    var_export($result);
-
-} catch (Exception $e) {
-
-    // 出错啦，处理下吧
-    echo $e->getMessage() . PHP_EOL;
+/**
+ * 小程序生物认证
+ * Class Soter
+ * @package WeMini
+ */
+class Soter extends BasicWeChat
+{
+    /**
+     * SOTER 生物认证秘钥签名验证
+     * @param array $data
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function verifySignature($data)
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/soter/verify_signature?access_token=ACCESS_TOKEN';
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->callPostApi($url, $data, true);
+    }
 
 }

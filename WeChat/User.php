@@ -49,7 +49,7 @@ class User extends BasicWeChat
      */
     public function getUserInfo($openid, $lang = 'zh_CN')
     {
-        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&openid={$openid}&lang=zh_CN";
+        $url = "https://api.weixin.qq.com/cgi-bin/user/info?access_token=ACCESS_TOKEN&openid={$openid}&lang={$lang}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpGetForJson($url);
     }
@@ -85,6 +85,21 @@ class User extends BasicWeChat
         $url = "https://api.weixin.qq.com/cgi-bin/user/get?access_token=ACCESS_TOKEN&next_openid={$next_openid}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpGetForJson($url);
+    }
+
+    /**
+     * 获取标签下粉丝列表
+     * @param integer $tagid 标签ID
+     * @param string $next_openid 第一个拉取的OPENID
+     * @return array
+     * @throws Exceptions\InvalidResponseException
+     * @throws Exceptions\LocalCacheException
+     */
+    public function getUserListByTag($tagid, $next_openid = '')
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/user/tag/get?access_token=ACCESS_TOKEN';
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, ['tagid' => $tagid, 'next_openid' => $next_openid]);
     }
 
     /**

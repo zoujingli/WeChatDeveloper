@@ -21,16 +21,20 @@ try {
     $config = include "./config.php";
 
     // 3. 创建接口实例
-    $wechat = new \WeChat\Qrcode($config);
+    // $wechat = new \WeChat\Pay($config);
+    // $wechat = \We::WeChatPay($config);
+    $wechat = \WeChat\Pay::instance($config);
 
-    // 4. 获取用户列表
-    $result = $wechat->create('场景内容');
-    echo var_export($result, true) . PHP_EOL;
+    // 4. 组装参数，可以参考官方商户文档
+    $options = [
+        'transaction_id' => '1008450740201411110005820873',
+        'out_refund_no'  => '商户退款单号',
+        'total_fee'      => '1',
+        'refund_fee'     => '1',
+    ];
+    $result = $wechat->createRefund($options);
 
-    // 5. 创建二维码链接
-    $url = $wechat->url($result['ticket']);
-    echo var_export($url, true);
-
+    var_export($result);
 
 } catch (Exception $e) {
 
