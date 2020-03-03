@@ -25,16 +25,6 @@ class Transfer extends BasicAliPay
 {
 
     /**
-     * Transfer constructor.
-     * @param array $options
-     */
-    public function __construct(array $options)
-    {
-        parent::__construct($options);
-        $this->options->set('method', 'alipay.fund.trans.toaccount.transfer');
-    }
-
-    /**
      * 旧版 向指定支付宝账户转账
      * @param array $options
      * @return mixed
@@ -43,6 +33,7 @@ class Transfer extends BasicAliPay
      */
     public function apply($options)
     {
+        $this->options->set('method', 'alipay.fund.trans.toaccount.transfer');
         return $this->getResult($options);
     }
 
