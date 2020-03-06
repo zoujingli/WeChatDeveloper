@@ -51,6 +51,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WeMini\Message WeMiniMessage($options = []) static 小程序动态消息
  * @method \WeMini\Newtmpl WeMiniNewtmpl($options = []) static 小程序订阅消息
  * @method \WeMini\Ocr WeMiniOcr($options = []) static 小程序ORC服务
+ * @method \WeMini\Operation WeMiniOperation($options = []) static 小程序运维中心
  * @method \WeMini\Plugs WeMiniPlugs($options = []) static 小程序插件管理
  * @method \WeMini\Poi WeMiniPoi($options = []) static 小程序地址管理
  * @method \WeMini\Qrcode WeMiniQrcode($options = []) static 小程序二维码管理
