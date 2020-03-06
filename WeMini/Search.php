@@ -17,6 +17,7 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
+ * 小程序搜索
  * Class Search
  * @package WeMini
  */
