@@ -31,7 +31,7 @@ try {
 
     // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.refund
     $result = $pay->refund($out_trade_no, $refund_fee);
-    
+
     echo '<pre>';
     var_export($result);
 } catch (Exception $e) {
