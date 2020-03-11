@@ -19,7 +19,7 @@ use WeChat\Contracts\BasicAliPay;
 /**
  * 支付宝标准接口
  * Class Trade
- * @package WePay
+ * @package AliPay
  */
 class Trade extends BasicAliPay
 {
