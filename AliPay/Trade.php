@@ -47,7 +47,7 @@ class Trade extends BasicAliPay
     /**
      * 执行通过接口
      * @param array $options
-     * @return array|bool|mixed
+     * @return array|boolean|mixed
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
