@@ -215,7 +215,7 @@ abstract class BasicAliPay
      */
     protected function trimCert($sign)
     {
-        if (file_exists($sign)) $sign = file_get_contents($sign);
+        // if (file_exists($sign)) $sign = file_get_contents($sign);
         return preg_replace(['/\s+/', '/\-{5}.*?\-{5}/'], '', $sign);
     }
 
@@ -294,7 +294,7 @@ abstract class BasicAliPay
      */
     public function getCertSN($sign)
     {
-        if (file_exists($sign)) $sign = file_get_contents($sign);
+        // if (file_exists($sign)) $sign = file_get_contents($sign);
         $ssl = openssl_x509_parse($sign);
         return md5($this->_arr2str(array_reverse($ssl['issuer'])) . $ssl['serialNumber']);
     }
@@ -307,7 +307,7 @@ abstract class BasicAliPay
     public function getRootCertSN($sign)
     {
         $sn = null;
-        if (file_exists($sign)) $sign = file_get_contents($sign);
+        // if (file_exists($sign)) $sign = file_get_contents($sign);
         $array = explode("-----END CERTIFICATE-----", $sign);
         for ($i = 0; $i < count($array) - 1; $i++) {
             $ssl[$i] = openssl_x509_parse($array[$i] . "-----END CERTIFICATE-----");
