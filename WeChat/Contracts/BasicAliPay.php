@@ -198,7 +198,7 @@ abstract class BasicAliPay
      */
     protected function getSign()
     {
-        $content = wordwrap($this->config->get('private_key'), 64, "\n", true);
+        $content = wordwrap($this->trimCert($this->config->get('private_key')), 64, "\n", true);
         $string = "-----BEGIN RSA PRIVATE KEY-----\n{$content}\n-----END RSA PRIVATE KEY-----";
         if ($this->options->get('sign_type') === 'RSA2') {
             openssl_sign($this->getSignContent($this->options->get(), true), $sign, $string, OPENSSL_ALGO_SHA256);
@@ -206,6 +206,17 @@ abstract class BasicAliPay
             openssl_sign($this->getSignContent($this->options->get(), true), $sign, $string, OPENSSL_ALGO_SHA1);
         }
         return base64_encode($sign);
+    }
+
+    /**
+     * 去除证书前后内容及空白
+     * @param string $sign
+     * @return string
+     */
+    protected function trimCert($sign)
+    {
+        if (file_exists($sign)) $sign = file_get_contents($sign);
+        return preg_replace(['/\s+/', '/\-{5}.*?\-{5}/'], '', $sign);
     }
 
     /**
