@@ -45,6 +45,28 @@ class Trade extends BasicAliPay
     }
 
     /**
+     * 设置接口公共参数
+     * @param array $option
+     * @return Trade
+     */
+    public function setOption($option = [])
+    {
+        foreach ($option as $key => $vo) {
+            $this->options->set($key, $vo);
+        }
+        return $this;
+    }
+
+    /**
+     * 获取接口公共参数
+     * @return array|string|null
+     */
+    public function getOption()
+    {
+        return $this->options->get();
+    }
+
+    /**
      * 执行通过接口
      * @param array $options
      * @return array|boolean|mixed
