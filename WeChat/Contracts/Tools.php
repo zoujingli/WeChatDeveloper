@@ -181,7 +181,7 @@ class Tools
     /**
      * 数组转xml内容
      * @param array $data
-     * @return null|string|string
+     * @return null|string
      */
     public static function arr2json($data)
     {
