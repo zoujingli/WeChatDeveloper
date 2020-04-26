@@ -171,13 +171,8 @@ class Tools
      */
     public static function xml3arr($xml)
     {
-        $parser = xml_parser_create();
-        if (xml_parse($parser, $xml, true)) {
-            return self::xml2arr($xml);
-        } else {
-            xml_parser_free($parser);
-            return false;
-        }
+        $state = xml_parse($parser = xml_parser_create(), $xml, true);
+        return xml_parser_free($parser) && $state ? self::xml2arr($xml) : false;
     }
 
     /**
