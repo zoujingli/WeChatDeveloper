@@ -171,11 +171,13 @@ class Tools
      */
     public static function xml3arr($xml)
     {
-        if (xml_parse($parser = xml_parser_create(), $xml, true)) {
-            return json_decode(json_encode(simplexml_load_string($xml)), true);
+        $parser = xml_parser_create();
+        if (xml_parse($parser, $xml, true)) {
+            return self::xml2arr($xml);
+        } else {
+            xml_parser_free($parser);
+            return false;
         }
-        if (is_resource($parser)) xml_parser_free($parser);
-        return false;
     }
 
     /**
