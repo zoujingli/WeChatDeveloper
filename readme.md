@@ -3,7 +3,7 @@
 [![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/zoujingli/wechat-developer) 
 [![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/zoujingli/wechat-developer)
 
-WeChatDeveloper for PHP
+WeChatDeveloper for PHP  develop
 ----
 * WeChatDeveloper 是基于 [wechat-php-sdk](https://github.com/zoujingli/wechat-php-sdk) 重构，优化并完善；
 * 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能；
