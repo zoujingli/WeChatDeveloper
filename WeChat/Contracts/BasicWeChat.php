@@ -94,7 +94,7 @@ class BasicWeChat
     }
 
     /**
-     * 获取访问accessToken
+     * 获取访问 AccessToken
      * @return string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -166,15 +166,15 @@ class BasicWeChat
     {
         try {
             return Tools::json2arr(Tools::get($url));
-        } catch (InvalidResponseException $e) {
+        } catch (InvalidResponseException $exception) {
             if (isset($this->currentMethod['method']) && empty($this->isTry)) {
-                if (in_array($e->getCode(), ['40014', '40001', '41001', '42001'])) {
+                if (in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
                     $this->delAccessToken();
                     $this->isTry = true;
                     return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
                 }
             }
-            throw new InvalidResponseException($e->getMessage(), $e->getCode());
+            throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
         }
     }
 
@@ -190,13 +190,15 @@ class BasicWeChat
     protected function httpPostForJson($url, array $data, $buildToJson = true)
     {
         try {
-            return Tools::json2arr(Tools::post($url, $buildToJson ? Tools::arr2json($data) : $data));
-        } catch (InvalidResponseException $e) {
-            if (!$this->isTry && in_array($e->getCode(), ['40014', '40001', '41001', '42001'])) {
+            $options = [];
+            if ($buildToJson) $options['headers'] = ['Content-Type: application/json'];
+            return Tools::json2arr(Tools::post($url, $buildToJson ? Tools::arr2json($data) : $data, $options));
+        } catch (InvalidResponseException $exception) {
+            if (!$this->isTry && in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
                 [$this->delAccessToken(), $this->isTry = true];
                 return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
             }
-            throw new InvalidResponseException($e->getMessage(), $e->getCode());
+            throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
         }
     }
 
@@ -205,17 +207,15 @@ class BasicWeChat
      * @param string $url 接口地址
      * @param string $method 当前接口方法
      * @param array $arguments 请求参数
-     * @return mixed
+     * @return string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     protected function registerApi(&$url, $method, $arguments = [])
     {
         $this->currentMethod = ['method' => $method, 'arguments' => $arguments];
-        if (empty($this->access_token)) {
-            $this->access_token = $this->getAccessToken();
-        }
-        return $url = str_replace('ACCESS_TOKEN', $this->access_token, $url);
+        if (empty($this->access_token)) $this->access_token = $this->getAccessToken();
+        return $url = str_replace('ACCESS_TOKEN', urlencode($this->access_token), $url);
     }
 
     /**
