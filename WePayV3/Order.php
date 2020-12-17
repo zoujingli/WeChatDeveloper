@@ -16,6 +16,7 @@ namespace WePayV3;
 
 use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
@@ -36,6 +37,7 @@ class Order extends BasicWePay
      * @param string $options
      * @return array
      * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function create($type, $options)
     {
@@ -57,6 +59,7 @@ class Order extends BasicWePay
      * @param string $orderNo
      * @return array
      * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function query($orderNo)
     {

@@ -14,9 +14,11 @@
 
 namespace WePayV3\Contracts;
 
+use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Cert;
 
 /**
@@ -100,6 +102,7 @@ abstract class BasicWePay
      * @param bool $verify 是否验证
      * @return array
      * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function doRequest($method, $pathinfo, $jsondata = '', $verify = false)
     {
@@ -178,6 +181,7 @@ abstract class BasicWePay
      * @param string $serial 证书序号
      * @return int
      * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     protected function signVerify($data, $sign, $serial = '')
     {
@@ -190,15 +194,15 @@ abstract class BasicWePay
      * 写入或读取临时文件
      * @param string $name
      * @param null|string $content
-     * @return false|int|string
+     * @return string
+     * @throws LocalCacheException
      */
     protected function tmpFile($name, $content = null)
     {
-        $tmpname = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wxpay-' . md5($name);
         if (is_null($content)) {
-            return file_exists($tmpname) ? base64_decode(file_get_contents($tmpname)) : '';
+            return Tools::getCache($name) ?: '';
         } else {
-            return file_put_contents($tmpname, base64_encode($content));
+            return Tools::setCache($name, $content, 7200);
         }
     }
 
