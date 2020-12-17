@@ -20,7 +20,7 @@ use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 微信订单接口
+ * 订单支付接口
  * Class Order
  * @package WePayV3
  */
@@ -32,14 +32,14 @@ class Order extends BasicWePay
     const WXPAY_NATIVE = 'native';
 
     /**
-     * 创建订单
-     * @param string $type
-     * @param string $options
+     * 创建支付订单
+     * @param string $type 支付类型
+     * @param string $json 支付参数
      * @return array
      * @throws InvalidResponseException
      * @throws LocalCacheException
      */
-    public function create($type, $options)
+    public function create($type, $json)
     {
         $types = [
             'h5'     => '/v3/pay/transactions/h5',
@@ -50,13 +50,13 @@ class Order extends BasicWePay
         if (empty($types[$type])) {
             throw new InvalidArgumentException("Payment {$type} not definded.");
         } else {
-            return $this->doRequest('POST', $types[$type], $options, true);
+            return $this->doRequest('POST', $types[$type], $json, true);
         }
     }
 
     /**
-     * 订单查询
-     * @param string $orderNo
+     * 支付订单查询
+     * @param string $orderNo 订单单号
      * @return array
      * @throws InvalidResponseException
      * @throws LocalCacheException

@@ -26,20 +26,20 @@ use WePayV3\Contracts\BasicWePay;
 class Refund extends BasicWePay
 {
     /**
-     * 创建支付订单
-     * @param string $data
+     * 创建退款订单
+     * @param string $json 退款参数
      * @return array
      * @throws InvalidResponseException
      * @throws LocalCacheException
      */
-    public function create($data)
+    public function create($json)
     {
-        return $this->doRequest('POST', '/v3/ecommerce/refunds/apply', $data, true);
+        return $this->doRequest('POST', '/v3/ecommerce/refunds/apply', $json, true);
     }
 
     /**
-     * 退款信息查询
-     * @param string $refundNo
+     * 退款订单查询
+     * @param string $refundNo 退款单号
      * @return array
      * @throws InvalidResponseException
      * @throws LocalCacheException
