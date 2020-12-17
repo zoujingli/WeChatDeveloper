@@ -107,13 +107,19 @@ abstract class BasicWePay
     public function doRequest($method, $pathinfo, $jsondata = '', $verify = false)
     {
         list($time, $nonce) = [time(), uniqid() . rand(1000, 9999)];
-        $jsondata = join("\n", [$method, $pathinfo, $time, $nonce, $jsondata, '']);
+        $signstr = join("\n", [
+            $method, $pathinfo, $time, $nonce, $jsondata, '',
+        ]);
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
-            $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($jsondata)
+            $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
         );
-        $header = ["Accept: application/json", 'User-Agent: https://thinkadmin.top', "Authorization: WECHATPAY2-SHA256-RSA2048 {$token}"];
-        list($header, $result) = $this->_doRequestCurl($method, $this->base . $pathinfo, ['data' => $jsondata, 'header' => $header]);
+        list($header, $content) = $this->_doRequestCurl($method, $this->base . $pathinfo, [
+            'data' => $jsondata, 'header' => [
+                "Accept: application/json", "Content-Type: application/json",
+                'User-Agent: https://thinkadmin.top', "Authorization: WECHATPAY2-SHA256-RSA2048 {$token}",
+            ],
+        ]);
         if ($verify) {
             $headers = [];
             foreach (explode("\n", $header) as $line) {
@@ -123,12 +129,12 @@ abstract class BasicWePay
                     $headers[$keys] = trim($value);
                 }
             }
-            $content = join("\n", [$headers['timestamp'], $headers['nonce'], $result, '']);
-            if (!$this->signVerify($content, $headers['signature'], $headers['serial'])) {
+            $string = join("\n", [$headers['timestamp'], $headers['nonce'], $content, '']);
+            if (!$this->signVerify($string, $headers['signature'], $headers['serial'])) {
                 throw new InvalidResponseException("验证响应签名失败");
             }
         }
-        return json_decode($result, true);
+        return json_decode($content, true);
     }
 
     /**
@@ -141,14 +147,14 @@ abstract class BasicWePay
     private function _doRequestCurl($method, $location, $options = [])
     {
         $curl = curl_init();
-        // CURL头信息设置
-        if (!empty($options['header'])) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $options['header']);
-        }
         // POST数据设置
         if (strtolower($method) === 'post') {
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $options['data']);
+        }
+        // CURL头信息设置
+        if (!empty($options['header'])) {
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $options['header']);
         }
         curl_setopt($curl, CURLOPT_URL, $location);
         curl_setopt($curl, CURLOPT_HEADER, true);
@@ -186,7 +192,10 @@ abstract class BasicWePay
     protected function signVerify($data, $sign, $serial = '')
     {
         $cert = $this->tmpFile($serial);
-        if (empty($cert)) Cert::instance($this->config)->download();
+        if (empty($cert)) {
+            Cert::instance($this->config)->download();
+            $cert = $this->tmpFile($serial);
+        }
         return openssl_verify($data, base64_decode($sign), openssl_x509_read($cert), 'sha256WithRSAEncryption');
     }
 
@@ -200,12 +209,11 @@ abstract class BasicWePay
     protected function tmpFile($name, $content = null)
     {
         if (is_null($content)) {
-            return Tools::getCache($name) ?: '';
+            return base64_decode(Tools::getCache($name) ?: '');
         } else {
-            return Tools::setCache($name, $content, 7200);
+            return Tools::setCache($name, base64_encode($content), 7200);
         }
     }
-
 
     /**
      * 支付通知
