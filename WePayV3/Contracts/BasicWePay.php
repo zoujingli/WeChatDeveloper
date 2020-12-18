@@ -222,7 +222,8 @@ abstract class BasicWePay
      */
     public function notify()
     {
-        $data = $_POST;
+        $body = file_get_contents('php://input');
+        $data = json_decode($body, true);
         if (isset($data['resource'])) {
             $aes = new DecryptAes($this->config['mch_v3_key']);
             $data['result'] = $aes->decryptToString(
