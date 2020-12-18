@@ -107,9 +107,7 @@ abstract class BasicWePay
     public function doRequest($method, $pathinfo, $jsondata = '', $verify = false)
     {
         list($time, $nonce) = [time(), uniqid() . rand(1000, 9999)];
-        $signstr = join("\n", [
-            $method, $pathinfo, $time, $nonce, $jsondata, '',
-        ]);
+        $signstr = join("\n", [$method, $pathinfo, $time, $nonce, $jsondata, '']);
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
             $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
