@@ -28,6 +28,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \AliPay\Bill AliPayBill($options) static 支付宝电子面单下载
  * @method \AliPay\Pos AliPayPos($options) static 支付宝刷卡支付
  * @method \AliPay\Scan AliPayScan($options) static 支付宝扫码支付
+ * @method \AliPay\Trade AliPayTrade($options) static 支付宝标准接口
  * @method \AliPay\Transfer AliPayTransfer($options) static 支付宝转账到账户
  * @method \AliPay\Wap AliPayWap($options) static 支付宝手机网站支付
  * @method \AliPay\Web AliPayWeb($options) static 支付宝网站支付
