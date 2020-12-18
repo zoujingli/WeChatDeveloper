@@ -229,7 +229,7 @@ abstract class BasicWePay
             $data['result'] = $aes->decryptToString(
                 $data['resource']['associated_data'],
                 $data['resource']['nonce'],
-                $data['resource']['algorithm']
+                $data['resource']['ciphertext']
             );
         }
         return $data;
