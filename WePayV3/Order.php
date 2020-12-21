@@ -48,7 +48,7 @@ class Order extends BasicWePay
             'native' => '/v3/pay/transactions/native',
         ];
         if (empty($types[$type])) {
-            throw new InvalidArgumentException("Payment {$type} not definded.");
+            throw new InvalidArgumentException("Payment {$type} not defined.");
         } else {
             return $this->doRequest('POST', $types[$type], $json, true);
         }
