@@ -45,6 +45,7 @@ abstract class BasicWePay
      * @var array
      */
     protected $config = [
+        'appid'        => '', // 微信绑定APPID，需配置
         'mch_id'       => '', // 微信商户编号，需要配置
         'mch_v3_key'   => '', // 微信商户密钥，需要配置
         'cert_serial'  => '', // 商户证书序号，无需配置
@@ -71,6 +72,7 @@ abstract class BasicWePay
             throw new InvalidArgumentException("Missing Config -- [cert_public]");
         }
 
+        $this->config['appid'] = isset($options['appid']) ? $options['appid'] : '';
         $this->config['mch_id'] = $options['mch_id'];
         $this->config['mch_v3_key'] = $options['mch_v3_key'];
         $this->config['cert_public'] = $options['cert_public'];
@@ -102,7 +104,6 @@ abstract class BasicWePay
      * @param bool $verify 是否验证
      * @return array
      * @throws InvalidResponseException
-     * @throws LocalCacheException
      */
     public function doRequest($method, $pathinfo, $jsondata = '', $verify = false)
     {
@@ -127,9 +128,13 @@ abstract class BasicWePay
                     $headers[$keys] = trim($value);
                 }
             }
-            $string = join("\n", [$headers['timestamp'], $headers['nonce'], $content, '']);
-            if (!$this->signVerify($string, $headers['signature'], $headers['serial'])) {
-                throw new InvalidResponseException("验证响应签名失败");
+            try {
+                $string = join("\n", [$headers['timestamp'], $headers['nonce'], $content, '']);
+                if (!$this->signVerify($string, $headers['signature'], $headers['serial'])) {
+                    throw new InvalidResponseException("验证响应签名失败");
+                }
+            } catch (\Exception $exception) {
+                throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
             }
         }
         return json_decode($content, true);
@@ -194,7 +199,7 @@ abstract class BasicWePay
             Cert::instance($this->config)->download();
             $cert = $this->tmpFile($serial);
         }
-        return openssl_verify($data, base64_decode($sign), openssl_x509_read($cert), 'sha256WithRSAEncryption');
+        return @openssl_verify($data, base64_decode($sign), openssl_x509_read($cert), 'sha256WithRSAEncryption');
     }
 
     /**

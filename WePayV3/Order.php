@@ -14,9 +14,9 @@
 
 namespace WePayV3;
 
+use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
@@ -34,12 +34,11 @@ class Order extends BasicWePay
     /**
      * 创建支付订单
      * @param string $type 支付类型
-     * @param string $json 支付参数
+     * @param array $data 支付参数
      * @return array
      * @throws InvalidResponseException
-     * @throws LocalCacheException
      */
-    public function create($type, $json)
+    public function create($type, $data)
     {
         $types = [
             'h5'     => '/v3/pay/transactions/h5',
@@ -50,7 +49,23 @@ class Order extends BasicWePay
         if (empty($types[$type])) {
             throw new InvalidArgumentException("Payment {$type} not defined.");
         } else {
-            return $this->doRequest('POST', $types[$type], $json, true);
+            // 创建预支付码
+            $result = $this->doRequest('POST', $types[$type], json_encode($data, JSON_UNESCAPED_UNICODE), true);
+            if (empty($result['prepay_id'])) return $result;
+            // 支付参数签名
+            $time = (string)time();
+            $appid = $this->config['appid'];
+            $prepayId = $result['prepay_id'];
+            $nonceStr = Tools::createNoncestr();
+            if ($type === 'app') {
+                $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, $prepayId]));
+                return ['partnerId' => $this->config['mch_id'], 'prepayId' => $prepayId, 'package' => 'Sign=WXPay', 'nonceStr' => $nonceStr, 'timeStamp' => $time, 'sign' => $sign];
+            } elseif ($type === 'jsapi') {
+                $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, "prepay_id={$prepayId}"]));
+                return ['appId' => $appid, 'timeStamp' => $time, 'nonceStr' => $nonceStr, 'package' => "prepay_id={$prepayId}", 'signType' => 'RSA', 'paySign' => $sign];
+            } else {
+                return $result;
+            }
         }
     }
 
@@ -59,7 +74,6 @@ class Order extends BasicWePay
      * @param string $orderNo 订单单号
      * @return array
      * @throws InvalidResponseException
-     * @throws LocalCacheException
      */
     public function query($orderNo)
     {

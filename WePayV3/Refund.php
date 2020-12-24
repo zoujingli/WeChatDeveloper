@@ -15,7 +15,6 @@
 namespace WePayV3;
 
 use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
@@ -27,14 +26,13 @@ class Refund extends BasicWePay
 {
     /**
      * 创建退款订单
-     * @param string $json 退款参数
+     * @param array $data 退款参数
      * @return array
      * @throws InvalidResponseException
-     * @throws LocalCacheException
      */
-    public function create($json)
+    public function create($data)
     {
-        return $this->doRequest('POST', '/v3/ecommerce/refunds/apply', $json, true);
+        return $this->doRequest('POST', '/v3/ecommerce/refunds/apply', json_encode($data, JSON_UNESCAPED_UNICODE), true);
     }
 
     /**
@@ -42,7 +40,6 @@ class Refund extends BasicWePay
      * @param string $refundNo 退款单号
      * @return array
      * @throws InvalidResponseException
-     * @throws LocalCacheException
      */
     public function query($refundNo)
     {

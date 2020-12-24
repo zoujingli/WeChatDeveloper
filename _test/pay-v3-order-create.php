@@ -10,7 +10,7 @@ try {
     $payment = \WePayV3\Order::instance($config);
 
     // 4. 组装支付参数
-    $result = $payment->create('jsapi', json_encode([
+    $result = $payment->create('jsapi', [
         'appid'        => 'wx60a43dd8161666d4',
         'mchid'        => $config['mch_id'],
         'description'  => '商品描述',
@@ -18,10 +18,10 @@ try {
         'notify_url'   => 'https://thinkadmin.top',
         'payer'        => ['openid' => 'o38gps3vNdCqaggFfrBRCRikwlWY'],
         'amount'       => ['total' => 1, 'currency' => 'CNY'],
-    ], JSON_UNESCAPED_UNICODE));
+    ]);
 
     echo '<pre>';
-    echo "\n--- 创建预支付码 ---\n";
+    echo "\n--- 创建支付参数 ---\n";
     var_export($result);
 
 } catch (\Exception $exception) {
