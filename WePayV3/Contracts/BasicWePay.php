@@ -16,7 +16,6 @@ namespace WePayV3\Contracts;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
-use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
 use WeChat\Exceptions\LocalCacheException;
 use WePayV3\Cert;
@@ -216,25 +215,5 @@ abstract class BasicWePay
         } else {
             return Tools::setCache($name, base64_encode($content), 7200);
         }
-    }
-
-    /**
-     * 支付通知
-     * @return array
-     * @throws InvalidDecryptException
-     */
-    public function notify()
-    {
-        $body = file_get_contents('php://input');
-        $data = json_decode($body, true);
-        if (isset($data['resource'])) {
-            $aes = new DecryptAes($this->config['mch_v3_key']);
-            $data['result'] = $aes->decryptToString(
-                $data['resource']['associated_data'],
-                $data['resource']['nonce'],
-                $data['resource']['ciphertext']
-            );
-        }
-        return $data;
     }
 }

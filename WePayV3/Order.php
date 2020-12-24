@@ -16,8 +16,10 @@ namespace WePayV3;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
+use WePayV3\Contracts\DecryptAes;
 
 /**
  * 订单支付接口
@@ -80,4 +82,25 @@ class Order extends BasicWePay
         $pathinfo = "/v3/pay/transactions/out-trade-no/{$orderNo}";
         return $this->doRequest('GET', "{$pathinfo}?mchid={$this->config['mch_id']}", '', true);
     }
+
+    /**
+     * 支付通知
+     * @return array
+     * @throws InvalidDecryptException
+     */
+    public function notify()
+    {
+        $body = file_get_contents('php://input');
+        $data = json_decode($body, true);
+        if (isset($data['resource'])) {
+            $aes = new DecryptAes($this->config['mch_v3_key']);
+            $data['result'] = $aes->decryptToString(
+                $data['resource']['associated_data'],
+                $data['resource']['nonce'],
+                $data['resource']['ciphertext']
+            );
+        }
+        return $data;
+    }
+
 }
