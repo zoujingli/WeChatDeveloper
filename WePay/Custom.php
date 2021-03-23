@@ -32,7 +32,7 @@ class Custom extends BasicWePay
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function get(array $options)
+    public function get(array $options = [])
     {
         $url = 'https://api.mch.weixin.qq.com/cgi-bin/mch/customs/customdeclarequery';
         return $this->callPostApi($url, $options, false, 'MD5');
@@ -46,7 +46,7 @@ class Custom extends BasicWePay
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function reset(array $options)
+    public function reset(array $options = [])
     {
         $url = 'https://api.mch.weixin.qq.com/cgi-bin/mch/newcustoms/customdeclareredeclare';
         return $this->callPostApi($url, $options, false, 'MD5');
