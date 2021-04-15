@@ -34,7 +34,7 @@ class Custom extends BasicWePay
     public function add(array $options = [])
     {
         $url = 'https://api.mch.weixin.qq.com/cgi-bin/mch/customs/customdeclareorder';
-        return $this->callPostApi($url, $options, false, 'MD5');
+        return $this->callPostApi($url, $options, false, 'MD5', false, false);
     }
 
     /**
@@ -47,7 +47,7 @@ class Custom extends BasicWePay
     public function get(array $options = [])
     {
         $url = 'https://api.mch.weixin.qq.com/cgi-bin/mch/customs/customdeclarequery';
-        return $this->callPostApi($url, $options, false, 'MD5');
+        return $this->callPostApi($url, $options, false, 'MD5', true, false);
     }
 
 
@@ -61,7 +61,7 @@ class Custom extends BasicWePay
     public function reset(array $options = [])
     {
         $url = 'https://api.mch.weixin.qq.com/cgi-bin/mch/newcustoms/customdeclareredeclare';
-        return $this->callPostApi($url, $options, false, 'MD5');
+        return $this->callPostApi($url, $options, false, 'MD5', true, false);
     }
 
 }
