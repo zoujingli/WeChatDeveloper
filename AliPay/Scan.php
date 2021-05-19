@@ -36,7 +36,7 @@ class Scan extends BasicAliPay
     /**
      * 创建数据操作
      * @param array $options
-     * @return mixed
+     * @return array|bool
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
