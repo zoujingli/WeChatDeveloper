@@ -155,7 +155,7 @@ class Order extends BasicWePay
     public function queryAuthCode($authCode)
     {
         $url = 'https://api.mch.weixin.qq.com/tools/authcodetoopenid';
-        return $this->callPostApi($url, ['auth_code' => $authCode]);
+        return $this->callPostApi($url, ['auth_code' => $authCode], false, 'MD5', false);
     }
 
     /**
