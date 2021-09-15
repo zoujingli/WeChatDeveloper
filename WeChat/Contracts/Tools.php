@@ -99,7 +99,7 @@ class Tools
 
     /**
      * 创建CURL文件对象
-     * @param $filename
+     * @param mixed $filename
      * @param string $mimetype
      * @param string $postname
      * @return \CURLFile|string
@@ -168,7 +168,7 @@ class Tools
     /**
      * 解析XML文本内容
      * @param string $xml
-     * @return boolean|mixed
+     * @return array|false
      */
     public static function xml3arr($xml)
     {
@@ -354,7 +354,7 @@ class Tools
     private static function _buildHttpData($data, $build = true)
     {
         if (!is_array($data)) return $data;
-        foreach ($data as $key => $value) if (is_object($value) && $value instanceof \CURLFile) {
+        foreach ($data as $key => $value) if ($value instanceof \CURLFile) {
             $build = false;
         } elseif (is_object($value) && isset($value->datatype) && $value->datatype === 'MY_CURL_FILE') {
             $build = false;
