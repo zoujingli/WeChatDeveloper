@@ -65,6 +65,6 @@ class Security extends BasicWeChat
     {
         $url = 'https://api.weixin.qq.com/wxa/msg_sec_check?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->callPostApi($url, ['content' => $content], true);
+        return $this->callPostApi($url, ['content' => $content], false);
     }
 }
