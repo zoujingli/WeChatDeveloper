@@ -88,7 +88,7 @@ class We
      * 定义当前版本
      * @var string
      */
-    const VERSION = '1.2.32';
+    const VERSION = '1.2.33';
 
     /**
      * 静态配置
