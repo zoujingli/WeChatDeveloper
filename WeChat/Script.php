@@ -70,15 +70,23 @@ class Script extends BasicWeChat
      * @param string $url 网页的URL
      * @param string $appid 用于多个appid时使用(可空)
      * @param string $ticket 强制指定ticket
+     * @param array $jsApiList 需初始化的 jsApiList
      * @return array
      * @throws Exceptions\LocalCacheException
      * @throws InvalidResponseException
      */
-    public function getJsSign($url, $appid = null, $ticket = null)
+    public function getJsSign($url, $appid = null, $ticket = null, $jsApiList = null)
     {
         list($url,) = explode('#', $url);
         is_null($ticket) && $ticket = $this->getTicket('jsapi');
         is_null($appid) && $appid = $this->config->get('appid');
+        is_null($jsApiList) && $jsApiList = [
+            'updateAppMessageShareData', 'updateTimelineShareData', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
+            'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'onVoicePlayEnd', 'uploadVoice', 'downloadVoice',
+            'chooseImage', 'previewImage', 'uploadImage', 'downloadImage', 'translateVoice', 'getNetworkType', 'openLocation', 'getLocation',
+            'hideOptionMenu', 'showOptionMenu', 'hideMenuItems', 'showMenuItems', 'hideAllNonBaseMenuItem', 'showAllNonBaseMenuItem',
+            'closeWindow', 'scanQRCode', 'chooseWXPay', 'openProductSpecificView', 'addCard', 'chooseCard', 'openCard',
+        ];
         $data = ["url" => $url, "timestamp" => '' . time(), "jsapi_ticket" => $ticket, "noncestr" => Tools::createNoncestr(16)];
         return [
             'debug'     => false,
@@ -86,13 +94,7 @@ class Script extends BasicWeChat
             "nonceStr"  => $data['noncestr'],
             "timestamp" => $data['timestamp'],
             "signature" => $this->getSignature($data, 'sha1'),
-            'jsApiList' => [
-                'updateAppMessageShareData', 'updateTimelineShareData', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
-                'startRecord', 'stopRecord', 'onVoiceRecordEnd', 'playVoice', 'pauseVoice', 'stopVoice', 'onVoicePlayEnd', 'uploadVoice', 'downloadVoice',
-                'chooseImage', 'previewImage', 'uploadImage', 'downloadImage', 'translateVoice', 'getNetworkType', 'openLocation', 'getLocation',
-                'hideOptionMenu', 'showOptionMenu', 'hideMenuItems', 'showMenuItems', 'hideAllNonBaseMenuItem', 'showAllNonBaseMenuItem',
-                'closeWindow', 'scanQRCode', 'chooseWXPay', 'openProductSpecificView', 'addCard', 'chooseCard', 'openCard',
-            ],
+            'jsApiList' => $jsApiList,
         ];
     }
 
