@@ -33,7 +33,7 @@ class Coupon extends BasicWePay
     public function create(array $options)
     {
         $url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/send_coupon";
-        return $this->callPostApi($url, $options, true);
+        return $this->callPostApi($url, $options, true, 'MD5');
     }
 
     /**
