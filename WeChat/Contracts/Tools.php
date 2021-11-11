@@ -159,9 +159,8 @@ class Tools
      */
     public static function xml2arr($xml)
     {
-        $entity = libxml_disable_entity_loader(true);
+        if (PHP_VERSION_ID < 80000) libxml_disable_entity_loader(true);
         $data = (array)simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
-        libxml_disable_entity_loader($entity);
         return json_decode(json_encode($data), true);
     }
 
