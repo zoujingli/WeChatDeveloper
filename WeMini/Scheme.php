@@ -13,7 +13,7 @@ class Scheme extends BasicWeChat
 {
 
     /**
-     * 创建 URL Scheme
+     * 创建 URL-Scheme
      * @param array $data
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
