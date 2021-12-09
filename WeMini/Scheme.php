@@ -41,7 +41,7 @@ class Scheme extends BasicWeChat
     }
 
     /**
-     * 小程序 URL-Link
+     * 创建 URL-Link
      * @param array $data
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
