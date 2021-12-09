@@ -47,7 +47,7 @@ class Scheme extends BasicWeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function urllink($data)
+    public function urlLink($data)
     {
         $url = "https://api.weixin.qq.com/wxa/generate_urllink?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
@@ -61,7 +61,7 @@ class Scheme extends BasicWeChat
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function urlquery($urllink)
+    public function urlQuery($urllink)
     {
         $url = 'https://api.weixin.qq.com/wxa/query_urllink?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
