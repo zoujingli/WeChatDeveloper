@@ -51,6 +51,8 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WeChat\Template WeChatTemplate($options = []) static 微信模板消息
  * @method \WeChat\User WeChatUser($options = []) static 微信粉丝管理
  * @method \WeChat\Wifi WeChatWifi($options = []) static 微信门店WIFI管理
+ * @method \WeChat\Draft WeChatDraft($options = []) static 微信草稿箱
+ * @method \WeChat\Freepublish WeChatFreepublish($options = []) static 微信发布能力
  *
  * ----- WeMini -----
  * @method \WeMini\Crypt WeMiniCrypt($options = []) static 小程序数据加密处理
