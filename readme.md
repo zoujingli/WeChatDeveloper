@@ -72,6 +72,8 @@ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何�
 |  Template.php  | WeChat\Template   |  微信模板消息接口支持  |  认证服务号 | \We::WeChatTemplate() |
 |  User.php  | WeChat\User   |  微信粉丝管理接口支持  |  认证服务号 | \We::WeChatCard() |
 |  Wifi.php  | WeChat\Wifi   |  微信门店WIFI管理支持  |  认证服务号 | \We::WeChatWifi() |
+|  Draft.php  | WeChat\Draft   |  微信草稿箱  |  认证服务号 | \We::WeChatDraft() |
+|  Freepublish.php  | WeChat\Freepublish   |  微信发布能力  |  认证服务号 | \We::WeChatFreepublish() |
 |  Bill.php  | WePay\Bill   |  微信商户账单及评论  | 微信支付 | \We::WePayBill() |
 |  Coupon.php  | WePay\Coupon   |  微信商户代金券  |  微信支付 | \We::WePayCoupon() |
 |  Order.php  | WePay\Order   |  微信商户订单  |  微信支付 | \We::WePayOrder() |
