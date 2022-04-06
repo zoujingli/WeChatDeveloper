@@ -15,6 +15,8 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
+use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 微信小程序插件管理
@@ -27,26 +29,24 @@ class Plugs extends BasicWeChat
      * 1.申请使用插件
      * @param string $plugin_appid 插件appid
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function apply($plugin_appid)
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['action' => 'apply', 'plugin_appid' => $plugin_appid], true);
     }
 
     /**
      * 2.查询已添加的插件
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function getList()
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['action' => 'list'], true);
     }
 
@@ -54,13 +54,12 @@ class Plugs extends BasicWeChat
      * 3.删除已添加的插件
      * @param string $plugin_appid 插件appid
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function unbind($plugin_appid)
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['action' => 'unbind', 'plugin_appid' => $plugin_appid], true);
     }
 
@@ -69,13 +68,12 @@ class Plugs extends BasicWeChat
      * 修改插件使用申请的状态
      * @param array $data
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function devplugin($data)
     {
         $url = 'https://api.weixin.qq.com/wxa/devplugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, $data, true);
     }
 
@@ -84,13 +82,12 @@ class Plugs extends BasicWeChat
      * @param integer $page 拉取第page页的数据
      * @param integer $num 表示每页num条记录
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function devApplyList($page = 1, $num = 10)
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         $data = ['action' => 'dev_apply_list', 'page' => $page, 'num' => $num];
         return $this->callPostApi($url, $data, true);
     }
@@ -99,14 +96,12 @@ class Plugs extends BasicWeChat
      * 5.修改插件使用申请的状态（供插件开发者调用）
      * @param string $action dev_agree：同意申请；dev_refuse：拒绝申请；dev_delete：删除已拒绝的申请者
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function devAgree($action = 'dev_agree')
     {
         $url = 'https://api.weixin.qq.com/wxa/plugin?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['action' => $action], true);
     }
-
 }

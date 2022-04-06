@@ -18,6 +18,8 @@ use WeChat\Contracts\BasicWeChat;
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
+use WXBizDataCrypt;
 
 
 /**
@@ -38,7 +40,7 @@ class Crypt extends BasicWeChat
     public function decode($iv, $sessionKey, $encryptedData)
     {
         require_once __DIR__ . DIRECTORY_SEPARATOR . 'crypt' . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
-        $pc = new \WXBizDataCrypt($this->config->get('appid'), $sessionKey);
+        $pc = new WXBizDataCrypt($this->config->get('appid'), $sessionKey);
         $errCode = $pc->decryptData($encryptedData, $iv, $data);
         if ($errCode == 0) {
             return json_decode($data, true);
@@ -50,7 +52,7 @@ class Crypt extends BasicWeChat
      * 登录凭证校验
      * @param string $code 登录时获取的 code
      * @return array
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws LocalCacheException
      */
     public function session($code)
     {
@@ -68,7 +70,7 @@ class Crypt extends BasicWeChat
      * @return array
      * @throws InvalidDecryptException
      * @throws InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws LocalCacheException
      */
     public function userInfo($code, $iv, $encryptedData)
     {
@@ -84,14 +86,28 @@ class Crypt extends BasicWeChat
     }
 
     /**
+     * 通过授权码换取手机号
+     * @param string $code
+     * @return array
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
+     */
+    public function getPhoneNumber($code)
+    {
+        $url = 'https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token=ACCESS_TOKEN';
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, ['code' => $code], true);
+    }
+
+    /**
      * 用户支付完成后，获取该用户的 UnionId
      * @param string $openid 支付用户唯一标识
      * @param null|string $transaction_id 微信支付订单号
      * @param null|string $mch_id 微信支付分配的商户号，和商户订单号配合使用
      * @param null|string $out_trade_no 微信支付商户订单号，和商户号配合使用
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function getPaidUnionId($openid, $transaction_id = null, $mch_id = null, $out_trade_no = null)
     {

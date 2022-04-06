@@ -33,7 +33,6 @@ class Limit extends BasicWeChat
     public function clearQuota()
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/clear_quota?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['appid' => $this->config->get('appid')]);
     }
 
@@ -48,7 +47,6 @@ class Limit extends BasicWeChat
     public function ping($action = 'all', $operator = 'DEFAULT')
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/callback/check?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, ['action' => $action, 'check_operator' => $operator]);
     }
 

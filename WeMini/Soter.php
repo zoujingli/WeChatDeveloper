@@ -15,6 +15,8 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
+use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序生物认证
@@ -27,14 +29,12 @@ class Soter extends BasicWeChat
      * SOTER 生物认证秘钥签名验证
      * @param array $data
      * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * @throws InvalidResponseException
+     * @throws LocalCacheException
      */
     public function verifySignature($data)
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/soter/verify_signature?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callPostApi($url, $data, true);
     }
-
 }
