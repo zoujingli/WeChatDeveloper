@@ -57,7 +57,7 @@ class Qrcode extends BasicWeChat
      */
     public function url($ticket)
     {
-        return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={$ticket}";
+        return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
     }
 
     /**
