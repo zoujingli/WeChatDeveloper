@@ -122,7 +122,10 @@ class BasicWePay
     {
         ksort($data);
         if (isset($data['sign'])) unset($data['sign']);
-        foreach ($data as $k => $v) $buff .= "{$k}={$v}&";
+        foreach ($data as $k => $v) {
+            if ('' === $v || null === $v) continue;
+            $buff .= "{$k}={$v}&";
+        }
         $buff .= ("key=" . $this->config->get('mch_key'));
         if (strtoupper($signType) === 'MD5') {
             return strtoupper(md5($buff));
