@@ -24,6 +24,7 @@ class Freepublish extends BasicWeChat
     public function submit($media_id)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/freepublish/submit?access_token=ACCESS_TOKEN";
+        $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['media_id' => $media_id]);
     }
 
