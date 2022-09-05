@@ -28,7 +28,7 @@ class Transfer extends BasicAliPay
     /**
      * 旧版 向指定支付宝账户转账
      * @param array $options
-     * @return mixed
+     * @return array|bool
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

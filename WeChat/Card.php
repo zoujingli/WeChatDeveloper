@@ -668,5 +668,5 @@ class Card extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
     }
-    
+
 }
