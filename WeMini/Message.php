@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序动态消息
@@ -29,8 +27,8 @@ class Message extends BasicWeChat
      * 动态消息，创建被分享动态消息的 activity_id
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createActivityId($data)
     {
@@ -42,8 +40,8 @@ class Message extends BasicWeChat
      * 动态消息，修改被分享的动态消息
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function setUpdatableMsg($data)
     {
@@ -55,8 +53,8 @@ class Message extends BasicWeChat
      * 下发小程序和公众号统一的服务消息
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function uniformSend($data)
     {

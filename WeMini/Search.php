@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序搜索
@@ -29,8 +27,8 @@ class Search extends BasicWeChat
      * 提交小程序页面url及参数信息
      * @param array $pages
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function submitPages($pages)
     {

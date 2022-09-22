@@ -31,7 +31,7 @@ class Refund extends BasicWePay
      * 创建退款订单
      * @param array $options
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create(array $options)
@@ -44,7 +44,7 @@ class Refund extends BasicWePay
      * 查询退款
      * @param array $options
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query(array $options)
@@ -56,8 +56,8 @@ class Refund extends BasicWePay
     /**
      * 获取退款通知
      * @return array
-     * @throws InvalidDecryptException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function getNotify()
     {

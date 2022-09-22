@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 微信小程序地址管理
@@ -32,8 +30,8 @@ class Poi extends BasicWeChat
      * @param string $related_address 经营资质地址
      * @param string $related_proof_material 相关证明材料照片临时素材mediaid
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addBearByPoi($related_name, $related_credential, $related_address, $related_proof_material)
     {
@@ -50,8 +48,8 @@ class Poi extends BasicWeChat
      * @param integer $page 起始页id（从1开始计数）
      * @param integer $page_rows 每页展示个数（最多1000个）
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getNearByPoiList($page = 1, $page_rows = 1000)
     {
@@ -63,8 +61,8 @@ class Poi extends BasicWeChat
      * 删除地点
      * @param string $poi_id 附近地点ID
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delNearByPoiList($poi_id)
     {
@@ -77,8 +75,8 @@ class Poi extends BasicWeChat
      * @param string $poi_id 附近地点ID
      * @param string $status 0：取消展示；1：展示
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function setNearByPoiShowStatus($poi_id, $status)
     {

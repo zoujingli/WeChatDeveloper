@@ -16,8 +16,6 @@ namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
 use WeChat\Contracts\Tools;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 微信小程序二维码管理
@@ -37,8 +35,8 @@ class Qrcode extends BasicWeChat
      * @param boolean $is_hyaline 是否需要透明底色
      * @param null|string $outType 输出类型
      * @return array|string
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createMiniPath($path, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"], $is_hyaline = true, $outType = null)
     {
@@ -67,8 +65,8 @@ class Qrcode extends BasicWeChat
      * @param boolean $is_hyaline 是否需要透明底色
      * @param null|string $outType 输出类型
      * @return array|string
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createMiniScene($scene, $page, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"], $is_hyaline = true, $outType = null)
     {
@@ -93,8 +91,8 @@ class Qrcode extends BasicWeChat
      * @param integer $width 二维码的宽度
      * @param null|string $outType 输出类型
      * @return array|string
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createDefault($path, $width = 430, $outType = null)
     {

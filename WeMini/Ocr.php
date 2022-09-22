@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序ORC服务
@@ -29,8 +27,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的银行卡 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function bankcard($data)
     {
@@ -42,8 +40,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的营业执照 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function businessLicense($data)
     {
@@ -55,8 +53,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的驾驶证 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function driverLicense($data)
     {
@@ -68,8 +66,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的身份证 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function idcard($data)
     {
@@ -81,8 +79,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的通用印刷体 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function printedText($data)
     {
@@ -94,8 +92,8 @@ class Ocr extends BasicWeChat
      * 本接口提供基于小程序的行驶证 OCR 识别
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function vehicleLicense($data)
     {

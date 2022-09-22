@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序生物认证
@@ -29,8 +27,8 @@ class Soter extends BasicWeChat
      * SOTER 生物认证秘钥签名验证
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function verifySignature($data)
     {

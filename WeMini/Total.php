@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 微信小程序数据接口
@@ -30,8 +28,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidDailySummarytrend($begin_date, $end_date)
     {
@@ -44,8 +42,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidDailyVisittrend($begin_date, $end_date)
     {
@@ -58,8 +56,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期，为周一日期
      * @param string $end_date 结束日期，为周日日期，限定查询一周数据
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidWeeklyVisittrend($begin_date, $end_date)
     {
@@ -72,8 +70,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期，为自然月第一天
      * @param string $end_date 结束日期，为自然月最后一天，限定查询一个月数据
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidMonthlyVisittrend($begin_date, $end_date)
     {
@@ -86,8 +84,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidVisitdistribution($begin_date, $end_date)
     {
@@ -100,8 +98,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidDailyRetaininfo($begin_date, $end_date)
     {
@@ -114,8 +112,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期，为周一日期
      * @param string $end_date 结束日期，为周日日期，限定查询一周数据
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidWeeklyRetaininfo($begin_date, $end_date)
     {
@@ -128,8 +126,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期，为自然月第一天
      * @param string $end_date 结束日期，为自然月最后一天，限定查询一个月数据
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidMonthlyRetaininfo($begin_date, $end_date)
     {
@@ -142,8 +140,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidVisitPage($begin_date, $end_date)
     {
@@ -156,8 +154,8 @@ class Total extends BasicWeChat
      * @param string $begin_date 开始日期
      * @param string $end_date 结束日期，开始日期与结束日期相差的天数限定为0/6/29，分别表示查询最近1/7/30天数据，end_date允许设置的最大值为昨日
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getWeanalysisAppidUserportrait($begin_date, $end_date)
     {

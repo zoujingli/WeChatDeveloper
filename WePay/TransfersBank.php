@@ -68,7 +68,7 @@ class TransfersBank extends BasicWePay
      * 商户企业付款到银行卡操作进行结果查询
      * @param string $partnerTradeNo 商户订单号，需保持唯一
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query($partnerTradeNo)
@@ -121,5 +121,4 @@ class TransfersBank extends BasicWePay
         Tools::setCache($cacheKey, $data['pub_key'], 600);
         return $data['pub_key'];
     }
-
 }

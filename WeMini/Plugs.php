@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 微信小程序插件管理
@@ -29,8 +27,8 @@ class Plugs extends BasicWeChat
      * 1.申请使用插件
      * @param string $plugin_appid 插件appid
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function apply($plugin_appid)
     {
@@ -41,8 +39,8 @@ class Plugs extends BasicWeChat
     /**
      * 2.查询已添加的插件
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getList()
     {
@@ -54,8 +52,8 @@ class Plugs extends BasicWeChat
      * 3.删除已添加的插件
      * @param string $plugin_appid 插件appid
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function unbind($plugin_appid)
     {
@@ -68,8 +66,8 @@ class Plugs extends BasicWeChat
      * 修改插件使用申请的状态
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function devplugin($data)
     {
@@ -82,8 +80,8 @@ class Plugs extends BasicWeChat
      * @param integer $page 拉取第page页的数据
      * @param integer $num 表示每页num条记录
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function devApplyList($page = 1, $num = 10)
     {
@@ -96,8 +94,8 @@ class Plugs extends BasicWeChat
      * 5.修改插件使用申请的状态（供插件开发者调用）
      * @param string $action dev_agree：同意申请；dev_refuse：拒绝申请；dev_delete：删除已拒绝的申请者
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function devAgree($action = 'dev_agree')
     {

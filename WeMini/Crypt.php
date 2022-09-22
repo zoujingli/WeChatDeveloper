@@ -18,7 +18,6 @@ use WeChat\Contracts\BasicWeChat;
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 use WXBizDataCrypt;
 
 
@@ -35,7 +34,7 @@ class Crypt extends BasicWeChat
      * @param string $iv
      * @param string $sessionKey
      * @param string $encryptedData
-     * @return bool
+     * @return bool|array
      */
     public function decode($iv, $sessionKey, $encryptedData)
     {
@@ -52,7 +51,7 @@ class Crypt extends BasicWeChat
      * 登录凭证校验
      * @param string $code 登录时获取的 code
      * @return array
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function session($code)
     {
@@ -68,9 +67,9 @@ class Crypt extends BasicWeChat
      * @param string $iv 加密算法的初始向量
      * @param string $encryptedData 加密数据( encryptedData )
      * @return array
-     * @throws InvalidDecryptException
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function userInfo($code, $iv, $encryptedData)
     {
@@ -89,8 +88,8 @@ class Crypt extends BasicWeChat
      * 通过授权码换取手机号
      * @param string $code
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getPhoneNumber($code)
     {
@@ -106,8 +105,8 @@ class Crypt extends BasicWeChat
      * @param null|string $mch_id 微信支付分配的商户号，和商户订单号配合使用
      * @param null|string $out_trade_no 微信支付商户订单号，和商户号配合使用
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getPaidUnionId($openid, $transaction_id = null, $mch_id = null, $out_trade_no = null)
     {

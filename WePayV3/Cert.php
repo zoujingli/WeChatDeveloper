@@ -25,10 +25,10 @@ use WePayV3\Contracts\DecryptAes;
  */
 class Cert extends BasicWePay
 {
-
     /**
      * 商户平台下载证书
-     * @throws InvalidResponseException
+     * @return void
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function download()
     {

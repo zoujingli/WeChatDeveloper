@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序即时配送
@@ -56,8 +54,8 @@ class Delivery extends BasicWeChat
      * 可以对待接单状态的订单增加小费
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addTip($data)
     {
@@ -69,8 +67,8 @@ class Delivery extends BasicWeChat
      * 取消配送单接口
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function cancelOrder($data)
     {
@@ -82,8 +80,8 @@ class Delivery extends BasicWeChat
      * 获取已支持的配送公司列表接口
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getAllImmeDelivery($data)
     {
@@ -95,8 +93,8 @@ class Delivery extends BasicWeChat
      * 拉取已绑定账号
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getBindAccount($data)
     {
@@ -108,8 +106,8 @@ class Delivery extends BasicWeChat
      * 拉取配送单信息
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getOrder($data)
     {
@@ -121,8 +119,8 @@ class Delivery extends BasicWeChat
      * 模拟配送公司更新配送单状态
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function mockUpdateOrder($data)
     {
@@ -134,8 +132,8 @@ class Delivery extends BasicWeChat
      * 预下配送单接口
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function preAddOrder($data)
     {
@@ -147,8 +145,8 @@ class Delivery extends BasicWeChat
      * 预取消配送单接口
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function preCancelOrder($data)
     {
@@ -160,8 +158,8 @@ class Delivery extends BasicWeChat
      * 重新下单
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function reOrder($data)
     {

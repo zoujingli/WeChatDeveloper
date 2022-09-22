@@ -27,7 +27,7 @@ class Custom extends BasicWePay
     /**
      * 订单附加信息提交接口
      * @param array $options
-     * @return mixed
+     * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

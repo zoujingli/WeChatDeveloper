@@ -3,8 +3,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序 URL-Scheme
@@ -18,8 +16,8 @@ class Scheme extends BasicWeChat
      * 创建 URL-Scheme
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create($data)
     {
@@ -31,8 +29,8 @@ class Scheme extends BasicWeChat
      * 查询 URL-Scheme
      * @param string $scheme
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query($scheme)
     {
@@ -44,8 +42,8 @@ class Scheme extends BasicWeChat
      * 创建 URL-Link
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function urlLink($data)
     {
@@ -57,8 +55,8 @@ class Scheme extends BasicWeChat
      * 查询 URL-Link
      * @param string $urllink
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function urlQuery($urllink)
     {

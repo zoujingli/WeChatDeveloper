@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序直播接口
@@ -29,8 +27,8 @@ class Live extends BasicWeChat
      * 创建直播间
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create($data)
     {
@@ -43,8 +41,8 @@ class Live extends BasicWeChat
      * @param integer $start 起始拉取房间
      * @param integer $limit 每次拉取的个数上限
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getLiveList($start = 0, $limit = 10)
     {
@@ -56,8 +54,8 @@ class Live extends BasicWeChat
      * 获取回放源视频
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getLiveInfo($data = [])
     {
@@ -69,8 +67,8 @@ class Live extends BasicWeChat
      * 直播间导入商品
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addLiveGoods($data = [])
     {
@@ -82,8 +80,8 @@ class Live extends BasicWeChat
      * 商品添加并提审
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addGoods($data)
     {
@@ -95,8 +93,8 @@ class Live extends BasicWeChat
      * 商品撤回审核
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function resetAuditGoods($data)
     {
@@ -108,8 +106,8 @@ class Live extends BasicWeChat
      * 重新提交审核
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function auditGoods($data)
     {
@@ -121,8 +119,8 @@ class Live extends BasicWeChat
      * 删除商品
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function deleteGoods($data)
     {
@@ -134,8 +132,8 @@ class Live extends BasicWeChat
      * 更新商品
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateGoods($data)
     {
@@ -147,8 +145,8 @@ class Live extends BasicWeChat
      * 获取商品状态
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function stateGoods($data)
     {
@@ -160,13 +158,12 @@ class Live extends BasicWeChat
      * 获取商品列表
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getGoods($data)
     {
         $url = "https://api.weixin.qq.com/wxaapi/broadcast/goods/getapproved?access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, $data, true);
     }
-
 }

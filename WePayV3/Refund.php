@@ -30,7 +30,7 @@ class Refund extends BasicWePay
      * 创建退款订单
      * @param array $data 退款参数
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function create($data)
     {
@@ -41,7 +41,7 @@ class Refund extends BasicWePay
      * 退款订单查询
      * @param string $refundNo 退款单号
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function query($refundNo)
     {
@@ -52,8 +52,8 @@ class Refund extends BasicWePay
     /**
      * 获取退款通知
      * @return array
-     * @throws InvalidDecryptException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function notify()
     {
@@ -71,5 +71,4 @@ class Refund extends BasicWePay
             throw new InvalidDecryptException($exception->getMessage(), $exception->getCode());
         }
     }
-
 }

@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序内容安全
@@ -30,8 +28,8 @@ class Security extends BasicWeChat
      * 校验一张图片是否含有违法违规内容
      * @param string $media 要检测的图片文件，格式支持PNG、JPEG、JPG、GIF，图片尺寸不超过 750px x 1334px
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function imgSecCheck($media)
     {
@@ -44,8 +42,8 @@ class Security extends BasicWeChat
      * @param string $media_url
      * @param string $media_type
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function mediaCheckAsync($media_url, $media_type)
     {
@@ -57,8 +55,8 @@ class Security extends BasicWeChat
      * 检查一段文本是否含有违法违规内容
      * @param string $content
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function msgSecCheck($content)
     {

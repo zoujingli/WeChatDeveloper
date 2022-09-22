@@ -15,8 +15,6 @@
 namespace WeMini;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
-use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 小程序物流助手
@@ -29,8 +27,8 @@ class Logistics extends BasicWeChat
      * 生成运单
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addOrder($data)
     {
@@ -42,8 +40,8 @@ class Logistics extends BasicWeChat
      * 取消运单
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function cancelOrder($data)
     {
@@ -54,8 +52,8 @@ class Logistics extends BasicWeChat
     /**
      * 获取支持的快递公司列表
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getAllDelivery()
     {
@@ -67,8 +65,8 @@ class Logistics extends BasicWeChat
      * 获取运单数据
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getOrder($data)
     {
@@ -80,8 +78,8 @@ class Logistics extends BasicWeChat
      * 查询运单轨迹
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getPath($data)
     {
@@ -92,8 +90,8 @@ class Logistics extends BasicWeChat
     /**
      * 获取打印员。若需要使用微信打单 PC 软件，才需要调用
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getPrinter()
     {
@@ -105,8 +103,8 @@ class Logistics extends BasicWeChat
      * 获取电子面单余额。仅在使用加盟类快递公司时，才可以调用
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getQuota($data)
     {
@@ -118,8 +116,8 @@ class Logistics extends BasicWeChat
      * 模拟快递公司更新订单状态, 该接口只能用户测试
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function testUpdateOrder($data)
     {
@@ -131,8 +129,8 @@ class Logistics extends BasicWeChat
      * 配置面单打印员，若需要使用微信打单 PC 软件，才需要调用
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updatePrinter($data)
     {
@@ -144,8 +142,8 @@ class Logistics extends BasicWeChat
      * 获取面单联系人信息
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getContact($data)
     {
@@ -157,8 +155,8 @@ class Logistics extends BasicWeChat
      * 预览面单模板。用于调试面单模板使用
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function previewTemplate($data)
     {
@@ -170,8 +168,8 @@ class Logistics extends BasicWeChat
      * 更新商户审核结果
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateBusiness($data)
     {
@@ -183,8 +181,8 @@ class Logistics extends BasicWeChat
      * 更新运单轨迹
      * @param array $data
      * @return array
-     * @throws InvalidResponseException
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updatePath($data)
     {
