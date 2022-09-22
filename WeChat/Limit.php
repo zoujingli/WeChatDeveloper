@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -27,8 +27,8 @@ class Limit extends BasicWeChat
     /**
      * 公众号调用或第三方平台帮公众号调用对公众号的所有api调用（包括第三方帮其调用）次数进行清零
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function clearQuota()
     {
@@ -41,8 +41,8 @@ class Limit extends BasicWeChat
      * @param string $action 执行的检测动作
      * @param string $operator 指定平台从某个运营商进行检测
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function ping($action = 'all', $operator = 'DEFAULT')
     {
@@ -53,8 +53,8 @@ class Limit extends BasicWeChat
     /**
      * 获取微信服务器IP地址
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getCallbackIp()
     {
@@ -62,5 +62,4 @@ class Limit extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpGetForJson($url);
     }
-
 }

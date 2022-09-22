@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -44,8 +44,8 @@ class Script extends BasicWeChat
      * @param string $type TICKET类型(wx_card|jsapi)
      * @param string $appid 强制指定有效APPID
      * @return string
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getTicket($type = 'jsapi', $appid = null)
     {
@@ -72,8 +72,8 @@ class Script extends BasicWeChat
      * @param string $ticket 强制指定ticket
      * @param array $jsApiList 需初始化的 jsApiList
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getJsSign($url, $appid = null, $ticket = null, $jsApiList = null)
     {
@@ -109,7 +109,7 @@ class Script extends BasicWeChat
     {
         ksort($data);
         if (!function_exists($method)) return false;
-        foreach ($data as $k => $v) array_push($params, "{$k}={$v}");
+        foreach ($data as $k => $v) $params[] = "{$k}={$v}";
         return $method(join('&', $params));
     }
 }

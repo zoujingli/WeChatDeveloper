@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -15,7 +15,6 @@
 namespace WeChat;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信草稿箱管理
@@ -29,8 +28,8 @@ class Draft extends BasicWeChat
      * 新建草稿
      * @param $articles
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function add($articles)
     {
@@ -43,9 +42,9 @@ class Draft extends BasicWeChat
      * 获取草稿
      * @param string $media_id
      * @param string $outType 返回处理函数
-     * @return array|string
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function get($media_id, $outType = null)
     {
@@ -59,15 +58,13 @@ class Draft extends BasicWeChat
      * 删除草稿
      * @param string $media_id
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delete($media_id)
     {
-
         $url = "https://api.weixin.qq.com/cgi-bin/draft/delete?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-
         return $this->httpPostForJson($url, ['media_id' => $media_id]);
     }
 
@@ -75,8 +72,8 @@ class Draft extends BasicWeChat
      * 新增图文素材
      * @param array $data 文件名称
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addNews($data)
     {
@@ -91,8 +88,8 @@ class Draft extends BasicWeChat
      * @param int $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      * @param $articles
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function update($media_id, $index, $articles)
     {
@@ -102,12 +99,11 @@ class Draft extends BasicWeChat
         return $this->httpPostForJson($url, $data);
     }
 
-
     /**
      * 获取草稿总数
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getCount()
     {
@@ -122,8 +118,8 @@ class Draft extends BasicWeChat
      * @param int $count 返回素材的数量，取值在1到20之间
      * @param int $no_content 1 表示不返回 content 字段，0 表示正常返回，默认为 0
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function batchGet($offset = 0, $count = 20, $no_content = 0)
     {

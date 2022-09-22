@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -29,8 +29,8 @@ class Qrcode extends BasicWeChat
      * @param string|integer $scene 场景
      * @param int $expire_seconds 有效时间
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create($scene, $expire_seconds = 0)
     {
@@ -57,15 +57,15 @@ class Qrcode extends BasicWeChat
      */
     public function url($ticket)
     {
-        return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=".urlencode($ticket);
+        return "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" . urlencode($ticket);
     }
 
     /**
      * 长链接转短链接接口
      * @param string $longUrl 需要转换的长链接
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function shortUrl($longUrl)
     {
@@ -73,5 +73,4 @@ class Qrcode extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['action' => 'long2short', 'long_url' => $longUrl]);
     }
-
 }

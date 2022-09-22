@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -110,7 +110,7 @@ abstract class BasicAliPay
      * 查询支付宝订单状态
      * @param string $out_trade_no
      * @return array|boolean
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query($out_trade_no = '')
@@ -124,7 +124,7 @@ abstract class BasicAliPay
      * @param array|string $options 退款参数或退款商户订单号
      * @param null $refund_amount 退款金额
      * @return array|boolean
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function refund($options, $refund_amount = null)
@@ -138,7 +138,7 @@ abstract class BasicAliPay
      * 关闭支付宝进行中的订单
      * @param array|string $options
      * @return array|boolean
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function close($options)
@@ -151,8 +151,8 @@ abstract class BasicAliPay
     /**
      * 获取通知数据
      * @param boolean $needSignType 是否需要sign_type字段
-     * @return boolean|array
-     * @throws InvalidResponseException
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function notify($needSignType = false)
     {
@@ -173,8 +173,8 @@ abstract class BasicAliPay
      * 验证接口返回的数据签名
      * @param array $data 通知数据
      * @param null|string $sign 数据签名
-     * @return array|boolean
-     * @throws InvalidResponseException
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     protected function verify($data, $sign)
     {
@@ -223,7 +223,7 @@ abstract class BasicAliPay
      * 数据签名处理
      * @param array $data 需要进行签名数据
      * @param boolean $needSignType 是否需要sign_type字段
-     * @return bool|string
+     * @return string
      */
     private function getSignContent(array $data, $needSignType = false)
     {
@@ -232,7 +232,7 @@ abstract class BasicAliPay
         if (empty($needSignType)) unset($data['sign_type']);
         foreach ($data as $key => $value) {
             if ($value === '' || is_null($value)) continue;
-            array_push($attrs, "{$key}={$value}");
+            $attrs[] = "{$key}={$value}";
         }
         return join('&', $attrs);
     }
@@ -251,7 +251,7 @@ abstract class BasicAliPay
      * 请求接口并验证访问数据
      * @param array $options
      * @return array|boolean
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     protected function getResult($options)

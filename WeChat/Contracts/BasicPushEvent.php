@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -70,7 +70,7 @@ class BasicPushEvent
     /**
      * BasicPushEvent constructor.
      * @param array $options
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function __construct(array $options)
     {
@@ -130,7 +130,7 @@ class BasicPushEvent
      * @param boolean $return 是否返回XML内容
      * @param boolean $isEncrypt 是否加密内容
      * @return string
-     * @throws InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidDecryptException
      */
     public function reply(array $data = [], $return = false, $isEncrypt = false)
     {

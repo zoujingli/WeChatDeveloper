@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -27,8 +27,8 @@ class Menu extends BasicWeChat
     /**
      * 自定义菜单查询接口
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function get()
     {
@@ -40,8 +40,8 @@ class Menu extends BasicWeChat
     /**
      * 自定义菜单删除接口
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delete()
     {
@@ -54,8 +54,8 @@ class Menu extends BasicWeChat
      * 自定义菜单创建
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create(array $data)
     {
@@ -68,8 +68,8 @@ class Menu extends BasicWeChat
      * 创建个性化菜单
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addConditional(array $data)
     {
@@ -82,8 +82,8 @@ class Menu extends BasicWeChat
      * 删除个性化菜单
      * @param string $menuid
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delConditional($menuid)
     {
@@ -96,8 +96,8 @@ class Menu extends BasicWeChat
      * 测试个性化菜单匹配结果
      * @param string $openid
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function tryConditional($openid)
     {
@@ -105,5 +105,4 @@ class Menu extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['user_id' => $openid]);
     }
-
 }

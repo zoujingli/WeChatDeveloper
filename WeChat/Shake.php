@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -15,8 +15,8 @@
 namespace WeChat;
 
 
-use WeChat\Contracts\Tools;
 use WeChat\Contracts\BasicWeChat;
+use WeChat\Contracts\Tools;
 
 /**
  * 揺一揺周边
@@ -29,8 +29,8 @@ class Shake extends BasicWeChat
      * 申请开通功能
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function register(array $data)
     {
@@ -42,8 +42,8 @@ class Shake extends BasicWeChat
     /**
      * 查询审核状态
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function auditStatus()
     {
@@ -59,8 +59,8 @@ class Shake extends BasicWeChat
      * @param null|string $comment 备注，不超过15个汉字或30个英文字母
      * @param null|string $poi_id 设备关联的门店ID，关联门店后，在门店1KM的范围内有优先摇出信息的机会。
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createApply($quantity, $apply_reason, $comment = null, $poi_id = null)
     {
@@ -76,8 +76,8 @@ class Shake extends BasicWeChat
      * 查询设备ID申请审核状态
      * @param integer $applyId 批次ID，申请设备ID时所返回的批次ID
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getApplyStatus($applyId)
     {
@@ -90,8 +90,8 @@ class Shake extends BasicWeChat
      * 编辑设备信息
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateApply(array $data)
     {
@@ -104,8 +104,8 @@ class Shake extends BasicWeChat
      * 配置设备与门店的关联关系
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function bindLocation(array $data)
     {
@@ -118,8 +118,8 @@ class Shake extends BasicWeChat
      * 查询设备列表
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function search(array $data)
     {
@@ -132,8 +132,8 @@ class Shake extends BasicWeChat
      * 页面管理
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function createPage(array $data)
     {
@@ -146,8 +146,8 @@ class Shake extends BasicWeChat
      * 编辑页面信息
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updatePage(array $data)
     {
@@ -160,8 +160,8 @@ class Shake extends BasicWeChat
      * 查询页面列表
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function searchPage(array $data)
     {
@@ -172,10 +172,10 @@ class Shake extends BasicWeChat
 
     /**
      * 删除页面
-     * @param integer page_id   指定页面的id
+     * @param integer $page_id 指定页面的id
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function deletePage($page_id)
     {
@@ -189,8 +189,8 @@ class Shake extends BasicWeChat
      * @param string $filename 图片名字
      * @param string $type Icon：摇一摇页面展示的icon图；License：申请开通摇一摇周边功能时需上传的资质文件；若不传type，则默认type=icon
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function upload($filename, $type = 'icon')
     {
@@ -203,8 +203,8 @@ class Shake extends BasicWeChat
      * 配置设备与页面的关联关系
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function bindPage(array $data)
     {
@@ -217,8 +217,8 @@ class Shake extends BasicWeChat
      * 查询设备与页面的关联关系
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function queryPage(array $data)
     {
@@ -231,8 +231,8 @@ class Shake extends BasicWeChat
      * 以设备为维度的数据统计接口
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function totalDevice(array $data)
     {
@@ -246,8 +246,8 @@ class Shake extends BasicWeChat
      * @param integer $date 指定查询日期时间戳，单位为秒
      * @param integer $page_index 指定查询的结果页序号；返回结果按摇周边人数降序排序，每50条记录为一页
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function totalDeviceList($date, $page_index = 1)
     {
@@ -262,8 +262,8 @@ class Shake extends BasicWeChat
      * @param integer $begin_date 起始日期时间戳，最长时间跨度为30天，单位为秒
      * @param integer $end_date 结束日期时间戳，最长时间跨度为30天，单位为秒
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function totalPage($page_id, $begin_date, $end_date)
     {
@@ -277,8 +277,8 @@ class Shake extends BasicWeChat
      * @param integer $group_id 分组唯一标识，全局唯一
      * @param string $group_name 分组名称，不超过100汉字或200个英文字母
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateGroup($group_id, $group_name)
     {
@@ -291,8 +291,8 @@ class Shake extends BasicWeChat
      * 删除分组
      * @param integer $group_id 分组唯一标识，全局唯一
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function deleteGroup($group_id)
     {
@@ -306,8 +306,8 @@ class Shake extends BasicWeChat
      * @param integer $begin 分组列表的起始索引值
      * @param integer $count 待查询的分组数量，不能超过1000个
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getGroupList($begin = 0, $count = 10)
     {
@@ -323,8 +323,8 @@ class Shake extends BasicWeChat
      * @param integer $begin 分组里设备的起始索引值
      * @param integer $count 待查询的分组里设备的数量，不能超过1000个
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getGroupDetail($group_id, $begin = 0, $count = 100)
     {
@@ -337,8 +337,8 @@ class Shake extends BasicWeChat
      * 添加设备到分组
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addDeviceGroup(array $data)
     {
@@ -351,8 +351,8 @@ class Shake extends BasicWeChat
      * 从分组中移除设备
      * @param array $data
      * @return array
-     * @throws Exceptions\InvalidResponseException
-     * @throws Exceptions\LocalCacheException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function deleteDeviceGroup(array $data)
     {

@@ -3,7 +3,6 @@
 namespace WeChat;
 
 use WeChat\Contracts\BasicWeChat;
-use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 发布能力
@@ -18,8 +17,8 @@ class Freepublish extends BasicWeChat
      * 开发者需要先将图文素材以草稿的形式保存（见“草稿箱/新建草稿”，如需从已保存的草稿中选择，见“草稿箱/获取草稿列表”）
      * @param mixed $media_id 选择要发布的草稿的media_id
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function submit($media_id)
     {
@@ -48,12 +47,11 @@ class Freepublish extends BasicWeChat
      * @param mixed $article_id 成功发布时返回的 article_id
      * @param int $index 要删除的文章在图文消息中的位置，第一篇编号为1，该字段不填或填0会删除全部文章
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delete($article_id, $index = 0)
     {
-
         $url = "https://api.weixin.qq.com/cgi-bin/freepublish/delete?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['article_id' => $article_id, 'index' => $index]);
@@ -63,8 +61,8 @@ class Freepublish extends BasicWeChat
      * 通过 article_id 获取已发布文章
      * @param mixed $article_id 要获取的草稿的article_id
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getArticle($article_id)
     {
@@ -79,8 +77,8 @@ class Freepublish extends BasicWeChat
      * @param int $count 返回素材的数量，取值在1到20之间
      * @param int $no_content 1 表示不返回 content 字段，0 表示正常返回，默认为 0
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function batchGet($offset = 0, $count = 20, $no_content = 0)
     {
@@ -88,5 +86,4 @@ class Freepublish extends BasicWeChat
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, ['no_content' => $no_content, 'offset' => $offset, 'count' => $count]);
     }
-
 }

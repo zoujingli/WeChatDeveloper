@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -91,7 +91,7 @@ class BasicWePay
     /**
      * 获取微信支付通知
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function getNotify()
     {
@@ -137,7 +137,7 @@ class BasicWePay
      * 转换短链接
      * @param string $longUrl 需要转换的URL，签名用原串，传输需URLencode
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function shortUrl($longUrl)
@@ -145,7 +145,6 @@ class BasicWePay
         $url = 'https://api.mch.weixin.qq.com/tools/shorturl';
         return $this->callPostApi($url, ['long_url' => $longUrl]);
     }
-
 
     /**
      * 数组直接转xml数据输出
@@ -163,14 +162,15 @@ class BasicWePay
     }
 
     /**
-     * 以Post请求接口
+     * 以 Post 请求接口
      * @param string $url 请求
      * @param array $data 接口参数
      * @param bool $isCert 是否需要使用双向证书
      * @param string $signType 数据签名类型 MD5|SHA256
      * @param bool $needSignType 是否需要传签名类型参数
+     * @param bool $needNonceStr
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     protected function callPostApi($url, array $data, $isCert = false, $signType = 'HMAC-SHA256', $needSignType = true, $needNonceStr = true)

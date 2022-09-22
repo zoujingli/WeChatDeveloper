@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -30,8 +30,8 @@ class Media extends BasicWeChat
      * @param string $filename 文件名称
      * @param string $type 媒体文件类型(image|voice|video|thumb)
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function add($filename, $type = 'image')
     {
@@ -48,8 +48,8 @@ class Media extends BasicWeChat
      * @param string $media_id
      * @param string $outType 返回处理函数
      * @return array|string
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function get($media_id, $outType = null)
     {
@@ -70,8 +70,8 @@ class Media extends BasicWeChat
      * 新增图文素材
      * @param array $data 文件名称
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addNews($data)
     {
@@ -86,8 +86,8 @@ class Media extends BasicWeChat
      * @param int $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
      * @param array $news 文章内容
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function updateNews($media_id, $index, $news)
     {
@@ -101,8 +101,8 @@ class Media extends BasicWeChat
      * 上传图文消息内的图片获取URL
      * @param mixed $filename
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function uploadImg($filename)
     {
@@ -117,8 +117,8 @@ class Media extends BasicWeChat
      * @param string $type 媒体文件类型(image|voice|video|thumb)
      * @param array $description 包含素材的描述信息
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function addMaterial($filename, $type = 'image', $description = [])
     {
@@ -135,8 +135,8 @@ class Media extends BasicWeChat
      * @param string $media_id
      * @param null|string $outType 输出类型
      * @return array|string
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getMaterial($media_id, $outType = null)
     {
@@ -157,8 +157,8 @@ class Media extends BasicWeChat
      * 删除永久素材
      * @param string $media_id
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function delMaterial($media_id)
     {
@@ -170,8 +170,8 @@ class Media extends BasicWeChat
     /**
      * 获取素材总数
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function getMaterialCount()
     {
@@ -186,8 +186,8 @@ class Media extends BasicWeChat
      * @param int $offset
      * @param int $count
      * @return array
-     * @throws Exceptions\LocalCacheException
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function batchGetMaterial($type = 'image', $offset = 0, $count = 20)
     {

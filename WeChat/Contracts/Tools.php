@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2022 广州楚才信息科技有限公司 [ http://www.cuci.cc ]
 // +----------------------------------------------------------------------
-// | 官方网站: http://think.ctolog.com
+// | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
 // | 开源协议 ( https://mit-license.org )
 // +----------------------------------------------------------------------
@@ -69,7 +69,7 @@ class Tools
      * @param string|array $ext 文件后缀
      * @param array $mine 文件后缀MINE信息
      * @return string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function getExtMine($ext, $mine = [])
     {
@@ -83,7 +83,7 @@ class Tools
     /**
      * 获取所有文件扩展的类型
      * @return array
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     private static function getMines()
     {
@@ -103,7 +103,7 @@ class Tools
      * @param string $mimetype
      * @param string $postname
      * @return \CURLFile|string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function createCurlFile($filename, $mimetype = null, $postname = null)
     {
@@ -257,7 +257,7 @@ class Tools
      * 解析JSON内容到数组
      * @param string $json
      * @return array
-     * @throws InvalidResponseException
+     * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public static function json2arr($json)
     {
@@ -277,7 +277,7 @@ class Tools
      * @param array $query GET数
      * @param array $options
      * @return boolean|string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function get($url, $query = [], $options = [])
     {
@@ -291,7 +291,7 @@ class Tools
      * @param array $data POST数据
      * @param array $options
      * @return boolean|string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function post($url, $data = [], $options = [])
     {
@@ -305,7 +305,7 @@ class Tools
      * @param string $url 请求方法
      * @param array $options 请求参数[headers,data,ssl_cer,ssl_key]
      * @return boolean|string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function doRequest($method, $url, $options = [])
     {
@@ -384,7 +384,7 @@ class Tools
      * @param string $name 文件名称
      * @param string $content 文件内容
      * @return string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function pushFile($name, $content)
     {
@@ -404,7 +404,7 @@ class Tools
      * @param string $value 缓存内容
      * @param int $expired 缓存时间(0表示永久缓存)
      * @return string
-     * @throws LocalCacheException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function setCache($name, $value = '', $expired = 3600)
     {
