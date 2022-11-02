@@ -150,13 +150,16 @@ abstract class BasicAliPay
 
     /**
      * 获取通知数据
+     *
      * @param boolean $needSignType 是否需要sign_type字段
+     * @param array $parameters
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function notify($needSignType = false)
+    public function notify($needSignType = false, array $parameters = [])
     {
-        $data = $_POST;
+        $data = empty($parameters) ? $_POST : $parameters;
+
         if (empty($data) || empty($data['sign'])) {
             throw new InvalidResponseException('Illegal push request.', 0, $data);
         }
