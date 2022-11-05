@@ -86,10 +86,15 @@ class Order extends BasicWePay
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      */
-    public function notify()
+    public function notify(array $parameters = [])
     {
-        $body = file_get_contents('php://input');
-        $data = json_decode($body, true);
+        if (empty($parameters)) {
+            $body = file_get_contents('php://input');
+            $data = json_decode($body, true);
+        } else {
+            $data = $parameters;
+        }
+
         if (isset($data['resource'])) {
             $aes = new DecryptAes($this->config['mch_v3_key']);
             $data['result'] = $aes->decryptToString(
