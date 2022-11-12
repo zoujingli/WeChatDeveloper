@@ -46,7 +46,8 @@ class WXBizDataCrypt
         if ($dataObj == null) {
             return ErrorCode::$IllegalBuffer;
         }
-        if ($dataObj->watermark->appid != $this->appid) {
+        // 兼容新版本无 watermark 的情况
+        if (isset($dataObj->watermark) && $dataObj->watermark->appid != $this->appid) {
             return ErrorCode::$IllegalBuffer;
         }
         $data = $result;
