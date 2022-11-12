@@ -286,6 +286,6 @@ try {
 * WeChatDeveloper 基于`MIT`协议发布，任何人可以用在任何地方，不受约束
 * WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
 
-## 赞助打赏
+## 赞助打赏，请作者喝杯茶 ~
 
 ![赞助](https://thinkadmin.top/static/img/pay.png)
