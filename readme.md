@@ -45,48 +45,48 @@ WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何�
 * Gitee 托管地址：https://gitee.com/zoujingli/WeChatDeveloper
 * GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
 
-文件说明（后缀会根据官方文档增加文件）
+文件说明（后续会根据官方文档增加文件）
 ----
 
-|文件名|类名|描述|类型|加载 ①|
-|---|---|---|---|---|
-|  App.php  |  AliPay\App  |  支付宝App支付  |  支付宝支付  |  \We::AliPayApp() |
-|  Bill.php  |  AliPay\Bill  |  支付宝账单下载  |  支付宝支付  |  \We::AliPayBill() |
-|  Pos.php  |  AliPay\Pos  |  支付宝刷卡支付  |  支付宝支付  |  \We::AliPayPos() |
-|  Scan.php  |  AliPay\Scan  |  支付宝扫码支付  |  支付宝支付  |  \We::AliPayScan() |
-|  Transfer.php  |  AliPay\Transfer  |  支付宝转账  |  支付宝支付  |  \We::AliPayTransfer() |
-|  Wap.php  |  AliPay\Wap  |  支付宝Wap支付  |  支付宝支付  |  \We::AliPayWap() |
-|  Web.php  |  AliPay\Web  |  支付宝Web支付  |  支付宝支付  |  \We::AliPayWeb() |
-|  Card.php  |  WeChat\Card  |  微信卡券接口支持  |  认证服务号  |  \We::WeChatCard() |
-|  Custom.php  | WeChat\Custom   |  微信客服消息接口支持   |  认证服务号 | \We::WeChatCustom() |
-|  Media.php  | WeChat\Media   |  微信媒体素材接口支持  |  认证服务号 | \We::WeChatMedia() |
-|  Oauth.php  | WeChat\Oauth   |  微信网页授权消息类接口  |  认证服务号 | \We::WeChatOauth() |
-|  Pay.php  | WeChat\Pay   |  微信支付类接口  |  认证服务号 | \We::WeChatPay() |
-|  Product.php  | WeChat\Product   |  微信商店类接口  |  认证服务号 | \We::WeChatProduct() |
-|  Qrcode.php  | WeChat\Qrcode   |  微信二维码接口支持  |  认证服务号 | \We::WeChatQrcode() |
-|  Receive.php  | WeChat\Receive   |  微信推送事件消息处理支持 |  认证服务号 | \We::WeChatReceive() |
-|  Scan.php  | WeChat\Scan   |  微信扫一扫接口支持  |  认证服务号 | \We::WeChatScan() |
-|  Script.php  | WeChat\Script   |  微信前端JSSDK支持  |  认证服务号 | \We::WeChatScript() |
-|  Shake.php  | WeChat\Shake   |  微信蓝牙设备揺一揺接口  |  认证服务号 | \We::WeChatShake() |
-|  Tags.php  | WeChat\Tags   |  微信粉丝标签接口支持  |  认证服务号 | \We::WeChatTags() |
-|  Template.php  | WeChat\Template   |  微信模板消息接口支持  |  认证服务号 | \We::WeChatTemplate() |
-|  User.php  | WeChat\User   |  微信粉丝管理接口支持  |  认证服务号 | \We::WeChatCard() |
-|  Wifi.php  | WeChat\Wifi   |  微信门店WIFI管理支持  |  认证服务号 | \We::WeChatWifi() |
-|  Draft.php  | WeChat\Draft   |  微信草稿箱  |  认证服务号 | \We::WeChatDraft() |
-|  Freepublish.php  | WeChat\Freepublish   |  微信发布能力  |  认证服务号 | \We::WeChatFreepublish() |
-|  Bill.php  | WePay\Bill   |  微信商户账单及评论  | 微信支付 | \We::WePayBill() |
-|  Coupon.php  | WePay\Coupon   |  微信商户代金券  |  微信支付 | \We::WePayCoupon() |
-|  Order.php  | WePay\Order   |  微信商户订单  |  微信支付 | \We::WePayOrder() |
-|  Redpack.php  | WePay\Redpack   |  微信红包支持  |  微信支付 | \We::WePayRedpack() |
-|  Refund.php  | WePay\Refund   |  微信商户退款  |  微信支付 | \We::WePayRefund() |
-|  Transfers.php  | WePay\Transfers   |  微信商户打款到零钱  |   微信支付 | \We::WePayTransfers() |
-|  TransfersBank.php  | WePay\TransfersBank   |  微信商户打款到银行卡  |  微信支付 | \We::WePayTransfersBank() |
-|  Crypt.php  | WeMini\Crypt   |  微信小程序数据加密处理  |  微信小程序 | \We::WeMiniCrypt() |
-|  Plugs.php  | WeMini\Plugs   |  微信小程序插件管理  |  微信小程序 | \We::WeMiniPlugs() |
-|  Poi.php  | WeMini\Poi   |  微信小程序地址管理  |  微信小程序 | \We::WeMiniPoi() |
-|  Qrcode.php  | WeMini\Qrcode   |  微信小程序二维码管理  | 微信小程序 | \We::WeMiniCrypt() |
-|  Template.php  | WeMini\Template   |  微信小程序模板消息支持  | 微信小程序 | \We::WeMiniTemplate() |
-|  Total.php  | WeMini\Total   |  微信小程序数据接口  | 微信小程序 | \We::WeMiniTotal() |
+| 文件名               | 类名                  | 描述           | 类型    | 加载 ①                      |
+|-------------------|---------------------|--------------|-------|---------------------------|
+| App.php           | AliPay\App          | 支付宝App支付     | 支付宝支付 | \We::AliPayApp()          |
+| Bill.php          | AliPay\Bill         | 支付宝账单下载      | 支付宝支付 | \We::AliPayBill()         |
+| Pos.php           | AliPay\Pos          | 支付宝刷卡支付      | 支付宝支付 | \We::AliPayPos()          |
+| Scan.php          | AliPay\Scan         | 支付宝扫码支付      | 支付宝支付 | \We::AliPayScan()         |
+| Transfer.php      | AliPay\Transfer     | 支付宝转账        | 支付宝支付 | \We::AliPayTransfer()     |
+| Wap.php           | AliPay\Wap          | 支付宝Wap支付     | 支付宝支付 | \We::AliPayWap()          |
+| Web.php           | AliPay\Web          | 支付宝Web支付     | 支付宝支付 | \We::AliPayWeb()          |
+| Card.php          | WeChat\Card         | 微信卡券接口支持     | 认证服务号 | \We::WeChatCard()         |
+| Custom.php        | WeChat\Custom       | 微信客服消息接口支持   | 认证服务号 | \We::WeChatCustom()       |
+| Media.php         | WeChat\Media        | 微信媒体素材接口支持   | 认证服务号 | \We::WeChatMedia()        |
+| Oauth.php         | WeChat\Oauth        | 微信网页授权消息类接口  | 认证服务号 | \We::WeChatOauth()        |
+| Pay.php           | WeChat\Pay          | 微信支付类接口      | 认证服务号 | \We::WeChatPay()          |
+| Product.php       | WeChat\Product      | 微信商店类接口      | 认证服务号 | \We::WeChatProduct()      |
+| Qrcode.php        | WeChat\Qrcode       | 微信二维码接口支持    | 认证服务号 | \We::WeChatQrcode()       |
+| Receive.php       | WeChat\Receive      | 微信推送事件消息处理支持 | 认证服务号 | \We::WeChatReceive()      |
+| Scan.php          | WeChat\Scan         | 微信扫一扫接口支持    | 认证服务号 | \We::WeChatScan()         |
+| Script.php        | WeChat\Script       | 微信前端JSSDK支持  | 认证服务号 | \We::WeChatScript()       |
+| Shake.php         | WeChat\Shake        | 微信蓝牙设备揺一揺接口  | 认证服务号 | \We::WeChatShake()        |
+| Tags.php          | WeChat\Tags         | 微信粉丝标签接口支持   | 认证服务号 | \We::WeChatTags()         |
+| Template.php      | WeChat\Template     | 微信模板消息接口支持   | 认证服务号 | \We::WeChatTemplate()     |
+| User.php          | WeChat\User         | 微信粉丝管理接口支持   | 认证服务号 | \We::WeChatCard()         |
+| Wifi.php          | WeChat\Wifi         | 微信门店WIFI管理支持 | 认证服务号 | \We::WeChatWifi()         |
+| Draft.php         | WeChat\Draft        | 微信草稿箱        | 认证服务号 | \We::WeChatDraft()        |
+| Freepublish.php   | WeChat\Freepublish  | 微信发布能力       | 认证服务号 | \We::WeChatFreepublish()  |
+| Bill.php          | WePay\Bill          | 微信商户账单及评论    | 微信支付  | \We::WePayBill()          |
+| Coupon.php        | WePay\Coupon        | 微信商户代金券      | 微信支付  | \We::WePayCoupon()        |
+| Order.php         | WePay\Order         | 微信商户订单       | 微信支付  | \We::WePayOrder()         |
+| Redpack.php       | WePay\Redpack       | 微信红包支持       | 微信支付  | \We::WePayRedpack()       |
+| Refund.php        | WePay\Refund        | 微信商户退款       | 微信支付  | \We::WePayRefund()        |
+| Transfers.php     | WePay\Transfers     | 微信商户打款到零钱    | 微信支付  | \We::WePayTransfers()     |
+| TransfersBank.php | WePay\TransfersBank | 微信商户打款到银行卡   | 微信支付  | \We::WePayTransfersBank() |
+| Crypt.php         | WeMini\Crypt        | 微信小程序数据加密处理  | 微信小程序 | \We::WeMiniCrypt()        |
+| Plugs.php         | WeMini\Plugs        | 微信小程序插件管理    | 微信小程序 | \We::WeMiniPlugs()        |
+| Poi.php           | WeMini\Poi          | 微信小程序地址管理    | 微信小程序 | \We::WeMiniPoi()          |
+| Qrcode.php        | WeMini\Qrcode       | 微信小程序二维码管理   | 微信小程序 | \We::WeMiniCrypt()        |
+| Template.php      | WeMini\Template     | 微信小程序模板消息支持  | 微信小程序 | \We::WeMiniTemplate()     |
+| Total.php         | WeMini\Total        | 微信小程序数据接口    | 微信小程序 | \We::WeMiniTotal()        |
 
 安装使用
 ----
