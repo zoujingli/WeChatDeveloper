@@ -19,8 +19,8 @@ include "../include.php";
 $config = include "./alipay.php";
 
 // 参考公共参数  https://docs.open.alipay.com/203/107090/
-$config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
-$config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
+$config['notify_url'] = 'https://pay.thinkadmin.top/test/alipay-notify.php';
+$config['return_url'] = 'https://pay.thinkadmin.top/test/alipay-success.php';
 
 try {
     // 实例支付对象
