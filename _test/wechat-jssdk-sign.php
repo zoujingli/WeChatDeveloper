@@ -26,7 +26,7 @@ try {
     $wechat = \WeChat\Script::instance($config);
 
     // 4. 获取JSSDK网址签名配置
-    $result = $wechat->getJsSign('http://a.com/test.php');
+    $result = $wechat->getJsSign('https://a.com/test.php');
 
     var_export($result);
 

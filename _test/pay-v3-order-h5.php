@@ -10,14 +10,19 @@ try {
     $payment = \WePayV3\Order::instance($config);
 
     // 4. 组装支付参数
-    $result = $payment->create('jsapi', [
-        'appid'        => 'wx60a43dd8161666d4',
+    $result = $payment->create('h5', [
+        'appid'        => $config['appid'],
         'mchid'        => $config['mch_id'],
         'description'  => '商品描述',
         'out_trade_no' => (string)time(),
         'notify_url'   => 'https://thinkadmin.top',
-        'payer'        => ['openid' => 'o38gps3vNdCqaggFfrBRCRikwlWY'],
         'amount'       => ['total' => 2, 'currency' => 'CNY'],
+        'scene_info'   => [
+            'h5_info'         => [
+                'type' => 'Wap',
+            ],
+            'payer_client_ip' => '14.23.150.211',
+        ],
     ]);
 
     echo '<pre>';
