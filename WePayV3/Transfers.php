@@ -48,4 +48,30 @@ class Transfers extends BasicWePay
         ]);
         return $this->doRequest('GET', "{$pathinfo}?{$params}", '', true);
     }
+
+    /**
+     * 通过微信明细单号查询明细单
+     * @param string $batchId 微信批次单号
+     * @param string $detailId 微信支付系统内部区分转账批次单下不同转账明细单的唯一标识
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function detailBatchId($batchId, $detailId)
+    {
+        $pathinfo = "/v3/transfer/batches/batch-id/{$batchId}/details/detail-id/{$detailId}";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 通过商家明细单号查询明细单
+     * @param string $outBatchNo 商户系统内部的商家批次单号，在商户系统内部唯一
+     * @param string $outDetailNo 商户系统内部区分转账批次单下不同转账明细单的唯一标识
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function detailOutBatchNo($outBatchNo, $outDetailNo)
+    {
+        $pathinfo = "/v3/transfer/batches/out-batch-no/{$outBatchNo}/details/out-detail-no/{$outDetailNo}";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
 }
