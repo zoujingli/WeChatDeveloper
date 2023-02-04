@@ -17,6 +17,7 @@ namespace WeChat\Contracts;
 use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
+use WeChat\Prpcrypt\Prpcrypt;
 
 /**
  * 微信通知处理基本类
@@ -95,10 +96,7 @@ class BasicPushEvent
                 if (empty($options['encodingaeskey'])) {
                     throw new InvalidArgumentException("Missing Config -- [encodingaeskey]");
                 }
-                if (!class_exists('Prpcrypt', false)) {
-                    require __DIR__ . '/Prpcrypt.php';
-                }
-                $prpcrypt = new \Prpcrypt($this->config->get('encodingaeskey'));
+                $prpcrypt = new Prpcrypt($this->config->get('encodingaeskey'));
                 $result = Tools::xml2arr($this->postxml);
                 $array = $prpcrypt->decrypt($result['Encrypt']);
                 if (intval($array[0]) > 0) {
@@ -136,10 +134,7 @@ class BasicPushEvent
     {
         $xml = Tools::arr2xml(empty($data) ? $this->message : $data);
         if ($this->isEncrypt() || $isEncrypt) {
-            if (!class_exists('Prpcrypt', false)) {
-                require __DIR__ . '/Prpcrypt.php';
-            }
-            $prpcrypt = new \Prpcrypt($this->config->get('encodingaeskey'));
+            $prpcrypt = new Prpcrypt($this->config->get('encodingaeskey'));
             // 如果是第三方平台，加密得使用 component_appid
             $component_appid = $this->config->get('component_appid');
             $appid = empty($component_appid) ? $this->appid : $component_appid;
