@@ -1,15 +1,17 @@
+# WeChatDeveloper for PHP
+
 [![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/zoujingli/wechat-developer)
 [![Latest Unstable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/unstable)](https://packagist.org/packages/zoujingli/wechat-developer)
 [![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/zoujingli/wechat-developer)
+[![Monthly Downloads](https://poser.pugx.org/zoujingli/wechat-developer/d/monthly)](https://packagist.org/packages/zoujingli/wechat-developer)
+[![Daily Downloads](https://poser.pugx.org/zoujingli/wechat-developer/d/daily)](https://packagist.org/packages/zoujingli/wechat-developer)
+[![PHP Version Require](http://poser.pugx.org/zoujingli/wechat-developer/require/php)](https://packagist.org/packages/wechat-developer)
 [![License](https://poser.pugx.org/zoujingli/wechat-developer/license)](https://packagist.org/packages/zoujingli/wechat-developer)
-
-WeChatDeveloper for PHP
-----
 
 * WeChatDeveloper 是基于 [wechat-php-sdk](https://github.com/zoujingli/wechat-php-sdk) 重构，优化并完善；
 * 运行最底要求 PHP 版本 5.4 , 建议在 PHP7 上运行以获取最佳性能；
-* WeChatDeveloper 针对 access_token 失效增加了自动刷新机制；
-* 微信的部分接口需要缓存数据在本地，因此对目录需要有写权限；
+* 目前 WeChatDeveloper 针对 access_token 失效增加了自动刷新机制；
+* 微信的部分接口需要缓存数据在本地，因此配置目录并需要对目录有写权限；
 * 我们鼓励大家使用 composer 来管理您的第三方库，方便后期更新操作；
 * WeChatDeveloper 已历经数个线上项目考验，欢迎 fork 或 star 此项目。
 * 微信商户支持已经支持 v2 接口，组件开发版支持 v3 接口。
