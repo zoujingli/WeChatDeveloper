@@ -282,11 +282,13 @@ try {
 
 * 更多功能请阅读测试代码或SDK封装源码
 
-开源协议
-----
+## 版权说明
 
-* WeChatDeveloper 基于`MIT`协议发布，任何人可以用在任何地方，不受约束
-* WeChatDeveloper 部分代码来自互联网，若有异议，可以联系作者进行删除
+**WeChatDeveloper** 遵循 **MIT** 开源协议发布，并免费提供使用。
+
+本项目包含的第三方源码和二进制文件的版权信息将另行标注，请在对应文件查看。
+
+版权所有 Copyright © 2014-2023 by ThinkAdmin (https://thinkadmin.top) All rights reserved。
 
 ## 赞助打赏，请作者喝杯茶 ~
 
