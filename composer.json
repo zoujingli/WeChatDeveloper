@@ -2,7 +2,7 @@
   "type": "library",
   "name": "zoujingli/wechat-developer",
   "homepage": "https://thinkadmin.top",
-  "description": "WeChat platform and WeChat payment development tools",
+  "description": "WeChat platform and Payment development tools",
   "license": "MIT",
   "authors": [
     {
