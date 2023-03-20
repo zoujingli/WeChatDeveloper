@@ -1,0 +1,96 @@
+<?php
+
+// +----------------------------------------------------------------------
+// | WeChatDeveloper
+// +----------------------------------------------------------------------
+// | 版权所有 2014~2023 ThinkAdmin [ thinkadmin.top ]
+// +----------------------------------------------------------------------
+// | 官方网站: https://thinkadmin.top
+// +----------------------------------------------------------------------
+// | 开源协议 ( https://mit-license.org )
+// | 免责声明 ( https://thinkadmin.top/disclaimer )
+// +----------------------------------------------------------------------
+// | gitee 代码仓库：https://gitee.com/zoujingli/WeChatDeveloper
+// | github 代码仓库：https://github.com/zoujingli/WeChatDeveloper
+// +----------------------------------------------------------------------
+
+namespace WePayV3;
+
+use WePayV3\Contracts\BasicWePay;
+
+/**
+ * 普通商户商家分账
+ * Class Profitsharing
+ * @package WePayV3
+ */
+class Profitsharing extends BasicWePay
+{
+
+
+    /**
+     * 请求分账
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function create($options)
+    {
+        return $this->doRequest('POST', '/v3/profitsharing/orders', $options, true);
+    }
+
+
+    /**
+     * 查询分账结果
+     * @param string $outOrderNo 商户分账单号
+     * @param string $transactionId 微信订单号
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function query($outOrderNo, $transactionId)
+    {
+        $pathinfo = "/v3/profitsharing/orders/{$outOrderNo}?&transaction_id={$transactionId}";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 解冻剩余资金
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function unfreeze($options)
+    {
+        return $this->doRequest('POST', '/v3/profitsharing/orders/unfreeze', $options, true);
+    }
+    /**
+     * 查询剩余待分金额
+     * @param array $transactionId 微信订单号
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function amounts($transactionId)
+    {
+        $pathinfo = "/v3/profitsharing/transactions/{$transactionId}/amounts";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+    /**
+     * 添加分账接收方
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function addReceiver($options)
+    {
+        return $this->doRequest('POST', "/v3/profitsharing/receivers/add", $options, true);
+    }
+    /**
+     * 删除分账接收方
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function deleteReceiver($options)
+    {
+        return $this->doRequest('POST', "/v3/profitsharing/receivers/delete", $options, true);
+    }
+}
