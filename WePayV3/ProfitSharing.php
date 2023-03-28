@@ -23,7 +23,7 @@ use WePayV3\Contracts\BasicWePay;
  * Class Profitsharing
  * @package WePayV3
  */
-class Profitsharing extends BasicWePay
+class ProfitSharing extends BasicWePay
 {
 
 
@@ -35,7 +35,8 @@ class Profitsharing extends BasicWePay
      */
     public function create($options)
     {
-        return $this->doRequest('POST', '/v3/profitsharing/orders', $options, true);
+        $options['appid'] = $this->config['appid'];
+        return $this->doRequest('POST', '/v3/profitsharing/orders', json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
 
 
@@ -60,7 +61,7 @@ class Profitsharing extends BasicWePay
      */
     public function unfreeze($options)
     {
-        return $this->doRequest('POST', '/v3/profitsharing/orders/unfreeze', $options, true);
+        return $this->doRequest('POST', '/v3/profitsharing/orders/unfreeze', json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
     /**
      * 查询剩余待分金额
@@ -81,7 +82,8 @@ class Profitsharing extends BasicWePay
      */
     public function addReceiver($options)
     {
-        return $this->doRequest('POST', "/v3/profitsharing/receivers/add", $options, true);
+        $options['appid'] = $this->config['appid'];
+        return $this->doRequest('POST', "/v3/profitsharing/receivers/add", json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
     /**
      * 删除分账接收方
@@ -91,6 +93,7 @@ class Profitsharing extends BasicWePay
      */
     public function deleteReceiver($options)
     {
-        return $this->doRequest('POST', "/v3/profitsharing/receivers/delete", $options, true);
+        $options['appid'] = $this->config['appid'];
+        return $this->doRequest('POST', "/v3/profitsharing/receivers/delete", json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
 }
