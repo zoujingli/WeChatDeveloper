@@ -22,7 +22,7 @@ use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 订单退款接口
+ * 电商接口 | 订单退款接口
  * Class Refund
  * @package WePayV3
  */

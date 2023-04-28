@@ -135,24 +135,28 @@ abstract class BasicWePay
      * @param string $method 请求访问
      * @param string $pathinfo 请求路由
      * @param string $jsondata 请求数据
-     * @param bool $verify 是否验证
-     * @return array
+     * @param boolean $verify 是否验证
+     * @param boolean $isjson 返回JSON
+     * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function doRequest($method, $pathinfo, $jsondata = '', $verify = false)
+    public function doRequest($method, $pathinfo, $jsondata = '', $verify = false, $isjson = true)
     {
         list($time, $nonce) = [time(), uniqid() . rand(1000, 9999)];
         $signstr = join("\n", [$method, $pathinfo, $time, $nonce, $jsondata, '']);
+
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
             $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
         );
+
         list($header, $content) = $this->_doRequestCurl($method, $this->base . $pathinfo, [
             'data' => $jsondata, 'header' => [
                 "Accept: application/json", "Content-Type: application/json",
                 'User-Agent: https://thinkadmin.top', "Authorization: WECHATPAY2-SHA256-RSA2048 {$token}",
             ],
         ]);
+
         if ($verify) {
             $headers = [];
             foreach (explode("\n", $header) as $line) {
@@ -171,7 +175,8 @@ abstract class BasicWePay
                 throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
             }
         }
-        return json_decode($content, true);
+
+        return $isjson ? json_decode($content, true) : $content;
     }
 
     /**

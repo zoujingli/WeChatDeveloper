@@ -22,7 +22,7 @@ use WePayV3\Contracts\BasicWePay;
 use WePayV3\Contracts\DecryptAes;
 
 /**
- * 订单支付接口
+ * 直连商户 | 订单支付接口
  * Class Order
  * @package WePayV3
  */
@@ -39,6 +39,7 @@ class Order extends BasicWePay
      * @param array $data 支付参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_1.shtml
      */
     public function create($type, $data)
     {
@@ -73,18 +74,32 @@ class Order extends BasicWePay
 
     /**
      * 支付订单查询
-     * @param string $orderNo 订单单号
+     * @param string $tradeNo 订单单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_2.shtml
      */
-    public function query($orderNo)
+    public function query($tradeNo)
     {
-        $pathinfo = "/v3/pay/transactions/out-trade-no/{$orderNo}";
+        $pathinfo = "/v3/pay/transactions/out-trade-no/{$tradeNo}";
         return $this->doRequest('GET', "{$pathinfo}?mchid={$this->config['mch_id']}", '', true);
     }
 
     /**
-     * 支付通知
+     * 关闭支付订单
+     * @param string $tradeNo 订单单号
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function close($tradeNo)
+    {
+        $data = ['mchid' => $this->config['mch_id']];
+        $path = "/v3/pay/transactions/out-trade-no/{$tradeNo}/close";
+        return $this->doRequest('POST', $path, json_encode($data, JSON_UNESCAPED_UNICODE), true);
+    }
+
+    /**
+     * 支付通知解析
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      */
@@ -106,5 +121,70 @@ class Order extends BasicWePay
             );
         }
         return $data;
+    }
+
+    /**
+     * 创建退款订单
+     * @param array $data 退款参数
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_9.shtml
+     */
+    public function createRefund($data)
+    {
+        $path = '/v3/refund/domestic/refunds';
+        return $this->doRequest('POST', $path, json_encode($data, JSON_UNESCAPED_UNICODE), true);
+    }
+
+    /**
+     * 退款订单查询
+     * @param string $refundNo 退款单号
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_10.shtml
+     */
+    public function queryRefund($refundNo)
+    {
+        $path = "/v3/refund/domestic/refunds/{$refundNo}";
+        return $this->doRequest('GET', $path, '', true);
+    }
+
+    /**
+     * 申请交易账单
+     * @param array|string $params
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_3_6.shtml
+     */
+    public function tradeBill($params)
+    {
+        $path = '/v3/bill/tradebill?' . is_array($params) ? http_build_query($params) : $params;
+        return $this->doRequest('GET', $path, '', true);
+    }
+
+    /**
+     * 申请资金账单
+     * @param array|string $params
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_3_7.shtml
+     */
+    public function fundflowBill($params)
+    {
+        $path = '/v3/bill/fundflowbill?' . is_array($params) ? http_build_query($params) : $params;
+        return $this->doRequest('GET', $path, '', true);
+    }
+
+    /**
+     * 下载账单文件
+     * @param string $fileurl
+     * @return string 二进制 Excel 内容
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @document https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter7_6_1.shtml
+     */
+    public function downloadBill($fileurl)
+    {
+        $path = strstr($fileurl, '/v3/');
+        return $this->doRequest('GET', $path, '', false, false);
     }
 }
