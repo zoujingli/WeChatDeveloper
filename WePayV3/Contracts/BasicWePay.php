@@ -153,7 +153,7 @@ abstract class BasicWePay
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
             $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
         );
-        $location = preg_match('|^https?://|', $pathinfo) ? $pathinfo : ($this->base . $pathinfo);
+        $location = (preg_match('|^https?://|', $pathinfo) ? '' : $this->base) . $pathinfo;
         list($header, $content) = $this->_doRequestCurl($method, $location, [
             'data' => $jsondata, 'header' => [
                 "Accept: application/json", "Content-Type: application/json",
