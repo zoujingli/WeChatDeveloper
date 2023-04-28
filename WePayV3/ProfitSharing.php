@@ -25,8 +25,6 @@ use WePayV3\Contracts\BasicWePay;
  */
 class ProfitSharing extends BasicWePay
 {
-
-
     /**
      * 请求分账
      * @param array $options
@@ -63,9 +61,10 @@ class ProfitSharing extends BasicWePay
     {
         return $this->doRequest('POST', '/v3/profitsharing/orders/unfreeze', json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
+
     /**
      * 查询剩余待分金额
-     * @param array $transactionId 微信订单号
+     * @param string $transactionId 微信订单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -74,6 +73,7 @@ class ProfitSharing extends BasicWePay
         $pathinfo = "/v3/profitsharing/transactions/{$transactionId}/amounts";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
+
     /**
      * 添加分账接收方
      * @param array $options
@@ -85,6 +85,7 @@ class ProfitSharing extends BasicWePay
         $options['appid'] = $this->config['appid'];
         return $this->doRequest('POST', "/v3/profitsharing/receivers/add", json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
+
     /**
      * 删除分账接收方
      * @param array $options

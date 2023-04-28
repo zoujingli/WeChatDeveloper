@@ -65,11 +65,11 @@ abstract class BasicWePay
         if (empty($options['mch_v3_key'])) {
             throw new InvalidArgumentException("Missing Config -- [mch_v3_key]");
         }
-        if (empty($options['cert_private'])) {
-            throw new InvalidArgumentException("Missing Config -- [cert_private]");
-        }
         if (empty($options['cert_public'])) {
             throw new InvalidArgumentException("Missing Config -- [cert_public]");
+        }
+        if (empty($options['cert_private'])) {
+            throw new InvalidArgumentException("Missing Config -- [cert_private]");
         }
 
         if (stripos($options['cert_public'], '-----BEGIN CERTIFICATE-----') === false) {
@@ -93,11 +93,29 @@ abstract class BasicWePay
         $this->config['mch_v3_key'] = $options['mch_v3_key'];
         $this->config['cert_public'] = $options['cert_public'];
         $this->config['cert_private'] = $options['cert_private'];
-        $this->config['cert_serial'] = openssl_x509_parse($this->config['cert_public'])['serialNumberHex'];
 
-        if (empty($this->config['cert_serial'])) {
-            throw new InvalidArgumentException("Failed to parse certificate public key");
+        if (empty($options['cert_serial'])) {
+            $this->config['cert_serial'] = openssl_x509_parse($this->config['cert_public'], true)['serialNumberHex'];
+        } else {
+            $this->config['cert_serial'] = $options['cert_serial'];
         }
+        if (empty($this->config['cert_serial'])) {
+            throw new InvalidArgumentException('Failed to parse certificate public key');
+        }
+
+        // 服务商参数支持
+//        if (!empty($options['sp_appid'])) {
+//            $this->config['sp_appid'] = $options['sp_appid'];
+//        }
+//        if (!empty($options['sp_mchid'])) {
+//            $this->config['sp_mchid'] = $options['sp_mchid'];
+//        }
+//        if (!empty($options['sub_appid'])) {
+//            $this->config['sub_appid'] = $options['sub_appid'];
+//        }
+//        if (!empty($options['sub_mch_id'])) {
+//            $this->config['sub_mch_id'] = $options['sub_mch_id'];
+//        }
     }
 
     /**
