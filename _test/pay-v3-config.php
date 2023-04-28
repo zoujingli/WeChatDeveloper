@@ -39,4 +39,6 @@ return [
     'cert_public'  => $certPublic,
     // 必填，微信商户证书私钥，支持证书内容或文件路径
     'cert_private' => $certPrivate,
+    // 可选，运行时的文件缓存路径
+    'cache_path'   => ''
 ];

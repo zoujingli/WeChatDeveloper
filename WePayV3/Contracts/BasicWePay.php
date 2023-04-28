@@ -103,6 +103,10 @@ abstract class BasicWePay
             throw new InvalidArgumentException('Failed to parse certificate public key');
         }
 
+        if (!empty($options['cache_path'])) {
+            Tools::$cache_path = $options['cache_path'];
+        }
+
         // 服务商参数支持
 //        if (!empty($options['sp_appid'])) {
 //            $this->config['sp_appid'] = $options['sp_appid'];
