@@ -184,7 +184,6 @@ class Order extends BasicWePay
      */
     public function downloadBill($fileurl)
     {
-        $path = strstr($fileurl, '/v3/');
-        return $this->doRequest('GET', $path, '', false, false);
+        return $this->doRequest('GET', $fileurl, '', false, false);
     }
 }
