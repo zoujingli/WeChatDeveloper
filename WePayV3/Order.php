@@ -18,6 +18,7 @@ namespace WePayV3;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 use WePayV3\Contracts\DecryptAes;
 
@@ -54,9 +55,13 @@ class Order extends BasicWePay
         } else {
             // 创建预支付码
             $result = $this->doRequest('POST', $types[$type], json_encode($data, JSON_UNESCAPED_UNICODE), true);
-            if (empty($result['prepay_id'])) return $result;
+            if (empty($result['h5_url']) && empty($result['code_url']) && empty($result['prepay_id'])) {
+                $message = isset($result['code']) ? "[ {$result['code']} ] " : '';
+                $message .= isset($result['message']) ? $result['message'] : json_encode($result, JSON_UNESCAPED_UNICODE);
+                throw new InvalidResponseException($message);
+            }
             // 支付参数签名
-            $time = (string)time();
+            $time = strval(time());
             $appid = $this->config['appid'];
             $prepayId = $result['prepay_id'];
             $nonceStr = Tools::createNoncestr();
