@@ -18,6 +18,7 @@ namespace WePayV3\Contracts;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Cert;
 
@@ -258,6 +259,38 @@ abstract class BasicWePay
             return base64_decode(Tools::getCache($name) ?: '');
         } else {
             return Tools::setCache($name, base64_encode($content), 7200);
+        }
+    }
+
+    /**
+     * RSA加密处理
+     * @param string $string
+     * @return string
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     */
+    protected function rsaEncode($string)
+    {
+        $publicKey = file_get_contents($this->config['cert_public']);
+        if (openssl_public_encrypt($string, $encrypted, $publicKey, OPENSSL_PKCS1_OAEP_PADDING)) {
+            return base64_encode($encrypted);
+        } else {
+            throw new InvalidDecryptException('Rsa Encrypt Error.');
+        }
+    }
+
+    /**
+     * RSA 解密处理
+     * @param string $string
+     * @return string
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     */
+    protected function rsaDecode($string)
+    {
+        $private = file_get_contents($this->config['cert_private']);
+        if (openssl_private_decrypt(base64_decode($string), $content, $private, OPENSSL_PKCS1_OAEP_PADDING)) {
+            return $content;
+        } else {
+            throw new InvalidDecryptException('Rsa Decrypt Error.');
         }
     }
 }
