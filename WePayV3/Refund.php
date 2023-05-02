@@ -23,7 +23,8 @@ use WePayV3\Contracts\BasicWePay;
 
 /**
  * 电商接口 | 订单退款接口
- * Class Refund
+ * @deprecated
+ * @class Refund
  * @package WePayV3
  */
 class Refund extends BasicWePay
