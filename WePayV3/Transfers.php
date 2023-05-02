@@ -20,7 +20,7 @@ use WePayV3\Contracts\BasicWePay;
 
 /**
  * 普通商户商家转账到零钱
- * Class Transfers
+ * @class Transfers
  * @package WePayV3
  */
 class Transfers extends BasicWePay
@@ -29,10 +29,16 @@ class Transfers extends BasicWePay
      * 发起商家批量转账
      * @param array $body
      * @return array
+     * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function batchs($body)
     {
+        if (isset($body['transfer_detail_list']) && is_array($body['transfer_detail_list'])) {
+            foreach ($body['transfer_detail_list'] as &$item) if (isset($item['user_name'])) {
+                $item['user_name'] = $this->rsaEncode($item['user_name']);
+            }
+        }
         return $this->doRequest('POST', '/v3/transfer/batches', json_encode($body, JSON_UNESCAPED_UNICODE), true);
     }
 

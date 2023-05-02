@@ -157,8 +157,11 @@ abstract class BasicWePay
         $location = (preg_match('|^https?://|', $pathinfo) ? '' : $this->base) . $pathinfo;
         list($header, $content) = $this->_doRequestCurl($method, $location, [
             'data' => $jsondata, 'header' => [
-                "Accept: application/json", "Content-Type: application/json",
-                'User-Agent: https://thinkadmin.top', "Authorization: WECHATPAY2-SHA256-RSA2048 {$token}",
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'User-Agent: https://thinkadmin.top',
+                "Authorization: WECHATPAY2-SHA256-RSA2048 {$token}",
+                "Wechatpay-Serial: {$this->config['cert_serial']}"
             ],
         ]);
 
