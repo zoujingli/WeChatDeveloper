@@ -199,23 +199,30 @@ try {
 ```php
 $config = [
     // 沙箱模式
-    'debug'       => true,
+    'debug'        => true,
     // 签名类型（RSA|RSA2）
-    'sign_type'   => "RSA2",
-    // 应用ID
-    'appid'       => '2016090900468879',
-    // 支付宝公钥文字内容 (1行填写，特别注意：这里是支付宝公钥，不是应用公钥，最好从开发者中心的网页上去复制)
-    'public_key'  => 'MIIBIjANBgkqhkiG9...',
-    // 支付宝私钥文字内容 (1行填写)
-    'private_key' => 'MIIEvQIBADANBgkqh...',
-    // 应用公钥证书完整内容（新版资金类接口转 app_cert_sn）
-    'app_cert'    => '',
-    // 支付宝根证书完整内容（新版资金类接口转 alipay_root_cert_sn）
-    'root_cert'   => '',
+    'sign_type'    => "RSA2",
+    // 应用APPID
+    'appid'        => '2016090900468879',
+    // 支付宝公钥内容 (需1行填写，特别注意：这里不是应用公钥而是支付宝公钥，通常是上传应用公钥换取支付宝公钥，在网页可以复制)
+    'public_key'   => 'MIIBIjAN...',
+    // 应用私钥的内容 (需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成)
+    'private_key'  => 'MIIEpAIB...',
+
+    // 应用公钥的内容（新版资金类接口，生成 app_cert_sn）
+    'app_cert'     => '',
+    // 应用公钥序列号（可选，可从应用公钥的内容，优先取值）
+    'app_cert_sn'  => '',
+
+    // 支付宝根证书的内容（新版资金类接口，生成 alipay_root_cert_sn）
+    'root_cert'    => '',
+    // 支付宝根证书序列号（可选，可从应用公钥的内容，优先取值 ）
+    'root_cert_sn' => '',
+
     // 支付成功通知地址
-    'notify_url'  => '',
+    'notify_url'   => '',
     // 网页支付回跳地址
-    'return_url'  => '',
+    'return_url'   => '',
 ];
 ```
 

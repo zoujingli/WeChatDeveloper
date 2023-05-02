@@ -297,10 +297,10 @@ abstract class BasicAliPay
      * @param string $sign
      * @return string
      */
-    public function getCertSN($sign)
+    private function getCertSN($sign)
     {
         // if (file_exists($sign)) $sign = file_get_contents($sign);
-        $ssl = openssl_x509_parse($sign);
+        $ssl = openssl_x509_parse($sign, true);
         return md5($this->_arr2str(array_reverse($ssl['issuer'])) . $ssl['serialNumber']);
     }
 
@@ -309,25 +309,49 @@ abstract class BasicAliPay
      * @param string $sign
      * @return string|null
      */
-    public function getRootCertSN($sign)
+    private function getRootCertSN($sign)
     {
         $sn = null;
-        // if (file_exists($sign)) $sign = file_get_contents($sign);
-        $array = explode("-----END CERTIFICATE-----", $sign);
+        $array = explode('-----END CERTIFICATE-----', $sign);
         for ($i = 0; $i < count($array) - 1; $i++) {
-            $ssl[$i] = openssl_x509_parse($array[$i] . "-----END CERTIFICATE-----");
+            $ssl[$i] = openssl_x509_parse($array[$i] . '-----END CERTIFICATE-----', true);
             if (strpos($ssl[$i]['serialNumber'], '0x') === 0) {
-                $ssl[$i]['serialNumber'] = $this->_hex2dec($ssl[$i]['serialNumber']);
+                $ssl[$i]['serialNumber'] = $this->_hex2dec(isset($ssl[$i]['serialNumberHex']) ? $ssl[$i]['serialNumberHex'] : $ssl[$i]['serialNumber']);
             }
             if ($ssl[$i]['signatureTypeLN'] == "sha1WithRSAEncryption" || $ssl[$i]['signatureTypeLN'] == "sha256WithRSAEncryption") {
                 if ($sn == null) {
                     $sn = md5($this->_arr2str(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
                 } else {
-                    $sn = $sn . "_" . md5($this->_arr2str(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
+                    $sn = $sn . '_' . md5($this->_arr2str(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
                 }
             }
         }
         return $sn;
+    }
+
+    /**
+     * 新版 设置网关应用公钥证书SN、支付宝根证书SN
+     */
+    protected function setAppCertSnAndRootCertSn()
+    {
+        if (!$this->config->get('app_cert') && !$this->config->get('app_cert_sn')) {
+            throw new InvalidArgumentException("Missing Config -- [app_cert|app_cert_sn]");
+        }
+        if (!$this->config->get('root_cert') && !$this->config->get('root_cert_sn')) {
+            throw new InvalidArgumentException("Missing Config -- [root_cert|root_cert_sn]");
+        }
+        $appCertSn = $this->config->get('app_cert_sn');
+        $rootCertSn = $this->config->get('root_cert_sn');
+        if (empty($appCertSn)) $appCertSn = $this->getCertSN($this->config->get('app_cert'));
+        if (empty($rootCertSn)) $rootCertSn = $this->getRootCertSN($this->config->get('root_cert'));
+        $this->options->set('app_cert_sn', $appCertSn);
+        $this->options->set('alipay_root_cert_sn', $rootCertSn);
+        if (empty($appCertSn)) {
+            throw new InvalidArgumentException("Missing options -- [app_cert_sn]");
+        }
+        if (empty($rootCertSn)) {
+            throw new InvalidArgumentException("Missing options -- [alipay_root_cert_sn]");
+        }
     }
 
     /**
@@ -367,5 +391,4 @@ abstract class BasicAliPay
      * @return mixed
      */
     abstract public function apply($options);
-
 }

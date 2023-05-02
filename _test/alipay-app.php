@@ -28,7 +28,7 @@ try {
 
     // 请参考（请求参数）：https://docs.open.alipay.com/api_1/alipay.trade.app.pay
     $result = $pay->apply([
-        'out_trade_no' => time(), // 商户订单号
+        'out_trade_no' => strval(time()), // 商户订单号
         'total_amount' => '1', // 支付金额
         'subject'      => '支付宝订单标题', // 支付订单描述
     ]);
