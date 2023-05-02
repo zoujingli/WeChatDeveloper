@@ -208,21 +208,14 @@ $config = [
     'public_key'   => 'MIIBIjAN...',
     // 应用私钥的内容 (需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成)
     'private_key'  => 'MIIEpAIB...',
-
-    // 应用公钥的内容（新版资金类接口，生成 app_cert_sn）
-    'app_cert'     => '',
-    // 应用公钥序列号（可选，可从应用公钥的内容，优先取值）
-    'app_cert_sn'  => '',
-
-    // 支付宝根证书的内容（新版资金类接口，生成 alipay_root_cert_sn）
-    'root_cert'    => '',
-    // 支付宝根证书序列号（可选，可从应用公钥的内容，优先取值 ）
-    'root_cert_sn' => '',
-
+    // 应用公钥的内容（新版资金类接口转 app_cert_sn，如文件 appCertPublicKey_2019051064521003.crt）
+    'app_cert'    => '', // 'app_cert_path' => '',
+    // 支付宝根证书的内容（新版资金类接口转 alipay_root_cert_sn，如文件 alipayRootCert.crt）
+    'root_cert'   => '', // 'root_cert_path' => ''
     // 支付成功通知地址
-    'notify_url'   => '',
+    'notify_url'  => '',
     // 网页支付回跳地址
-    'return_url'   => '',
+    'return_url'  => '',
 ];
 ```
 

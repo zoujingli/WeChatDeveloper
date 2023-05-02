@@ -297,9 +297,8 @@ abstract class BasicAliPay
      * @param string $sign
      * @return string
      */
-    private function getCertSN($sign)
+    private function getAppCertSN($sign)
     {
-        // if (file_exists($sign)) $sign = file_get_contents($sign);
         $ssl = openssl_x509_parse($sign, true);
         return md5($this->_arr2str(array_reverse($ssl['issuer'])) . $ssl['serialNumber']);
     }
@@ -334,23 +333,29 @@ abstract class BasicAliPay
      */
     protected function setAppCertSnAndRootCertSn()
     {
-        if (!$this->config->get('app_cert') && !$this->config->get('app_cert_sn')) {
-            throw new InvalidArgumentException("Missing Config -- [app_cert|app_cert_sn]");
+        $appCert = $this->config->get('app_cert');
+        $rootCert = $this->config->get('root_cert');
+        $appCertPath = $this->config->get('app_cert_path');
+        $rootCertPath = $this->config->get('root_cert_path');
+        if (empty($appCert) && !empty($appCertPath) && is_file($appCertPath)) {
+            $appCert = file_get_contents($appCertPath);
         }
-        if (!$this->config->get('root_cert') && !$this->config->get('root_cert_sn')) {
-            throw new InvalidArgumentException("Missing Config -- [root_cert|root_cert_sn]");
+        if (empty($rootCert) && !empty($rootCertPath) && is_file($rootCertPath)) {
+            $rootCert = file_get_contents($rootCertPath);
         }
-        $appCertSn = $this->config->get('app_cert_sn');
-        $rootCertSn = $this->config->get('root_cert_sn');
-        if (empty($appCertSn)) $appCertSn = $this->getCertSN($this->config->get('app_cert'));
-        if (empty($rootCertSn)) $rootCertSn = $this->getRootCertSN($this->config->get('root_cert'));
-        $this->options->set('app_cert_sn', $appCertSn);
-        $this->options->set('alipay_root_cert_sn', $rootCertSn);
-        if (empty($appCertSn)) {
-            throw new InvalidArgumentException("Missing options -- [app_cert_sn]");
+        if (empty($appCert)) {
+            throw new InvalidArgumentException('Missing Config -- [app_cert|app_cert_path]');
         }
-        if (empty($rootCertSn)) {
-            throw new InvalidArgumentException("Missing options -- [alipay_root_cert_sn]");
+        if (empty($rootCert)) {
+            throw new InvalidArgumentException('Missing Config -- [root_cert|root_cert_path]');
+        }
+        $this->options->set('app_cert_sn', $this->getAppCertSN($appCert));
+        $this->options->set('alipay_root_cert_sn', $this->getRootCertSN($rootCert));
+        if (!$this->options->get('app_cert_sn')) {
+            throw new InvalidArgumentException('Missing options -- [app_cert_sn]');
+        }
+        if (!$this->options->get('alipay_root_cert_sn')) {
+            throw new InvalidArgumentException('Missing options -- [alipay_root_cert_sn]');
         }
     }
 
@@ -369,7 +374,6 @@ abstract class BasicAliPay
         }
         return implode(',', $string);
     }
-
 
     /**
      * 新版 0x转高精度数字
