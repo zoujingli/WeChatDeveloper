@@ -175,9 +175,12 @@ abstract class BasicWePay
                 }
             }
             try {
+                if (empty($headers)) {
+                    return $isjson ? json_decode($content, true) : $content;
+                }
                 $string = join("\n", [$headers['timestamp'], $headers['nonce'], $content, '']);
                 if (!$this->signVerify($string, $headers['signature'], $headers['serial'])) {
-                    throw new InvalidResponseException("验证响应签名失败");
+                    throw new InvalidResponseException('验证响应签名失败');
                 }
             } catch (\Exception $exception) {
                 throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
