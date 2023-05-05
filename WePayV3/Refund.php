@@ -23,6 +23,7 @@ use WePayV3\Contracts\BasicWePay;
 
 /**
  * 电商接口 | 订单退款接口
+ * 注意：直连商户退款接口集成在 Order 中
  * @deprecated
  * @class Refund
  * @package WePayV3
