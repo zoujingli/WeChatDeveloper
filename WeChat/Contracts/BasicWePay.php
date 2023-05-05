@@ -92,12 +92,13 @@ class BasicWePay
 
     /**
      * 获取微信支付通知
+     * @param string $xml
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function getNotify()
+    public function getNotify($xml = '')
     {
-        $data = Tools::xml2arr(file_get_contents('php://input'));
+        $data = Tools::xml2arr(empty($xml) ? Tools::getRawInput() : $xml);
         if (isset($data['sign']) && $this->getPaySign($data) === $data['sign']) {
             return $data;
         }

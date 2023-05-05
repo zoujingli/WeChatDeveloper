@@ -92,7 +92,7 @@ class BasicPushEvent
         $this->appid = $this->config->get('appid');
         // 推送消息处理
         if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            $this->postxml = file_get_contents("php://input");
+            $this->postxml = Tools::getRawInput();
             $this->encryptType = $this->input->get('encrypt_type');
             if ($this->isEncrypt()) {
                 if (empty($options['encodingaeskey'])) {
@@ -157,16 +157,15 @@ class BasicPushEvent
 
     /**
      * 验证来自微信服务器
-     * @param string $str
      * @return bool
      */
-    private function checkSignature($str = '')
+    private function checkSignature()
     {
         $nonce = $this->input->get('nonce');
         $timestamp = $this->input->get('timestamp');
         $msg_signature = $this->input->get('msg_signature');
         $signature = empty($msg_signature) ? $this->input->get('signature') : $msg_signature;
-        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, $str];
+        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, ''];
         sort($tmpArr, SORT_STRING);
         return sha1(implode($tmpArr)) === $signature;
     }
