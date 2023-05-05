@@ -18,6 +18,7 @@ namespace WePayV3;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
+use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 use WePayV3\Contracts\DecryptAes;
@@ -150,6 +151,30 @@ class Order extends BasicWePay
     {
         $path = "/v3/refund/domestic/refunds/{$refundNo}";
         return $this->doRequest('GET', $path, '', true);
+    }
+
+    /**
+     * 获取退款通知
+     * @param string $xml
+     * @return array
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function notifyRefund($xml = '')
+    {
+        $data = Tools::xml2arr(empty($xml) ? Tools::getRawInput() : $xml);
+        if (empty($data['return_code']) || $data['return_code'] !== 'SUCCESS') {
+            throw new InvalidResponseException('获取退款通知失败！');
+        }
+        try {
+            $decrypt = base64_decode($data['req_info']);
+            $response = openssl_decrypt($decrypt, 'aes-256-ecb', md5($this->config['mch_v3_key']), OPENSSL_RAW_DATA);
+            $data['result'] = Tools::xml2arr($response);
+            return $data;
+        } catch (\Exception $exception) {
+            throw new InvalidDecryptException($exception->getMessage(), $exception->getCode());
+        }
     }
 
     /**
