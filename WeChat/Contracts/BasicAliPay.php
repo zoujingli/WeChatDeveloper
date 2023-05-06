@@ -66,13 +66,19 @@ abstract class BasicAliPay
         $this->params = new DataArray([]);
         $this->config = new DataArray($options);
         if (empty($options['appid'])) {
-            throw new InvalidArgumentException("Missing Config -- [appid]");
+            throw new InvalidArgumentException('Missing Config -- [appid]');
+        }
+        if (empty($options['public_key']) && !empty($options['alipay_cert_path']) && is_file($options['alipay_cert_path'])) {
+            $options['public_key'] = file_get_contents($options['alipay_cert_path']);
+        }
+        if (empty($options['private_key']) && !empty($options['private_key_path']) && is_file($options['private_key_path'])) {
+            $options['private_key'] = file_get_contents($options['private_key_path']);
         }
         if (empty($options['public_key'])) {
-            throw new InvalidArgumentException("Missing Config -- [public_key]");
+            throw new InvalidArgumentException('Missing Config -- [public_key]');
         }
         if (empty($options['private_key'])) {
-            throw new InvalidArgumentException("Missing Config -- [private_key]");
+            throw new InvalidArgumentException('Missing Config -- [private_key]');
         }
         if (!empty($options['debug'])) {
             $this->gateway = 'https://openapi.alipaydev.com/gateway.do?charset=utf-8';
@@ -93,6 +99,16 @@ abstract class BasicAliPay
         }
         if (isset($options['app_auth_token']) && $options['app_auth_token'] !== '') {
             $this->options->set('app_auth_token', $options['app_auth_token']);
+        }
+
+        // 证书模式读取证书
+        $appCertPath = $this->config->get('app_cert_path');
+        $aliRootPath = $this->config->get('alipay_root_path');
+        if (!$this->config->get('app_cert') && !empty($appCertPath) && is_file($appCertPath)) {
+            $this->config->set('app_cert', file_get_contents($appCertPath));
+        }
+        if (!$this->config->get('root_cert') && !empty($aliRootPath) && is_file($aliRootPath)) {
+            $this->config->set('root_cert', file_get_contents($appCertPath));
         }
     }
 
@@ -166,9 +182,7 @@ abstract class BasicAliPay
             throw new InvalidResponseException('Illegal push request.', 0, $data);
         }
         $string = $this->getSignContent($data, $needSignType);
-        $content = wordwrap($this->config->get('public_key'), 64, "\n", true);
-        $res = "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
-        if (openssl_verify($string, base64_decode($data['sign']), $res, OPENSSL_ALGO_SHA256) !== 1) {
+        if (openssl_verify($string, base64_decode($data['sign']), $this->getAliPublicKey(), OPENSSL_ALGO_SHA256) !== 1) {
             throw new InvalidResponseException('Data signature verification failed.', 0, $data);
         }
         return $data;
@@ -183,14 +197,12 @@ abstract class BasicAliPay
      */
     protected function verify($data, $sign)
     {
-        $content = wordwrap($this->config->get('public_key'), 64, "\n", true);
-        $res = "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
         if ($this->options->get('sign_type') === 'RSA2') {
-            if (openssl_verify(json_encode($data, 256), base64_decode($sign), $res, OPENSSL_ALGO_SHA256) !== 1) {
+            if (openssl_verify(json_encode($data, 256), base64_decode($sign), $this->getAliPublicKey(), OPENSSL_ALGO_SHA256) !== 1) {
                 throw new InvalidResponseException('Data signature verification failed.');
             }
         } else {
-            if (openssl_verify(json_encode($data, 256), base64_decode($sign), $res, OPENSSL_ALGO_SHA1) !== 1) {
+            if (openssl_verify(json_encode($data, 256), base64_decode($sign), $this->getAliPublicKey(), OPENSSL_ALGO_SHA1) !== 1) {
                 throw new InvalidResponseException('Data signature verification failed.');
             }
         }
@@ -203,12 +215,10 @@ abstract class BasicAliPay
      */
     protected function getSign()
     {
-        $content = wordwrap($this->trimCert($this->config->get('private_key')), 64, "\n", true);
-        $string = "-----BEGIN RSA PRIVATE KEY-----\n{$content}\n-----END RSA PRIVATE KEY-----";
         if ($this->options->get('sign_type') === 'RSA2') {
-            openssl_sign($this->getSignContent($this->options->get(), true), $sign, $string, OPENSSL_ALGO_SHA256);
+            openssl_sign($this->getSignContent($this->options->get(), true), $sign, $this->getAppPrivateKey(), OPENSSL_ALGO_SHA256);
         } else {
-            openssl_sign($this->getSignContent($this->options->get(), true), $sign, $string, OPENSSL_ALGO_SHA1);
+            openssl_sign($this->getSignContent($this->options->get(), true), $sign, $this->getAppPrivateKey(), OPENSSL_ALGO_SHA1);
         }
         return base64_encode($sign);
     }
@@ -221,7 +231,7 @@ abstract class BasicAliPay
     protected function trimCert($sign)
     {
         // if (file_exists($sign)) $sign = file_get_contents($sign);
-        return preg_replace(['/\s+/', '/\-{5}.*?\-{5}/'], '', $sign);
+        return preg_replace(['/\s+/', '/-{5}.*?-{5}/'], '', $sign);
     }
 
     /**
@@ -248,6 +258,9 @@ abstract class BasicAliPay
      */
     protected function applyData($options)
     {
+        if ($this->config->get('app_cert') && $this->config->get('root_cert')) {
+            $this->setAppCertSnAndRootCertSn();
+        }
         $this->options->set('biz_content', json_encode($this->params->merge($options), 256));
         $this->options->set('sign', $this->getSign());
     }
@@ -293,6 +306,26 @@ abstract class BasicAliPay
     }
 
     /**
+     * 获取应用私钥内容
+     * @return string
+     */
+    private function getAppPrivateKey()
+    {
+        $content = wordwrap($this->trimCert($this->config->get('private_key')), 64, "\n", true);
+        return "-----BEGIN RSA PRIVATE KEY-----\n{$content}\n-----END RSA PRIVATE KEY-----";
+    }
+
+    /**
+     * 获取支付公钥内容
+     * @return string
+     */
+    private function getAliPublicKey()
+    {
+        $content = wordwrap($this->config->get('public_key'), 64, "\n", true);
+        return "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
+    }
+
+    /**
      * 新版 从证书中提取序列号
      * @param string $sign
      * @return string
@@ -333,21 +366,11 @@ abstract class BasicAliPay
      */
     protected function setAppCertSnAndRootCertSn()
     {
-        $appCert = $this->config->get('app_cert');
-        $rootCert = $this->config->get('root_cert');
-        $appCertPath = $this->config->get('app_cert_path');
-        $rootCertPath = $this->config->get('root_cert_path');
-        if (empty($appCert) && !empty($appCertPath) && is_file($appCertPath)) {
-            $appCert = file_get_contents($appCertPath);
-        }
-        if (empty($rootCert) && !empty($rootCertPath) && is_file($rootCertPath)) {
-            $rootCert = file_get_contents($rootCertPath);
-        }
-        if (empty($appCert)) {
+        if (!($appCert = $this->config->get('app_cert'))) {
             throw new InvalidArgumentException('Missing Config -- [app_cert|app_cert_path]');
         }
-        if (empty($rootCert)) {
-            throw new InvalidArgumentException('Missing Config -- [root_cert|root_cert_path]');
+        if (!($rootCert = $this->config->get('root_cert'))) {
+            throw new InvalidArgumentException('Missing Config -- [root_cert|alipay_root_path]');
         }
         $this->options->set('app_cert_sn', $this->getAppCertSN($appCert));
         $this->options->set('alipay_root_cert_sn', $this->getRootCertSN($rootCert));

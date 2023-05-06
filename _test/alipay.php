@@ -35,22 +35,24 @@
  */
 
 return [
-    // 沙箱模式
-    'debug'       => true,
-    // 签名类型（RSA|RSA2）
-    'sign_type'   => 'RSA2',
+// 沙箱模式
+    'debug'            => true,
+    // 签名类型 ( RSA|RSA2 )
+    'sign_type'        => 'RSA2',
     // 应用ID
-    'appid'       => '2016090900468879',
-    // 支付宝公钥内容 (需1行填写，特别注意：这里不是应用公钥而是支付宝公钥，通常是上传应用公钥换取支付宝公钥，在网页可以复制)
-    'public_key'  => 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtU71NY53UDGY7JNvLYAhsNa+taTF6KthIHJmGgdio9bkqeJGhHk6ttkTKkLqFgwIfgAkHpdKiOv1uZw6gVGZ7TCu5LfHTqKrCd6Uz+N7hxhY+4IwicLgprcV1flXQLmbkJYzFMZqkXGkSgOsR2yXh4LyQZczgk9N456uuzGtRy7MoB4zQy34PLUkkxR6W1B2ftNbLRGXv6tc7p/cmDcrY6K1bSxnGmfRxFSb8lRfhe0V0UM6pKq2SGGSeovrKHN0OLp+Nn5wcULVnFgATXGCENshRlp96piPEBFwneXs19n+sX1jx60FTR7/rME3sW3AHug0fhZ9mSqW4x401WjdnwIDAQAB',
-    // 应用私钥的内容 (需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成)
-    'private_key' => 'MIIEpAIBAAKCAQEArr8ymPBh/lQ46y76f3VZW4HGV8tClTHJhhlt7BPmn0F8fSc3alKFCiHXIT01ccy3xTPVgcYX26/vvQBt9cJZqxEWapj4hb8BH6lr5BH5MMQ88eyyPLlYicGzt5S4iXUjuImsUguaCO12SoFmM1eaMYKqrELkg3Apbc+16Ktq+puKAohZeozd80NnDc1ossrZtHU1DkUkEJrBeaC7/D+0H/HBHJzc60EMYpvSGgyKzP/ke6xF4ZGilFSKsdoKgS8u7paVMh2SlSO5AsMoELTTlsFS4eYOgD6ZThkBTZZIcyKHM1Wjq6qDfhU3oTkJDYqnLWdtzoqgnUPNQ8nYpYrdeQIDAQABAoIBAQCKWRmH+Bi9MJT3rfPo4VFjnzUW4PfQAuDX6F4coAzgXQpgU6IN7VMjGHOn/zvG4xtDZ6xL2DefWIVnj2V/QuWXCCpFLuLjkLslBA9FO+2b7GGL76eVZ/Bu8AqG95m6SiGDwovJUSIcm1Qh3Jy7XUnYlOjnBPbCERTbuaz9jmleCmOmh4RnpL0DmzvUffNmEuqJfgnF0h2h6CwYBUyGY8G3zpGAyqY+viVPjKA8catcQTqDRywe3ktXxIbi0JqTAYDpb81Ih4NQeHxGMUWHabwij9UTYdPYBgzwVxjcJF4O1cPGdnYeRXm8Neq6L2HbEPRqe/Jiw4i4AB4V3cVWExPhAoGBANWyjP43kguThkFsQZPfDP5xuXIQJ5W24ZcDIwcFYZ5glh+hddHuWsrCf68VHXsf2epeNdqz57xbdtg84FI8N0HmjTCtfuagxXUMPbX4NqqzPqOu2m0T5/b8HCEDV3zWqfMOt+kHR4NytFxLKLwR0a9kypsfZ2z/X4BYXBi6PiZFAoGBANFWw+AL9hJ2q51ePTcZrE788hPepcsdv3OfJjnspykKighTiFgT+m+Kr/AEa9IU/njz/+tcWJuAwOPKDFVd0zVRcxK2Y5WLfo8fYEt6yhq8oa5OKFwInXXVmCPMn0+qduNmZMTzSqL2kaN0U+AH5Te1vlv7I7yuwHDE9vwknBelAoGAbpPN0V3//G2B8yiJZnLszl0akKM7WIUhhnrhDSkDsmhYRlXOGas03+Z1G6vZbXS11kiZpWmiaB0MCii2CteN4FPki2O7XquigUasSBUAdKP7rcc0z2yVg4BBLfQEuVx65IKhN7vEjYg1O+zIT0kJL7EABfTiF8ytJkSSo1j7/+ECgYEA0NPuKHWmLvsE7cKR7IKG2nEIiHvGBl6RmyS7PHNwucdStUWnML4VSOof4p52dKcOx9gYh1Ci79U8FsB7Fzm2tWygD520r/zs7peNNx6xuIROAZTkPBM4CNFfqO66Sf2yBd0iTzqoTPMNi/JCra0So0WBNT7Ngq8NODG0dQmMUSUCgYANC6Y4JIq24nh27jZjTlsVA+jkv5tFK2aKnfRwOYcNhjVNaMyMz5BbvE07zlr/CgViauEMEJorTs+eNY1TEW7ZOOr2lFgbUnT+h/GLCvgwV00nYBEimfIJ96jfIotOLYB74oJJni9wCaJCuurLNfJ0E1XS/8d+1BkFQ+Q7VSDYpg==',
-    // 应用公钥的内容（新版资金类接口转 app_cert_sn，如文件 appCertPublicKey_2019051064521003.crt）
-    'app_cert'    => '', // 'app_cert_path' => '',
-    // 支付宝根证书的内容（新版资金类接口转 alipay_root_cert_sn，如文件 alipayRootCert.crt）
-    'root_cert'   => '', // 'root_cert_path' => ''
+    'appid'            => '2021000122667306',
+    // 应用私钥内容 ( 需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成 )
+    'private_key'      => 'MIIEowIBAAKCAQE...',
+    // 公钥模式，支付宝公钥内容 ( 需1行填写，特别注意：这里不是应用公钥而是支付宝公钥，通常是上传应用公钥换取支付宝公钥，在网页可以复制 )
+    'public_key'       => 'MIIEowIBAAKCAQEAndH26KVe3Iy+8GxVxDuG9ZolYrqGNm8Jpdi9GrQdM81ad4pPyul2NVO+9C2Kr6a6jK6Qw1gyzcwYxtkUC7xoLZUSPpmSH7sH3sD6r2B7Mf5FsrVSa29lcm1+3UkyFgZjYTkx45lfbLmAFHOzOl0WfGkMW0Sq3N/5OMr074E4EnYtALdE3jVQCDf8bzqN3j/Kwe7f10Aglvxili2BrFM564silqcbiJ8U1zDmTdZvmEkP7ia/YVkmt5w3rh7ZBoaubtcM/rVGYXL2hQPwr/pquNCTu7Eh1RcWfpcnbuw+gOnaNyXmNFmZkeNlegXIifcunt1GK6a1pX090R8eFN3LjQIDAQABAoIBACrLY4OETCvL8n6pMbyLU7ZHfTm/UGN0So5xLh4OlxiT56MgmzBvjAE72zzFGKU2tcEuGM0Pnn8Vh+ZruLbR+QHbOV5GMExwX9r0Q0XJCL7uryGdb2L4iu6zaEJC9dTpGIulgbSwwyJtTqC9Gu2Jjm5f4dzhyt8n0KGozzAevwCqI9RaJSD96gGWLbMlHCyWKGy1OdBP4V/+agPyHAGZ9gqpfKY7y4L0My8gUxhWzQWOwihtFACjV66ULhutUYT2bro3j1k9UekKlX7IiWrssPmmmw2vfUbrKiNugF6zkfyStPt7jGJ0CdzAHWe3pyF72TyO5NU2NGcX8eKgYlY2crUCgYEAzOcg5Zot9X+Ao+fYH/Oq/3eGZd6krzByiXfcjuRco7mGODwmUnzt3PpPT1fPry9TxarTajt+A9LuxqWawfQ9eWAfrTGAbtDJB0LYo6CynDqUoRqBukROuNaLQiUqEreOQqt08o6VVblgVLv8475ij8s4z/6C2NSSjgUJHf0PL38CgYEAxS0bcXGI+WtempZ4Q3QMTUmp/+B3zuw9JzSV1gvbVi7MleI9V62V2IXHPSXL5mRhYOuQWR0MnVOhbo69fkEA8HpdSd1q2JjaeS+OiZ0ditcJISQJbqWtvmF2+XtQcbVwfID69GWGxyBEHHTW8AtAzIPc6T7x2izyzBw0lXDHSvMCgYEAi+Y61ckhG/9EC6TeMWKjG+21u5P6CQshCK7nzkAo6DhhZb/bwnI9zaSxxdCEom3D2rA5zMx1y5KXKNYlBcwGtPpmZk/oCsFOoECJvZ6YlIaCuERq0oyU2yrQxgat5T2iSe7a2El1uKPrG6+GiNCSZu8wCQMSv4zTy1ew0+LWHW0CgYAvX7ESRpcEZjmqprBqdH1oLGS9566hdr0SqF2/ucWPJVteP6dBY6F3Dl1aYbRlvIRxBuf9oS8gtbE5oO4CYZfaL2wujRZYyBDlwPlcMvWgIB4/aish/IiMD1rIgkpHp7JJF6w0ABiryyLSO3hQ4ENHX/85wzfUlawYQkaYCSq45QKBgCdqrv58KD8tDYn4JnaHJNE+5TgKK5cNhYLZLAsYz7x1KfPdkiC7y/hnenn3TWkm4xw8Tw1rJ1ZIJ24iZgTCTO7EEsB7jZegvg4z/4zVbSK2Y4VI1lJ7jlyqmwg0ArimXTNZFoy66h9c9t2smG40YEZCmmmTLEqVlWgyR1MU5iM5',
+    // 证书模式，应用公钥证书 ( 新版资金类接口转 app_cert_sn，如文件 appCertPublicKey_2019051064521003.crt )
+    'app_cert_path'    => __DIR__ . '/alipay/appPublicCert.crt', // 'app_cert' => '证书内容',
+    // 证书模式，支付宝公钥证书 ( 未填写 public_key 时启用此参数，如文件 alipayPublicCert.crt )
+    'alipay_cert_path' => __DIR__ . '/alipay/alipayPublicCert.crt', // 'public_key' => '证书内容'
+    // 证书模式，支付宝根证书路径 ( 新版资金类接口转 alipay_root_cert_sn，如文件 alipayRootCert.crt )
+    'alipay_root_path' => __DIR__ . '/alipay/alipayRootCert.crt', // 'root_cert' => '证书内容',
     // 支付成功通知地址
-    'notify_url'  => '',
+    'notify_url'       => '',
     // 网页支付回跳地址
-    'return_url'  => '',
+    'return_url'       => '',
 ];

@@ -17,7 +17,6 @@
 namespace AliPay;
 
 use WeChat\Contracts\BasicAliPay;
-use WeChat\Exceptions\InvalidArgumentException;
 
 /**
  * 支付宝转账到账户
@@ -49,7 +48,6 @@ class Transfer extends BasicAliPay
      */
     public function create($options = [])
     {
-        $this->setAppCertSnAndRootCertSn();
         $this->options->set('method', 'alipay.fund.trans.uni.transfer');
         return $this->getResult($options);
     }
@@ -63,10 +61,8 @@ class Transfer extends BasicAliPay
      */
     public function queryResult($options = [])
     {
-        $this->setAppCertSnAndRootCertSn();
         $this->options->set('method', 'alipay.fund.trans.common.query');
         return $this->getResult($options);
-
     }
 
     /**
@@ -78,10 +74,7 @@ class Transfer extends BasicAliPay
      */
     public function queryAccount($options = [])
     {
-        $this->setAppCertSnAndRootCertSn();
         $this->options->set('method', 'alipay.fund.account.query');
         return $this->getResult($options);
     }
-
-
 }
