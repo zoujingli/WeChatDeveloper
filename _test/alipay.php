@@ -35,7 +35,7 @@
  */
 
 return [
-// 沙箱模式
+    // 沙箱模式
     'debug'            => true,
     // 签名类型 ( RSA|RSA2 )
     'sign_type'        => 'RSA2',

@@ -321,7 +321,7 @@ abstract class BasicAliPay
      */
     private function getAliPublicKey()
     {
-        $content = wordwrap($this->config->get('public_key'), 64, "\n", true);
+        $content = wordwrap($this->trimCert($this->config->get('public_key')), 64, "\n", true);
         return "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
     }
 
