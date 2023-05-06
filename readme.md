@@ -293,4 +293,4 @@ try {
 
 ## 赞助打赏，请作者喝杯茶 ~
 
-![赞助](https://thinkadmin.top/static/img/pay.png)
+![赞助](https://doc.thinkadmin.top/static/img/pay.png)
