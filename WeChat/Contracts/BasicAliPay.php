@@ -230,7 +230,6 @@ abstract class BasicAliPay
      */
     protected function trimCert($sign)
     {
-        // if (file_exists($sign)) $sign = file_get_contents($sign);
         return preg_replace(['/\s+/', '/-{5}.*?-{5}/'], '', $sign);
     }
 
