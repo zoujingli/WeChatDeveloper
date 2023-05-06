@@ -205,15 +205,15 @@ $config = [
     // 应用ID
     'appid'            => '2021000122667306',
     // 应用私钥内容 ( 需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成 )
-    'private_key'      => 'MIIEowIBAAKCAQE...',
+    'private_key'      => 'MIIEowIBAAKCAQEAn...',
     // 公钥模式，支付宝公钥内容 ( 需1行填写，特别注意：这里不是应用公钥而是支付宝公钥，通常是上传应用公钥换取支付宝公钥，在网页可以复制 )
-    'public_key'       => 'MIIBIjANBgkqhki...',
-    // 证书模式，应用公钥证书 ( 新版资金类接口转 app_cert_sn，如文件 appCertPublicKey_2019051064521003.crt )
+    'public_key'       => '',
+    // 证书模式，应用公钥证书路径 ( 新版资金类接口转 app_cert_sn，如文件 appCertPublicKey.crt )
     'app_cert_path'    => __DIR__ . '/alipay/appPublicCert.crt', // 'app_cert' => '证书内容',
-    // 证书模式，支付宝公钥证书 ( 未填写 public_key 时启用此参数，如文件 alipayPublicCert.crt )
-    'alipay_cert_path' => __DIR__ . '/alipay/alipayPublicCert.crt', // 'public_key' => '证书内容'
     // 证书模式，支付宝根证书路径 ( 新版资金类接口转 alipay_root_cert_sn，如文件 alipayRootCert.crt )
     'alipay_root_path' => __DIR__ . '/alipay/alipayRootCert.crt', // 'root_cert' => '证书内容',
+    // 证书模式，支付宝公钥证书路径 ( 未填写 public_key 时启用此参数，如文件 alipayPublicCert.crt )
+    'alipay_cert_path' => __DIR__ . '/alipay/alipayPublicCert.crt', // 'public_key' => '证书内容'
     // 支付成功通知地址
     'notify_url'       => '',
     // 网页支付回跳地址
