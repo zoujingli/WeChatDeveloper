@@ -66,14 +66,15 @@ class Qrcode extends BasicWeChat
      * @param array $line_color auto_color 为 false 时生效
      * @param boolean $is_hyaline 是否需要透明底色
      * @param null|string $outType 输出类型
+     * @param array $extra 其他参数
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function createMiniScene($scene, $page, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"], $is_hyaline = true, $outType = null)
+    public function createMiniScene($scene, $page, $width = 430, $auto_color = false, $line_color = ["r" => "0", "g" => "0", "b" => "0"], $is_hyaline = true, $outType = null, array $extra = [])
     {
         $url = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=ACCESS_TOKEN';
-        $data = ['scene' => $scene, 'width' => $width, 'auto_color' => $auto_color, 'page' => $page, 'line_color' => $line_color, 'is_hyaline' => $is_hyaline];
+        $data = array_merge(['scene' => $scene, 'width' => $width, 'auto_color' => $auto_color, 'page' => $page, 'line_color' => $line_color, 'is_hyaline' => $is_hyaline], $extra);
         $this->registerApi($url, __FUNCTION__, func_get_args());
         $result = Tools::post($url, Tools::arr2json($data));
         if (is_array($json = json_decode($result, true))) {
