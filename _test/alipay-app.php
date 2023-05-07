@@ -32,7 +32,13 @@ try {
         'total_amount' => '1', // 支付金额
         'subject'      => '支付宝订单标题', // 支付订单描述
     ]);
-    echo $result;
+    echo $result . PHP_EOL .'<br></br>'. PHP_EOL;
+
+    // 请求关闭订单
+    $result = $pay->close([
+        'out_trade_no' => strval(time())
+    ]);
+    echo PHP_EOL . PHP_EOL . $result;
 } catch (\Exception $e) {
     echo $e->getMessage();
 }

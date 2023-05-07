@@ -63,8 +63,6 @@ abstract class BasicAliPay
      */
     public function __construct($options)
     {
-        $this->params = new DataArray([]);
-        $this->config = new DataArray($options);
         if (empty($options['appid'])) {
             throw new InvalidArgumentException('Missing Config -- [appid]');
         }
@@ -81,8 +79,10 @@ abstract class BasicAliPay
             throw new InvalidArgumentException('Missing Config -- [private_key]');
         }
         if (!empty($options['debug'])) {
-            $this->gateway = 'https://openapi.alipaydev.com/gateway.do?charset=utf-8';
+            $this->gateway = 'https://openapi-sandbox.dl.alipaydev.com/gateway.do?charset=utf-8';
         }
+        $this->params = new DataArray([]);
+        $this->config = new DataArray($options);
         $this->options = new DataArray([
             'app_id'    => $this->config->get('appid'),
             'charset'   => empty($options['charset']) ? 'utf-8' : $options['charset'],
@@ -108,7 +108,7 @@ abstract class BasicAliPay
             $this->config->set('app_cert', file_get_contents($appCertPath));
         }
         if (!$this->config->get('root_cert') && !empty($aliRootPath) && is_file($aliRootPath)) {
-            $this->config->set('root_cert', file_get_contents($appCertPath));
+            $this->config->set('root_cert', file_get_contents($aliRootPath));
         }
     }
 
@@ -197,13 +197,14 @@ abstract class BasicAliPay
      */
     protected function verify($data, $sign)
     {
+        unset($data['sign']);
         if ($this->options->get('sign_type') === 'RSA2') {
             if (openssl_verify(json_encode($data, 256), base64_decode($sign), $this->getAliPublicKey(), OPENSSL_ALGO_SHA256) !== 1) {
-                throw new InvalidResponseException('Data signature verification failed.');
+                throw new InvalidResponseException('Data signature verification failed by RSA2.');
             }
         } else {
             if (openssl_verify(json_encode($data, 256), base64_decode($sign), $this->getAliPublicKey(), OPENSSL_ALGO_SHA1) !== 1) {
-                throw new InvalidResponseException('Data signature verification failed.');
+                throw new InvalidResponseException('Data signature verification failed by RSA.');
             }
         }
         return $data;
@@ -284,9 +285,9 @@ abstract class BasicAliPay
                 $data[$method]['code'], $data
             );
         }
-        return $data[$method];
-        // 去除返回结果签名检查
-        // return $this->verify($data[$method], $data['sign']);
+        // return $data[$method];
+        // 返回结果签名检查
+        return $this->verify($data[$method], $data['sign']);
     }
 
     /**
@@ -318,10 +319,17 @@ abstract class BasicAliPay
      * 获取支付公钥内容
      * @return string
      */
-    private function getAliPublicKey()
+    public function getAliPublicKey()
     {
-        $content = wordwrap($this->trimCert($this->config->get('public_key')), 64, "\n", true);
-        return "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
+        $cert = $this->config->get('public_key');
+        if (strpos(trim($cert), '-----BEGIN CERTIFICATE-----') !== false) {
+            $pkey = openssl_pkey_get_public($cert);
+            $keyData = openssl_pkey_get_details($pkey);
+            return trim($keyData['key']);
+        } else {
+            $content = wordwrap($this->trimCert($cert), 64, "\n", true);
+            return "-----BEGIN PUBLIC KEY-----\n{$content}\n-----END PUBLIC KEY-----";
+        }
     }
 
     /**
@@ -347,9 +355,9 @@ abstract class BasicAliPay
         for ($i = 0; $i < count($array) - 1; $i++) {
             $ssl[$i] = openssl_x509_parse($array[$i] . '-----END CERTIFICATE-----', true);
             if (strpos($ssl[$i]['serialNumber'], '0x') === 0) {
-                $ssl[$i]['serialNumber'] = $this->_hex2dec(isset($ssl[$i]['serialNumberHex']) ? $ssl[$i]['serialNumberHex'] : $ssl[$i]['serialNumber']);
+                $ssl[$i]['serialNumber'] = $this->_hex2dec($ssl[$i]['serialNumberHex']);
             }
-            if ($ssl[$i]['signatureTypeLN'] == "sha1WithRSAEncryption" || $ssl[$i]['signatureTypeLN'] == "sha256WithRSAEncryption") {
+            if ($ssl[$i]['signatureTypeLN'] == 'sha1WithRSAEncryption' || $ssl[$i]['signatureTypeLN'] == 'sha256WithRSAEncryption') {
                 if ($sn == null) {
                     $sn = md5($this->_arr2str(array_reverse($ssl[$i]['issuer'])) . $ssl[$i]['serialNumber']);
                 } else {
@@ -394,7 +402,7 @@ abstract class BasicAliPay
                 $string[] = $key . '=' . $value;
             }
         }
-        return implode(',', $string);
+        return join(',', $string);
     }
 
     /**
