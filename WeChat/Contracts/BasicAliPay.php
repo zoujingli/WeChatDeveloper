@@ -285,9 +285,9 @@ abstract class BasicAliPay
                 $data[$method]['code'], $data
             );
         }
-        // return $data[$method];
+        return $data[$method];
         // 返回结果签名检查
-        return $this->verify($data[$method], $data['sign']);
+        // return $this->verify($data[$method], $data['sign']);
     }
 
     /**
