@@ -30,7 +30,7 @@ try {
     // 4. 组装参数，可以参考官方商户文档
     $options = [
         'transaction_id' => '1008450740201411110005820873',
-        'out_refund_no'  => '商户退款单号',
+        'out_refund_no'  => '3241251235123',
         'total_fee'      => '1',
         'refund_fee'     => '1',
     ];
