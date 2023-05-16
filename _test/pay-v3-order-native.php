@@ -57,6 +57,25 @@ try {
 //        'trade_state_desc' => '订单未支付',
 //    );
 
+    // 创建退款
+    $out_refund_no = strval(time());
+    $result = $payment->createRefund([
+        'out_trade_no'  => $order,
+        'out_refund_no' => $out_refund_no,
+        'amount'        => [
+            'refund'   => 2,
+            'total'    => 2,
+            'currency' => 'CNY'
+        ]
+    ]);
+    echo "\n--- 创建退款订单2 ---\n";
+    var_export($result);
+
+    $result = $payment->queryRefund($out_refund_no);
+
+    echo "\n--- 查询退款订单2 ---\n";
+    var_export($result);
+
 } catch (\Exception $exception) {
     // 出错啦，处理下吧
     echo $exception->getMessage() . PHP_EOL;
