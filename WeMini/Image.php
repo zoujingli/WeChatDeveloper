@@ -36,7 +36,7 @@ class Image extends BasicWeChat
      */
     public function aiCrop($img_url, $img)
     {
-        $url = "https://api.weixin.qq.com/cv/img/aicrop?access_token=ACCESS_TOCKEN";
+        $url = "https://api.weixin.qq.com/cv/img/aicrop?access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, ['img_url' => $img_url, 'img' => $img], true);
     }
 
@@ -50,7 +50,7 @@ class Image extends BasicWeChat
      */
     public function scanQRCode($img_url, $img)
     {
-        $url = "https://api.weixin.qq.com/cv/img/qrcode?img_url=ENCODE_URL&access_token=ACCESS_TOCKEN";
+        $url = "https://api.weixin.qq.com/cv/img/qrcode?img_url=ENCODE_URL&access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, ['img_url' => $img_url, 'img' => $img], true);
     }
 
@@ -64,7 +64,7 @@ class Image extends BasicWeChat
      */
     public function superresolution($img_url, $img)
     {
-        $url = "https://api.weixin.qq.com/cv/img/qrcode?img_url=ENCODE_URL&access_token=ACCESS_TOCKEN";
+        $url = "https://api.weixin.qq.com/cv/img/qrcode?img_url=ENCODE_URL&access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, ['img_url' => $img_url, 'img' => $img], true);
     }
 }
