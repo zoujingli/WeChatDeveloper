@@ -161,7 +161,6 @@ abstract class BasicWePay
     {
         list($time, $nonce) = [time(), uniqid() . rand(1000, 9999)];
         $signstr = join("\n", [$method, $pathinfo, $time, $nonce, $jsondata, '']);
-        echo $pathinfo . PHP_EOL;
 
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
