@@ -294,7 +294,9 @@ abstract class BasicWePay
     protected function _autoCert()
     {
         $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
-        if (is_array($certs)) foreach ($certs as $k => $v) if ($v['expire'] < time()) unset($certs[$k]);
+        if (is_array($certs)) foreach ($certs as $k => $v) {
+            if ($v['expire'] < time()) unset($certs[$k]);
+        }
         if (empty($certs)) {
             Cert::instance($this->config)->download();
             $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
