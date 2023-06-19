@@ -31,13 +31,20 @@ class Transfers extends BasicWePay
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @link https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter4_3_1.shtml
      */
     public function batchs($body)
     {
+        if (empty($body['appid'])) {
+            $body['appid'] = $this->config['appid'];
+        }
         if (isset($body['transfer_detail_list']) && is_array($body['transfer_detail_list'])) {
             foreach ($body['transfer_detail_list'] as &$item) if (isset($item['user_name'])) {
                 $item['user_name'] = $this->rsaEncode($item['user_name']);
             }
+        }
+        if (empty($body['total_num'])) {
+            $body['total_num'] = count($body['transfer_detail_list']);
         }
         return $this->doRequest('POST', '/v3/transfer/batches', json_encode($body, JSON_UNESCAPED_UNICODE), true);
     }

@@ -337,7 +337,7 @@ abstract class BasicWePay
      */
     protected function rsaEncode($string)
     {
-        $publicKey = file_get_contents($this->config['mp_cert_content']);
+        $publicKey = $this->config['mp_cert_content'];
         if (openssl_public_encrypt($string, $encrypted, $publicKey, OPENSSL_PKCS1_OAEP_PADDING)) {
             return base64_encode($encrypted);
         } else {
