@@ -65,6 +65,8 @@ abstract class BasicWePay
     /**
      * BasicWePayV3 constructor.
      * @param array $options [mch_id, mch_v3_key, cert_public, cert_private]
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function __construct(array $options = [])
     {
@@ -139,6 +141,8 @@ abstract class BasicWePay
      * 静态创建对象
      * @param array $config
      * @return static
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public static function instance($config)
     {
@@ -329,7 +333,7 @@ abstract class BasicWePay
     }
 
     /**
-     * RSA加密处理
+     * RSA加密处理-平台证书
      * @param string $string
      * @return string
      * @throws \WeChat\Exceptions\InvalidDecryptException
