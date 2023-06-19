@@ -27,6 +27,13 @@ use WePayV3\Contracts\DecryptAes;
  */
 class Cert extends BasicWePay
 {
+
+    /**
+     * 自动配置平台证书
+     * @var bool
+     */
+    protected $autoCert = false;
+
     /**
      * 商户平台下载证书
      * @return void
@@ -37,13 +44,18 @@ class Cert extends BasicWePay
         try {
             $aes = new DecryptAes($this->config['mch_v3_key']);
             $result = $this->doRequest('GET', '/v3/certificates');
+            $certs = [];
             foreach ($result['data'] as $vo) {
-                $this->tmpFile($vo['serial_no'], $aes->decryptToString(
-                    $vo['encrypt_certificate']['associated_data'],
-                    $vo['encrypt_certificate']['nonce'],
-                    $vo['encrypt_certificate']['ciphertext']
-                ));
+                $certs[$vo['serial_no']] = [
+                    'expire'  => strtotime($vo['expire_time']),
+                    'content' => $aes->decryptToString(
+                        $vo['encrypt_certificate']['associated_data'],
+                        $vo['encrypt_certificate']['nonce'],
+                        $vo['encrypt_certificate']['ciphertext']
+                    )
+                ];
             }
+            $this->tmpFile("{$this->config['mch_id']}_certs", $certs);
         } catch (\Exception $exception) {
             throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
         }
