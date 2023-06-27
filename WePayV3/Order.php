@@ -70,7 +70,7 @@ class Order extends BasicWePay
                 return ['partnerId' => $this->config['mch_id'], 'prepayId' => $result['prepay_id'], 'package' => 'Sign=WXPay', 'nonceStr' => $nonceStr, 'timeStamp' => $time, 'sign' => $sign];
             } elseif ($type === 'jsapi') {
                 $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, "prepay_id={$result['prepay_id']}", '']));
-                return ['appId' => $appid, 'timeStamp' => $time, 'nonceStr' => $nonceStr, 'package' => "prepay_id={$result['prepay_id']}", 'signType' => 'RSA', 'paySign' => $sign];
+                return ['appId' => $appid, 'timestamp' => $time, 'timeStamp' => $time, 'nonceStr' => $nonceStr, 'package' => "prepay_id={$result['prepay_id']}", 'signType' => 'RSA', 'paySign' => $sign];
             } else {
                 return $result;
             }
@@ -112,8 +112,7 @@ class Order extends BasicWePay
     public function notify(array $data = [])
     {
         if (empty($data)) {
-            $body = Tools::getRawInput();
-            $data = json_decode($body, true);
+            $data = json_decode(Tools::getRawInput(), true);
         }
         if (isset($data['resource'])) {
             $aes = new DecryptAes($this->config['mch_v3_key']);
