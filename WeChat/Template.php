@@ -55,16 +55,17 @@ class Template extends BasicWeChat
 
     /**
      * 获得模板ID
-     * @param string $tpl_id 板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+     * @param string $templateIdShort 板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
+     * @param array $keywordNameList 选用的类目模板的关键词
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
-    public function addTemplate($tpl_id)
+    public function addTemplate($templateIdShort, $keywordNameList = [])
     {
         $url = "https://api.weixin.qq.com/cgi-bin/template/api_add_template?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['template_id_short' => $tpl_id]);
+        return $this->httpPostForJson($url, ['template_id_short' => $templateIdShort, 'keyword_name_list' => $keywordNameList]);
     }
 
     /**
