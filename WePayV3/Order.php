@@ -18,7 +18,6 @@ namespace WePayV3;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
-use WeChat\Exceptions\InvalidDecryptException;
 use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 use WePayV3\Contracts\DecryptAes;
@@ -153,26 +152,14 @@ class Order extends BasicWePay
 
     /**
      * 获取退款通知
-     * @param string $xml
-     * @return array
+     * @param mixed $data
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
-     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @deprecated 直接使用 Notify 方法
      */
-    public function notifyRefund($xml = '')
+    public function notifyRefund($data = [])
     {
-        $data = Tools::xml2arr(empty($xml) ? Tools::getRawInput() : $xml);
-        if (empty($data['return_code']) || $data['return_code'] !== 'SUCCESS') {
-            throw new InvalidResponseException('获取退款通知失败！');
-        }
-        try {
-            $decrypt = base64_decode($data['req_info']);
-            $response = openssl_decrypt($decrypt, 'aes-256-ecb', md5($this->config['mch_v3_key']), OPENSSL_RAW_DATA);
-            $data['result'] = Tools::xml2arr($response);
-            return $data;
-        } catch (\Exception $exception) {
-            throw new InvalidDecryptException($exception->getMessage(), $exception->getCode());
-        }
+        return $this->notify($data);
     }
 
     /**

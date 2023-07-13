@@ -32,6 +32,7 @@ class Refund extends BasicWePay
      * @param array $data 退款参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function create($data)
     {
@@ -44,6 +45,7 @@ class Refund extends BasicWePay
      * @param string $refundNo 退款单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function query($refundNo)
     {
@@ -54,15 +56,15 @@ class Refund extends BasicWePay
 
     /**
      * 获取退款通知
-     * @param string $xml
-     * @return array
+     * @param mixed $xml
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function notify($xml = '')
+    public function notify($xml = [])
     {
-        return Order::instance($this->config)->notifyRefund($xml);
+        return Order::instance($this->config)->notify($xml);
 //        $data = Tools::xml2arr(empty($xml) ? Tools::getRawInput() : $xml);
 //        if (!isset($data['return_code']) || $data['return_code'] !== 'SUCCESS') {
 //            throw new InvalidResponseException('获取退款通知XML失败！');
