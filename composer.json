@@ -2,7 +2,7 @@
   "type": "library",
   "name": "zoujingli/wechat-developer",
   "homepage": "https://thinkadmin.top",
-  "description": "WeChat platform and Payment development tools",
+  "description": "WeChat and Alipay Platform Development",
   "license": "MIT",
   "authors": [
     {
@@ -12,7 +12,6 @@
     }
   ],
   "keywords": [
-    "WePay",
     "AliPay",
     "WeMini",
     "WeChat",
