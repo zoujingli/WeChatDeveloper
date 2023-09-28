@@ -57,6 +57,7 @@ class Media extends BasicWeChat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id={$media_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
+        if($outType=='url') return $url;
         $result = Tools::get($url);
         if (is_array($json = json_decode($result, true))) {
             if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
@@ -144,6 +145,7 @@ class Media extends BasicWeChat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
+        if($outType=='url') return $url;
         $result = Tools::post($url, ['media_id' => $media_id]);
         if (is_array($json = json_decode($result, true))) {
             if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
