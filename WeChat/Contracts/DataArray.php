@@ -78,6 +78,7 @@ class DataArray implements ArrayAccess
      * 设置配置项值
      * @param string $offset
      * @param string|array|null|integer $value
+     * @return void
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
@@ -103,6 +104,7 @@ class DataArray implements ArrayAccess
     /**
      * 清理配置项
      * @param string|null $offset
+     * @return void
      */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset = null)
@@ -117,14 +119,12 @@ class DataArray implements ArrayAccess
     /**
      * 获取配置项参数
      * @param string|null $offset
-     * @return array|string|null|mixed
+     * @return mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset = null)
     {
-        if (is_null($offset)) {
-            return $this->config;
-        }
+        if (is_null($offset)) return $this->config;
         return isset($this->config[$offset]) ? $this->config[$offset] : null;
     }
 }

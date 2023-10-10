@@ -17,7 +17,6 @@
 namespace WePay;
 
 use WeChat\Contracts\BasicWePay;
-use WeChat\Contracts\Tools;
 
 /**
  * 微信分账
