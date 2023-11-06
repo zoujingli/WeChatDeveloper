@@ -45,7 +45,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WeChat\Pay WeChatPay($options = []) static 微信支付商户
  * @method \WeChat\Product WeChatProduct($options = []) static 微信商店管理
  * @method \WeChat\Qrcode WeChatQrcode($options = []) static 微信二维码管理
- * @method \WeChat\Receive WeChatReceive($options = []) static 微信推送管理
+ * @method \WeChat\Receive WeChatReceive($options = [], $showEchoStr = true) static 微信推送管理
  * @method \WeChat\Scan WeChatScan($options = []) static 微信扫一扫接入管理
  * @method \WeChat\Script WeChatScript($options = []) static 微信前端支持
  * @method \WeChat\Shake WeChatShake($options = []) static 微信揺一揺周边
