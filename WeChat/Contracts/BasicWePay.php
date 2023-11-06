@@ -153,14 +153,12 @@ class BasicWePay
      * 数组直接转xml数据输出
      * @param array $data
      * @param bool $isReturn
-     * @return string
+     * @return string|void
      */
     public function toXml(array $data, $isReturn = false)
     {
         $xml = Tools::arr2xml($data);
-        if ($isReturn) {
-            return $xml;
-        }
+        if ($isReturn) return $xml;
         echo $xml;
     }
 

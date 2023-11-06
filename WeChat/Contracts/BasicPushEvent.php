@@ -144,7 +144,7 @@ class BasicPushEvent
      * @param array $data 消息内容
      * @param boolean $return 是否返回XML内容
      * @param boolean $isEncrypt 是否加密内容
-     * @return string
+     * @return string|void
      * @throws \WeChat\Exceptions\InvalidDecryptException
      */
     public function reply(array $data = [], $return = false, $isEncrypt = false)
