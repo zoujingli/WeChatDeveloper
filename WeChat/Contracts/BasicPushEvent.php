@@ -109,7 +109,7 @@ class BasicPushEvent
             $this->receive = new DataArray(Tools::xml2arr($this->postxml));
         } elseif ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
             @ob_clean();
-            exit($this->input->get('echostr'));
+            echo $this->input->get('echostr');
         } else {
             throw new InvalidResponseException('Invalid interface request.', '0');
         }
