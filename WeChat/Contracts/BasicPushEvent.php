@@ -72,10 +72,11 @@ class BasicPushEvent
 
     /**
      * BasicPushEvent constructor.
-     * @param array $options
+     * @param array $options 配置参数
+     * @param boolean $showEchoStr 回显内容
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function __construct(array $options)
+    public function __construct(array $options, $showEchoStr = true)
     {
         if (empty($options['appid'])) {
             throw new InvalidArgumentException("Missing Config -- [appid]");
@@ -108,10 +109,24 @@ class BasicPushEvent
             }
             $this->receive = new DataArray(Tools::xml2arr($this->postxml));
         } elseif ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
-            @ob_clean();
-            echo $this->input->get('echostr');
+            if ($showEchoStr && ob_clean()) {
+                echo($this->input->get('echostr'));
+            }
         } else {
             throw new InvalidResponseException('Invalid interface request.', '0');
+        }
+    }
+
+    /**
+     * 获取回显字串
+     * @return string
+     */
+    public function getEchoStr()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
+            return $this->input->get('echostr');
+        } else {
+            return '';
         }
     }
 
