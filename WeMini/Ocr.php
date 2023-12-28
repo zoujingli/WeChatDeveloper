@@ -35,7 +35,7 @@ class Ocr extends BasicWeChat
     public function bankcard($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/bankcard?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 
     /**
@@ -48,7 +48,7 @@ class Ocr extends BasicWeChat
     public function businessLicense($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/bizlicense?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 
     /**
@@ -61,7 +61,7 @@ class Ocr extends BasicWeChat
     public function driverLicense($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/drivinglicense?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 
     /**
@@ -74,7 +74,7 @@ class Ocr extends BasicWeChat
     public function idcard($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/idcard?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 
     /**
@@ -87,7 +87,7 @@ class Ocr extends BasicWeChat
     public function printedText($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/comm?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 
     /**
@@ -100,6 +100,6 @@ class Ocr extends BasicWeChat
     public function vehicleLicense($data)
     {
         $url = 'https://api.weixin.qq.com/cv/ocr/driving?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, $data, true);
+        return $this->callPostApi($url, $data, false);
     }
 }
