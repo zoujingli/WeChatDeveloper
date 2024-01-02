@@ -35,8 +35,7 @@ class Menu extends BasicWeChat
     public function get()
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpGetForJson($url);
+        return $this->callGetApi($url);
     }
 
     /**
@@ -48,8 +47,7 @@ class Menu extends BasicWeChat
     public function delete()
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpGetForJson($url);
+        return $this->callGetApi($url);
     }
 
     /**
@@ -62,8 +60,7 @@ class Menu extends BasicWeChat
     public function create(array $data)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, $data);
+        return $this->callPostApi($url, $data);
     }
 
     /**
@@ -76,8 +73,7 @@ class Menu extends BasicWeChat
     public function addConditional(array $data)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/addconditional?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, $data);
+        return $this->callPostApi($url, $data);
     }
 
     /**
@@ -90,8 +86,7 @@ class Menu extends BasicWeChat
     public function delConditional($menuid)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/delconditional?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['menuid' => $menuid]);
+        return $this->callPostApi($url, ['menuid' => $menuid]);
     }
 
     /**
@@ -104,7 +99,6 @@ class Menu extends BasicWeChat
     public function tryConditional($openid)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/menu/trymatch?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['user_id' => $openid]);
+        return $this->callPostApi($url, ['user_id' => $openid]);
     }
 }

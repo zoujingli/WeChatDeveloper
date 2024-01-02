@@ -61,7 +61,6 @@ class Limit extends BasicWeChat
     public function getCallbackIp()
     {
         $url = 'https://api.weixin.qq.com/cgi-bin/getcallbackip?access_token=ACCESS_TOKEN';
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpGetForJson($url);
+        return $this->callGetApi($url);
     }
 }

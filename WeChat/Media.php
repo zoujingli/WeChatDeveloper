@@ -41,8 +41,7 @@ class Media extends BasicWeChat
             throw new InvalidResponseException('Invalid Media Type.', '0');
         }
         $url = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type={$type}";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename)], false);
+        return $this->callPostApi($url, ['media' => Tools::createCurlFile($filename)], false);
     }
 
     /**
@@ -57,7 +56,7 @@ class Media extends BasicWeChat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id={$media_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        if($outType=='url') return $url;
+        if ($outType == 'url') return $url;
         $result = Tools::get($url);
         if (is_array($json = json_decode($result, true))) {
             if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
@@ -79,8 +78,7 @@ class Media extends BasicWeChat
     public function addNews($data)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/add_news?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, $data);
+        return $this->callPostApi($url, $data);
     }
 
     /**
@@ -94,10 +92,8 @@ class Media extends BasicWeChat
      */
     public function updateNews($media_id, $index, $news)
     {
-        $data = ['media_id' => $media_id, 'index' => $index, 'articles' => $news];
         $url = "https://api.weixin.qq.com/cgi-bin/material/update_news?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, $data);
+        return $this->callPostApi($url, ['media_id' => $media_id, 'index' => $index, 'articles' => $news]);
     }
 
     /**
@@ -110,8 +106,7 @@ class Media extends BasicWeChat
     public function uploadImg($filename)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename)], false);
+        return $this->callPostApi($url, ['media' => Tools::createCurlFile($filename)], false);
     }
 
     /**
@@ -129,8 +124,7 @@ class Media extends BasicWeChat
             throw new InvalidResponseException('Invalid Media Type.', '0');
         }
         $url = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=ACCESS_TOKEN&type={$type}";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media' => Tools::createCurlFile($filename), 'description' => Tools::arr2json($description)], false);
+        return $this->callPostApi($url, ['media' => Tools::createCurlFile($filename), 'description' => Tools::arr2json($description)], false);
     }
 
     /**
@@ -145,7 +139,7 @@ class Media extends BasicWeChat
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=ACCESS_TOKEN";
         $this->registerApi($url, __FUNCTION__, func_get_args());
-        if($outType=='url') return $url;
+        if ($outType == 'url') return $url;
         $result = Tools::post($url, ['media_id' => $media_id]);
         if (is_array($json = json_decode($result, true))) {
             if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
@@ -159,16 +153,15 @@ class Media extends BasicWeChat
 
     /**
      * 删除永久素材
-     * @param string $media_id
+     * @param string $mediaId
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function delMaterial($media_id)
+    public function delMaterial($mediaId)
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/del_material?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['media_id' => $media_id]);
+        return $this->httpPostForJson($url, ['media_id' => $mediaId]);
     }
 
     /**
@@ -180,8 +173,7 @@ class Media extends BasicWeChat
     public function getMaterialCount()
     {
         $url = "https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpGetForJson($url);
+        return $this->callGetApi($url);
     }
 
     /**
@@ -199,7 +191,6 @@ class Media extends BasicWeChat
             throw new InvalidResponseException('Invalid Media Type.', '0');
         }
         $url = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=ACCESS_TOKEN";
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, ['type' => $type, 'offset' => $offset, 'count' => $count]);
+        return $this->callPostApi($url, ['type' => $type, 'offset' => $offset, 'count' => $count]);
     }
 }
