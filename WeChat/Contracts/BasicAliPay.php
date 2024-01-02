@@ -126,28 +126,28 @@ abstract class BasicAliPay
 
     /**
      * 查询支付宝订单状态
-     * @param string $out_trade_no
+     * @param string $outTradeNo
      * @return array|boolean
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function query($out_trade_no = '')
+    public function query($outTradeNo = '')
     {
         $this->options->set('method', 'alipay.trade.query');
-        return $this->getResult(['out_trade_no' => $out_trade_no]);
+        return $this->getResult(['out_trade_no' => $outTradeNo]);
     }
 
     /**
      * 支付宝订单退款操作
      * @param array|string $options 退款参数或退款商户订单号
-     * @param null $refund_amount 退款金额
+     * @param null $refundAmount 退款金额
      * @return array|boolean
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function refund($options, $refund_amount = null)
+    public function refund($options, $refundAmount = null)
     {
-        if (!is_array($options)) $options = ['out_trade_no' => $options, 'refund_amount' => $refund_amount];
+        if (!is_array($options)) $options = ['out_trade_no' => $options, 'refund_amount' => $refundAmount];
         $this->options->set('method', 'alipay.trade.refund');
         return $this->getResult($options);
     }
