@@ -27,30 +27,30 @@ class Total extends BasicWeChat
 {
     /**
      * 数据分析接口
-     * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getWeanalysisAppidDailySummarytrend($begin_date, $end_date)
+    public function getWeanalysisAppidDailySummarytrend($beginDate, $endDate)
     {
         $url = 'https://api.weixin.qq.com/datacube/getweanalysisappiddailysummarytrend?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, ['begin_date' => $begin_date, 'end_date' => $end_date], true);
+        return $this->callPostApi($url, ['begin_date' => $beginDate, 'end_date' => $endDate], true);
     }
 
     /**
      * 访问分析
-     * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getWeanalysisAppidDailyVisittrend($begin_date, $end_date)
+    public function getWeanalysisAppidDailyVisittrend($beginDate, $endDate)
     {
         $url = 'https://api.weixin.qq.com/datacube/getweanalysisappiddailyvisittrend?access_token=ACCESS_TOKEN';
-        return $this->callPostApi($url, ['begin_date' => $begin_date, 'end_date' => $end_date], true);
+        return $this->callPostApi($url, ['begin_date' => $beginDate, 'end_date' => $endDate], true);
     }
 
     /**
