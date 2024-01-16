@@ -109,6 +109,7 @@ class BasicPushEvent
             }
             $this->receive = new DataArray(Tools::xml2arr($this->postxml));
         } elseif ($_SERVER['REQUEST_METHOD'] == "GET" && $this->checkSignature()) {
+            $this->receive = new DataArray([]);
             if ($showEchoStr && ob_clean()) {
                 echo($this->input->get('echostr'));
             }
