@@ -14,6 +14,8 @@
 // | github 代码仓库：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
+include_once __DIR__ . '/helper.php';
+
 spl_autoload_register(function ($classname) {
     $pathname = __DIR__ . DIRECTORY_SEPARATOR;
     $filename = str_replace('\\', DIRECTORY_SEPARATOR, $classname) . '.php';
