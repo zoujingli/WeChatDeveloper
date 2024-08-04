@@ -19,7 +19,7 @@
     "WeChatDeveloper"
   ],
   "require": {
-    "php": ">=5.5",
+    "php": ">=5.4",
     "ext-xml": "*",
     "ext-json": "*",
     "ext-curl": "*",
@@ -30,6 +30,9 @@
     "ext-simplexml": "*"
   },
   "autoload": {
+    "file": [
+      "helper.php"
+    ],
     "classmap": [
       "We.php"
     ],
