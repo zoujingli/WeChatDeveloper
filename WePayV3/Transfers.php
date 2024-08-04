@@ -46,6 +46,9 @@ class Transfers extends BasicWePay
         if (empty($body['total_num'])) {
             $body['total_num'] = count($body['transfer_detail_list']);
         }
+        if (empty($body['total_amount'])) {
+            $body['total_amount'] = array_sum(array_column($body['transfer_detail_list'], 'transfer_amount'));
+        }
         return $this->doRequest('POST', '/v3/transfer/batches', json_encode($body, JSON_UNESCAPED_UNICODE), true);
     }
 
