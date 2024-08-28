@@ -158,15 +158,17 @@ class Live extends BasicWeChat
 
     /**
      * 获取商品列表
-     * @param array $data
+     * @param integer $offset 分页条数起点
+     * @param integer $status 商品状态，0：未审核。1：审核中，2：审核通过，3：审核驳回
+     * @param integer $limit 分页大小，默认30，不超过100
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getGoods($data)
+    public function getGoods($offset, $status, $limit = 30)
     {
-        $url = "https://api.weixin.qq.com/wxaapi/broadcast/goods/getapproved?access_token=ACCESS_TOKEN";
-        return $this->callPostApi($url, $data, true);
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/goods/getapproved?access_token=ACCESS_TOKEN&offset={$offset}&limit={$limit}&status={$status}";
+        return $this->callGetApi($url);
     }
 
     /**
@@ -197,28 +199,29 @@ class Live extends BasicWeChat
 
     /**
      * 获取直播间推流地址
-     * @param array $data
+     * @param string $roomId
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getPushUrl($data)
+    public function getPushUrl($roomId)
     {
-        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getpushurl?access_token=ACCESS_TOKEN";
-        return $this->callPostApi($url, $data, true);
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getpushurl?access_token=ACCESS_TOKEN&roomId={$roomId}";
+        return $this->callGetApi($url);
     }
 
     /**
      * 获取直播间分享二维码
-     * @param array $data
+     * @param string $roomId
+     * @param string $params
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getShareCode($data)
+    public function getShareCode($roomId, $params = '')
     {
-        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getsharedcode?access_token=ACCESS_TOKEN";
-        return $this->callPostApi($url, $data, true);
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getsharedcode?access_token=ACCESS_TOKEN&roomId={$roomId}&params={$params}";
+        return $this->callGetApi($url);
     }
 
     /**
@@ -262,15 +265,15 @@ class Live extends BasicWeChat
 
     /**
      * 查询管理直播间小助手
-     * @param array $data
+     * @param string $roomId
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getAssistantList($data)
+    public function getAssistantList($roomId)
     {
-        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getassistantlist?access_token=ACCESS_TOKEN";
-        return $this->callPostApi($url, $data, true);
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getassistantlist?access_token=ACCESS_TOKEN&roomId={$roomId}";
+        return $this->callGetApi($url);
     }
 
     /**
@@ -314,15 +317,15 @@ class Live extends BasicWeChat
 
     /**
      * 查询除主播副号
-     * @param array $data
+     * @param string $roomId
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public function getSubAnchor($data)
+    public function getSubAnchor($roomId)
     {
-        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getsubanchor?access_token=ACCESS_TOKEN";
-        return $this->callPostApi($url, $data, true);
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/room/getsubanchor?access_token=ACCESS_TOKEN&roomId={$roomId}";
+        return $this->callGetApi($url);
     }
 
     /**
@@ -466,5 +469,50 @@ class Live extends BasicWeChat
     {
         $url = "https://api.weixin.qq.com/wxa/business/push_message?access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, $data, true);
+    }
+
+
+    /**
+     * 设置成员角色
+     * @param array $data
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function addRole($data)
+    {
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/role/addrole?access_token=ACCESS_TOKEN";
+        return $this->callPostApi($url, $data, true);
+    }
+
+
+    /**
+     * 解除成员角色
+     * @param array $data
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function delRole($data)
+    {
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/role/deleterole?access_token=ACCESS_TOKEN";
+        return $this->callPostApi($url, $data, true);
+    }
+
+
+    /**
+     * 查询成员角色
+     * @param int $role
+     * @param int $offset
+     * @param int $limit
+     * @param string $keyword
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function getRole($role = -1, $offset = 0, $limit = 30, $keyword = '')
+    {
+        $url = "https://api.weixin.qq.com/wxaapi/broadcast/role/getrolelist?access_token=ACCESS_TOKEN&offset={$offset}&limit={$limit}&keyword={$keyword}&role={$role}";
+        return $this->callGetApi($url);
     }
 }
