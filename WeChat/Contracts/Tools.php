@@ -30,12 +30,15 @@ use WeChat\Exceptions\LocalCacheException;
 // \WeChat\Contracts\Tools::$cache_callable = [
 //    'set' => function ($name, $value, $expired = 360) {
 //        var_dump(func_get_args());
+//         return $value;
 //    },
 //    'get' => function ($name) {
 //        var_dump(func_get_args());
+//        return $value;
 //    },
 //    'del' => function ($name) {
 //        var_dump(func_get_args());
+//        return true;
 //    },
 //    'put' => function ($name) {
 //        var_dump(func_get_args());
