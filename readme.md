@@ -43,8 +43,11 @@ WeChatDeveloper 是基于官方接口封装，在做微信开发前，必需先�
 ----
 WeChatDeveloper 为开源项目，允许把它用于任何地方，不受任何约束，欢迎 fork 项目。
 
-* Gitee 托管地址：https://gitee.com/zoujingli/WeChatDeveloper
-* GitHub 托管地址：https://github.com/zoujingli/WeChatDeveloper
+我们的代码仓库已移至 **Github**，而 **Gitee** 和 **Gitcode** 则仅作为国内镜像仓库，方便广大开发者获取和使用。若想提交 **PR** 或 **ISSUE** 请在 [WeChatDeveloper](https://github.com/zoujingli/WeChatDeveloper) 仓库进行操作，如果在其他仓库操作或提交问题将无法处理！
+
+* Gitee 仓库地址：https://gitee.com/zoujingli/WeChatDeveloper
+* GitHub 仓库地址：https://github.com/zoujingli/WeChatDeveloper
+* GitCode 仓库地址：https://gitcode.com/ThinkAdmin/WeChatDeveloper
 
 文件说明（后续会根据官方文档增加文件）
 ----
