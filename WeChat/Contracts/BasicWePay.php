@@ -92,7 +92,7 @@ class BasicWePay
 
     /**
      * 获取微信支付通知
-     * @param string $xml
+     * @param string|array $xml
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
