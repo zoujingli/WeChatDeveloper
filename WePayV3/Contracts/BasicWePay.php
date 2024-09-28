@@ -242,7 +242,7 @@ abstract class BasicWePay
             "nonce_str: {$nonce}",
             "signature: {$sign}"
         ];
-        $lines = [];
+        $line = [];
         $line[] = "--{$boundary}";
         $line[] = "Content-Disposition: form-data; name=\"meta\"";
         $line[] = "Content-Type: application/json";
