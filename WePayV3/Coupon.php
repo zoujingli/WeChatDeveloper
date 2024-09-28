@@ -47,7 +47,7 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function stocksStart(string $stock_id , string $stock_creator_mchid)
+    public function stocksStart($stock_id, $stock_creator_mchid)
     {
         $path = "/v3/marketing/favor/stocks/{$stock_id}/start";
         return $this->doRequest('POST', $path, json_encode(['stock_creator_mchid' => $stock_creator_mchid]), true);
@@ -60,7 +60,7 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function stocksPause(string $stock_id , string $stock_creator_mchid)
+    public function stocksPause($stock_id, $stock_creator_mchid)
     {
         $path = "/v3/marketing/favor/stocks/{$stock_id}/pause";
         return $this->doRequest('POST', $path, json_encode(['stock_creator_mchid' => $stock_creator_mchid]), true);
@@ -73,7 +73,7 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function stocksRestart(string $stock_id , string $stock_creator_mchid)
+    public function stocksRestart($stock_id, $stock_creator_mchid)
     {
         $path = "/v3/marketing/favor/stocks/{$stock_id}/restart";
         return $this->doRequest('POST', $path, json_encode(['stock_creator_mchid' => $stock_creator_mchid]), true);
@@ -86,7 +86,7 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function stocksDetail(string $stock_id , string $stock_creator_mchid)
+    public function stocksDetail($stock_id, $stock_creator_mchid)
     {
         $path = "/v3/marketing/favor/stocks/{$stock_id}?stock_creator_mchid={$stock_creator_mchid}";
         return $this->doRequest('GET', $path, '', true);
@@ -122,7 +122,7 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function couponsSend( array $param)
+    public function couponsSend(array $param)
     {
         $path = "/v3/marketing/favor/users/{$param['openid']}/coupons";
         return $this->doRequest('POST', $path, json_encode($param), true);
@@ -148,11 +148,9 @@ class Coupon extends BasicWePay
      * @return array|string
      * @throws InvalidResponseException
      */
-    public function couponsDetail( string $openid , string $coupon_id , string $appid)
+    public function couponsDetail($openid, $coupon_id, $appid)
     {
         $path = "/v3/marketing/favor/users/{$openid}/coupons/{$coupon_id}?appid={$appid}";
-        return $this->doRequest('GET', $path,'', true);
+        return $this->doRequest('GET', $path, '', true);
     }
-
-
 }
