@@ -16,6 +16,7 @@
 
 namespace WePayV3;
 
+use WeChat\Contracts\Tools;
 use WePayV3\Contracts\BasicWePay;
 
 /**
@@ -29,10 +30,36 @@ class Ecommerce extends BasicWePay
      * 提交申请单（商户进件）
      * @param array $data 进件参数
      * @return array
+     * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function ecommerceApplyments($data)
     {
+        if (isset($data['id_card_info'])) {
+            if (isset($data['id_card_info']['id_card_name'])) $data['id_card_info']['id_card_name'] = $this->rsaEncode($data['id_card_info']['id_card_name']);
+            if (isset($data['id_card_info']['id_card_number'])) $data['id_card_info']['id_card_number'] = $this->rsaEncode($data['id_card_info']['id_card_number']);
+        }
+        if (isset($data['id_doc_info'])) {
+            if (isset($data['id_doc_info']['id_doc_name'])) $data['id_doc_info']['id_doc_name'] = $this->rsaEncode($data['id_doc_info']['id_doc_name']);
+            if (isset($data['id_doc_info']['id_doc_number'])) $data['id_doc_info']['id_doc_number'] = $this->rsaEncode($data['id_doc_info']['id_doc_number']);
+        }
+        if (isset($data['contact_info'])) {
+            if (isset($data['contact_info']['contact_name'])) $data['contact_info']['contact_name'] = $this->rsaEncode($data['contact_info']['contact_name']);
+            if (isset($data['contact_info']['contact_id_card_number'])) $data['contact_info']['contact_id_card_number'] = $this->rsaEncode($data['contact_info']['contact_id_card_number']);
+            if (isset($data['contact_info']['mobile_phone'])) $data['contact_info']['mobile_phone'] = $this->rsaEncode($data['contact_info']['mobile_phone']);
+        }
+        if (isset($data['account_info'])) {
+            if (isset($data['account_info']['account_name'])) $data['account_info']['account_name'] = $this->rsaEncode($data['account_info']['account_name']);
+            if (isset($data['account_info']['account_number'])) $data['account_info']['account_number'] = $this->rsaEncode($data['account_info']['account_number']);
+        }
+        if (!empty($data['ubo_info_list'])) {
+            $data['ubo_info_list'] = array_map(function ($item) {
+                $item['ubo_id_doc_name'] = $this->rsaEncode($item['ubo_id_doc_name']);
+                $item['ubo_id_doc_number'] = $this->rsaEncode($item['ubo_id_doc_number']);
+                $item['ubo_id_doc_address'] = $this->rsaEncode($item['ubo_id_doc_address']);
+                return $item;
+            }, $data['ubo_info_list']);
+        }
         return $this->doRequest('POST', '/v3/ecommerce/applyments/', json_encode($data, JSON_UNESCAPED_UNICODE), true);
     }
 
@@ -59,7 +86,6 @@ class Ecommerce extends BasicWePay
         $pathinfo = "/v3/ecommerce/applyments/{$applyment_id}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
-
 
     /**
      * 修改结算账户（商户进件）
@@ -651,5 +677,90 @@ class Ecommerce extends BasicWePay
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
+    /**
+     * 查询支持个人业务的银行列表
+     * @param int $offset
+     * @param int $limit
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function personalBanking($offset, $limit)
+    {
+        $pathinfo = "/v3/capital/capitallhh/banks/personal-banking?" . http_build_query(['offset' => $offset, 'limit' => $limit]);
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
 
+    /**
+     * 查询省份列表
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function provinces()
+    {
+        $pathinfo = "/v3/capital/capitallhh/areas/provinces";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 查询城市列表
+     * @param int $code
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function cities($code)
+    {
+        $pathinfo = "/v3/capital/capitallhh/areas/provinces/{$code}/cities";
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 查询支行列表
+     * @param int $code
+     * @param $city
+     * @param $offset
+     * @param $limit
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function branches($code, $city, $offset, $limit)
+    {
+        $pathinfo = "/v3/capital/capitallhh/banks/{$code}/branches?" . http_build_query(['city_code' => $city, 'offset' => $offset, 'limit' => $limit]);
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 查询支持对公业务的银行列表
+     * @param int $offset
+     * @param int $limit
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function corporateBanking($offset, $limit)
+    {
+        $pathinfo = "/v3/capital/capitallhh/banks/corporate-banking?" . http_build_query(['offset' => $offset, 'limit' => $limit]);
+        return $this->doRequest('GET', $pathinfo, '', true);
+    }
+
+    /**
+     * 通过支付预订单ID获取支付参数
+     * @param string $prepay_id 支付预订单ID
+     * @param string $type 类型
+     * @return array
+     */
+    public function getJsApiParameters($prepay_id, $type = 'jsapi')
+    {
+        // 支付参数签名
+        $time = strval(time());
+        $appid = $this->config['appid'];
+        $nonceStr = Tools::createNoncestr();
+        if ($type === 'app') {
+            $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, $prepay_id, '']));
+            return ['partnerId' => $this->config['mch_id'], 'prepayId' => $prepay_id, 'package' => 'Sign=WXPay', 'nonceStr' => $nonceStr, 'timeStamp' => $time, 'sign' => $sign];
+        } elseif ($type === 'jsapi') {
+            $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, "prepay_id={$prepay_id}", '']));
+            return ['appId' => $appid, 'timestamp' => $time, 'timeStamp' => $time, 'nonceStr' => $nonceStr, 'package' => "prepay_id={$prepay_id}", 'signType' => 'RSA', 'paySign' => $sign];
+        } else {
+            return [];
+        }
+    }
 }
