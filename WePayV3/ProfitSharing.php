@@ -20,7 +20,7 @@ use WePayV3\Contracts\BasicWePay;
 
 /**
  * 普通商户商家分账
- * @class ProfitSharing
+ * Class Profitsharing
  * @package WePayV3
  */
 class ProfitSharing extends BasicWePay
@@ -31,12 +31,11 @@ class ProfitSharing extends BasicWePay
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function create($options)
+    public function create(array $options)
     {
         $options['appid'] = $this->config['appid'];
         return $this->doRequest('POST', '/v3/profitsharing/orders', json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
-
 
     /**
      * 查询分账结果
@@ -57,7 +56,7 @@ class ProfitSharing extends BasicWePay
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function unfreeze($options)
+    public function unfreeze(array $options)
     {
         return $this->doRequest('POST', '/v3/profitsharing/orders/unfreeze', json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
@@ -78,11 +77,15 @@ class ProfitSharing extends BasicWePay
      * 添加分账接收方
      * @param array $options
      * @return array
+     * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function addReceiver($options)
+    public function addReceiver(array $options)
     {
         $options['appid'] = $this->config['appid'];
+        if (isset($options['name'])) {
+            $options['name'] = $this->rsaEncode($options['name']);
+        }
         return $this->doRequest('POST', "/v3/profitsharing/receivers/add", json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
 
@@ -92,9 +95,21 @@ class ProfitSharing extends BasicWePay
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function deleteReceiver($options)
+    public function deleteReceiver(array $options)
     {
         $options['appid'] = $this->config['appid'];
         return $this->doRequest('POST', "/v3/profitsharing/receivers/delete", json_encode($options, JSON_UNESCAPED_UNICODE), true);
+    }
+
+    /**
+     * 请求分账回退
+     * @param array $options
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function backspace(array $options)
+    {
+        $options['appid'] = $this->config['appid'];
+        return $this->doRequest('POST', "/v3/profitsharing/return-orders", json_encode($options, JSON_UNESCAPED_UNICODE), true);
     }
 }
