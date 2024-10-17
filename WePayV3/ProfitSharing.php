@@ -20,7 +20,7 @@ use WePayV3\Contracts\BasicWePay;
 
 /**
  * 普通商户商家分账
- * Class Profitsharing
+ * @class ProfitSharing
  * @package WePayV3
  */
 class ProfitSharing extends BasicWePay

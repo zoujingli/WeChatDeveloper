@@ -3,9 +3,10 @@
 namespace WePayV3;
 
 use WePayV3\Contracts\BasicWePay;
+
 /**
  * 普通商户消费者投诉2.0
- * Class Complaints
+ * @class Complaints
  * @package WePayV3
  */
 class Complaints extends BasicWePay
@@ -20,46 +21,46 @@ class Complaints extends BasicWePay
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function complaintList(int $offset = 0, int $limit = 10, String $begin_date, String $end_date)
+    public function complaintList($offset, $limit, $begin_date, $end_date)
     {
         $mchId = $this->config['mch_id'];
         $pathinfo = "/v3/merchant-service/complaints-v2?limit={$limit}&offset={$offset}&begin_date={$begin_date}&end_date={$end_date}&complainted_mchid={$mchId}";
-        return  $this->doRequest('GET', $pathinfo,'', true);
+        return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 查询投诉详情
-     * @param String $complaint_id  被投诉单号
+     * @param string $complaint_id 被投诉单号
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function  complaintDetails(String $complaint_id)
+    public function complaintDetails($complaint_id)
     {
         $pathinfo = "/v3/merchant-service/complaints-v2/{$complaint_id}";
-        return $this->doRequest('GET', $pathinfo,'', true);
+        return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 查询投诉协商历史
-     * @param String $complaint_id  被投诉单号
+     * @param string $complaint_id 被投诉单号
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function negotiationHistory(String $complaint_id)
+    public function negotiationHistory($complaint_id)
     {
         $pathinfo = "/v3/merchant-service/complaints-v2/{$complaint_id}/negotiation-historys";
-        return $this->doRequest('GET', $pathinfo,'', true);
+        return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 创建投诉通知回调地址
-     * @param String $url 回调通知地址
+     * @param string $url 回调通知地址
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function CreateComplaintsNotify(String $url)
+    public function CreateComplaintsNotify($url)
     {
-        return $this->doRequest('POST', '/v3/merchant-service/complaint-notifications', json_encode(['url' => $url],JSON_UNESCAPED_UNICODE), true);
+        return $this->doRequest('POST', '/v3/merchant-service/complaint-notifications', json_encode(['url' => $url], JSON_UNESCAPED_UNICODE), true);
 
     }
 
@@ -76,12 +77,13 @@ class Complaints extends BasicWePay
 
     /**
      * 更新投诉通知回调地址
-     * @param String $url 回调通知地址
+     * @param string $url 回调通知地址
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function updateComplaintsNotify(String $url){
-        return $this->doRequest('PUT', '/v3/merchant-service/complaint-notifications', json_encode(['url' => $url],JSON_UNESCAPED_UNICODE), true);
+    public function updateComplaintsNotify($url)
+    {
+        return $this->doRequest('PUT', '/v3/merchant-service/complaint-notifications', json_encode(['url' => $url], JSON_UNESCAPED_UNICODE), true);
     }
 
     /**
@@ -89,22 +91,23 @@ class Complaints extends BasicWePay
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function deleteComplaintsNotify(){
+    public function deleteComplaintsNotify()
+    {
         return $this->doRequest('DELETE', '/v3/merchant-service/complaint-notifications', '', true);
     }
 
     /**
      * 回复投诉
-     * @param String $complaint_id 被投诉单号
-     * @param String $content 回复内容
+     * @param string $complaint_id 被投诉单号
+     * @param array $content 回复内容
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function replyInfo(String $complaint_id, array $content)
+    public function replyInfo($complaint_id, array $content)
     {
         $content['complainted_mchid'] = $this->config['mch_id'];
         $pathinfo = "/v3/merchant-service/complaints-v2/{$complaint_id}/response";
-        return $this->doRequest('POST', $pathinfo, json_encode($content,JSON_UNESCAPED_UNICODE), true);
+        return $this->doRequest('POST', $pathinfo, json_encode($content, JSON_UNESCAPED_UNICODE), true);
     }
 
     /**
@@ -113,32 +116,32 @@ class Complaints extends BasicWePay
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function completeComplaints(string $complaint_id)
+    public function completeComplaints($complaint_id)
     {
         $mchId = $this->config['mch_id'];
         $pathinfo = "/v3/merchant-service/complaints-v2/{$complaint_id}/complete";
-        return $this->doRequest('POST', $pathinfo, json_encode(['complainted_mchid' => $mchId],JSON_UNESCAPED_UNICODE),true);
+        return $this->doRequest('POST', $pathinfo, json_encode(['complainted_mchid' => $mchId], JSON_UNESCAPED_UNICODE), true);
     }
 
     /**
      * 图片请求接口
-     * @param $pathinfo
+     * @param string $pathinfo
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function downLoadImg(string $pathinfo)
+    public function downLoadImg($pathinfo)
     {
-        return $this->doRequest('GET', $pathinfo, '',true,false);
+        return $this->doRequest('GET', $pathinfo, '', true, false);
     }
+
     /**
      * 图片上传接口
-     * @param $imginfo
+     * @param array $imginfo
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function uploadImg(array $imginfo)
     {
-        return $this->doRequest('POST', '/v3/merchant-service/images/upload', json_encode($imginfo,JSON_UNESCAPED_UNICODE),true);
+        return $this->doRequest('POST', '/v3/merchant-service/images/upload', json_encode($imginfo, JSON_UNESCAPED_UNICODE), true);
     }
-
 }
