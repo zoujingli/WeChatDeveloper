@@ -40,7 +40,6 @@ class Insurance extends BasicWeChat
 
     /**
      * 查询开通状态接口
-     * @param array $data
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
