@@ -628,4 +628,17 @@ class Card extends BasicWeChat
         $url = "https://api.weixin.qq.com/card/pay/getorderlist?access_token=ACCESS_TOKEN";
         return $this->callPostApi($url, $data);
     }
+
+    /**
+     * 获取开卡插件参数
+     * @param array $data
+     * @return array
+     * @throws Exceptions\InvalidResponseException
+     * @throws Exceptions\LocalCacheException
+     */
+    public function getActivateUrl(array $data)
+    {
+        $url = "https://api.weixin.qq.com/card/membercard/activate/geturl?access_token=ACCESS_TOKEN";
+        return $this->callPostApi($url, $data);
+    }
 }
