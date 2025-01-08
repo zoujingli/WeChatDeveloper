@@ -350,6 +350,9 @@ abstract class BasicAliPay
      */
     private function getRootCertSN($sign)
     {
+        if (strlen($sign) < 500 && file_exists($sign)) {
+            $sign = file_get_contents($sign);
+        }
         $sn = null;
         $array = explode('-----END CERTIFICATE-----', $sign);
         for ($i = 0; $i < count($array) - 1; $i++) {
