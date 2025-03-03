@@ -57,9 +57,9 @@ abstract class BasicWePay
         'mch_v3_key'      => '', // 微信商户密钥，需要配置
         'cert_serial'     => '', // 商户证书序号，无需配置
         'cert_public'     => '', // 商户公钥内容，需要配置
-        'cert_private'    => '', // 商户密钥内容，需要配置
-        'mp_cert_serial'  => '', // 平台证书序号，无需配置
-        'mp_cert_content' => '', // 平台证书内容，无需配置
+        'cert_private'    => '', // 商户密钥内容，需要配置Ï
+        'mp_cert_serial'  => '', // 平台证书序号，无需配置 ( 新平台，当做微信支付证书用 )
+        'mp_cert_content' => '', // 平台证书内容，无需配置 ( 新平台，当做微信支付证书Ï用 )
     ];
 
     /**
@@ -118,8 +118,11 @@ abstract class BasicWePay
         }
 
         // 自动配置平台证书
-        if ($this->autoCert) {
-            $this->_autoCert();
+        if (empty($this->config['mp_cert_serial']) || empty($this->config['mp_cert_content'])) {
+            if ($this->autoCert) $this->_autoCert();
+        } else {
+            $this->config['mp_cert_serial'] = $options['mp_cert_serial'];
+            $this->config['mp_cert_content'] = $options['mp_cert_content'];
         }
 
         // 服务商参数支持
