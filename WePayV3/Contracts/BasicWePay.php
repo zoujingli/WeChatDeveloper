@@ -118,7 +118,7 @@ abstract class BasicWePay
         }
 
         // 自动配置平台证书
-        if (empty($this->config['mp_cert_serial']) || empty($this->config['mp_cert_content'])) {
+        if (empty($options['mp_cert_serial']) || empty($options['mp_cert_content'])) {
             if ($this->autoCert) $this->_autoCert();
         } else {
             $this->config['mp_cert_serial'] = $options['mp_cert_serial'];
@@ -340,8 +340,11 @@ abstract class BasicWePay
      */
     protected function signVerify($data, $sign, $serial)
     {
-        $cert = $this->_getCert($serial);
-        return @openssl_verify($data, base64_decode($sign), openssl_x509_read($cert), 'sha256WithRSAEncryption');
+        if (stripos($this->config['mp_cert_serial'], 'PUB_KEY_ID_') !== false) {
+            return @openssl_verify($data, base64_decode($sign), $this->config['mp_cert_content'], OPENSSL_ALGO_SHA256);
+        } else {
+            return @openssl_verify($data, base64_decode($sign), openssl_x509_read($this->_getCert($serial)), 'sha256WithRSAEncryption');
+        }
     }
 
     /**
