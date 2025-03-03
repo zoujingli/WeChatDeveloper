@@ -20,7 +20,7 @@ try {
     include "../include.php";
 
     // 2. 准备公众号配置参数
-    $config = include "./config.php";
+    $config = include "./pay-config.php";
 
     // 3. 创建接口实例
     // $wechat = new \WePay\Redpack($config);
