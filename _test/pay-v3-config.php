@@ -65,7 +65,7 @@ return [
     'appid'           => 'wx3760axxxxxxxxxxx',
     // 必填，微信商户编号ID
     'mch_id'          => '152xxxxxxxx',
-    // 必填，微信商户V3接口密钥
+    // 必填，微信商户V3接口密钥，不影响发起支付但无法验证支付通知
     'mch_v3_key'      => '98b7f45xxxxxxxxxxxxxxxxxxxxxxxxxx',
     // 可选，微信商户证书序列号，可从公钥中提取，请求签名使用
     'cert_serial'     => '49055xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
