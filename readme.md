@@ -338,8 +338,8 @@ try {
 
 本项目包含的第三方源码和二进制文件的版权信息将另行标注，请在对应文件查看。
 
-版权所有 Copyright © 2014-2023 by ThinkAdmin (https://thinkadmin.top) All rights reserved。
+版权所有 Copyright © 2014-2025 by ThinkAdmin (https://thinkadmin.top) All rights reserved。
 
 ## 赞助打赏，请作者喝杯茶 ~
 
-![赞助](https://doc.thinkadmin.top/static/img/pay.png)
+![赞助](https://thinkadmin.top/static/img/pay.png)
