@@ -117,17 +117,18 @@ include "您的目录/WeChatDeveloper/include.php";
 2.1 接口实例所需参数
 
 ```php
+
 // =====================================================
-// 配置缓存处理函数 ( 适配其他环境 )
+// 配置缓存处理函数（适配不同环境）
 // -----------------------------------------------------
-// 数据缓存 (set|get|del) 操作可以将缓存写到任意位置或Redis
-// 文件缓存 (put) 只能写在本地服务器，还需要返回可读的文件路径
-// 未配置自定义缓存处理机制时，默认在 cache_path 写入文件缓存
-// // =====================================================
+// - 数据缓存（set|get|del）：可存储到本地或 Redis
+// - 文件缓存（put）：仅支持本地存储，并返回可读的文件路径
+// - 若未设置自定义缓存处理，默认存储在 cache_path 目录
+// =====================================================
 // \WeChat\Contracts\Tools::$cache_callable = [
 //    'set' => function ($name, $value, $expired = 360) {
 //        var_dump(func_get_args());
-//         return $value;
+//        return $value;
 //    },
 //    'get' => function ($name) {
 //        var_dump(func_get_args());
@@ -143,19 +144,38 @@ include "您的目录/WeChatDeveloper/include.php";
 //    },
 // ];
 
-$config = [
-    'token'          => 'test',
-    'appid'          => 'wx60a43dd8161666d4',
-    'appsecret'      => '71308e96a204296c57d7cd4b21b883e8',
-    'encodingaeskey' => 'BJIUzE0gqlWy0GxfPp4J1oPTBmOrNDIGPNav1YFH5Z5',
-    // 配置商户支付参数（可选，在使用支付功能时需要）
-    'mch_id'         => "1235704602",
-    'mch_key'        => 'IKI4kpHjU94ji3oqre5zYaQMwLHuZPmj',
-    // 配置商户支付双向证书目录（可选，在使用退款|打款|红包时需要）
-    'ssl_key'        => '',
-    'ssl_cer'        => '',
-    // 缓存目录配置（可选，需拥有读写权限）
-    'cache_path'     => '',
+return [
+    // 公众号 APPID（可选）
+    'appid'        => 'wx3760xxxxxxxxxxxx',
+    
+    // 微信商户号（必填）
+    'mch_id'       => '15293xxxxxx',
+    
+    // 微信商户 V3 接口密钥（必填）
+    'mch_v3_key'   => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 商户证书序列号（可选）：用于请求签名
+    'cert_serial'  => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    
+    // 微信商户证书公钥（必填）：可填写证书内容或文件路径，仅用于提取序列号
+    'cert_public'  => $certPublic,
+    
+    // 微信商户证书私钥（必填）：可填写证书内容或文件路径，用于请求数据签名
+    'cert_private' => $certPrivate,
+
+    // 自定义证书包：支持平台证书或支付公钥（可填写文件路径或证书内容）
+    'cert_package' => [
+        'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
+    ],
+
+    // 微信平台证书或支付证书序列号（可选）
+    // 'mp_cert_serial'  => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 微信平台证书或支付证书内容（可选）
+    // 'mp_cert_content' => $certPayment,
+
+    // 运行时文件缓存路径（可选）
+    'cache_path'   => ''
 ];
 ```
 

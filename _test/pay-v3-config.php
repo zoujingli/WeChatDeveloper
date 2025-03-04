@@ -14,37 +14,38 @@
 // | github 代码仓库：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
+// 微信商户证书公钥
 $certPublic = <<<CERT
 -----BEGIN CERTIFICATE-----
 文件文本内容
 -----END CERTIFICATE-----
 CERT;
 
+// 微信商户证书私钥
 $certPrivate = <<<CERT
 -----BEGIN PRIVATE KEY-----
 文件文本内容
 -----END PRIVATE KEY-----
 CERT;
 
-// 支付证书内容
+// 微信支付证书公钥
 $certPayment = <<<CERT
 -----BEGIN PUBLIC KEY-----
 文件文本内容
 -----END PUBLIC KEY-----
 CERT;
 
-
 // =====================================================
-// 配置缓存处理函数 ( 适配其他环境 )
+// 配置缓存处理函数（适配不同环境）
 // -----------------------------------------------------
-// 数据缓存 (set|get|del) 操作可以将缓存写到任意位置或Redis
-// 文件缓存 (put) 只能写在本地服务器，还需要返回可读的文件路径
-// 未配置自定义缓存处理机制时，默认在 cache_path 写入文件缓存
-// // =====================================================
+// - 数据缓存（set|get|del）：可存储到本地或 Redis
+// - 文件缓存（put）：仅支持本地存储，并返回可读的文件路径
+// - 若未设置自定义缓存处理，默认存储在 cache_path 目录
+// =====================================================
 // \WeChat\Contracts\Tools::$cache_callable = [
 //    'set' => function ($name, $value, $expired = 360) {
 //        var_dump(func_get_args());
-//         return $value;
+//        return $value;
 //    },
 //    'get' => function ($name) {
 //        var_dump(func_get_args());
@@ -61,26 +62,31 @@ CERT;
 // ];
 
 return [
-    // 可选，公众号APPID
+    // 公众号 APPID（可选）
     'appid'        => 'wx3760xxxxxxxxxxxx',
-    // 必填，微信商户编号ID
+    // 微信商户号（必填）
     'mch_id'       => '15293xxxxxx',
-    // 必填，微信商户V3接口密钥
+    // 微信商户 V3 接口密钥（必填）
     'mch_v3_key'   => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    // 可选，微信商户证书序列号，可从公钥中提取，请求签名使用
+
+    // 商户证书序列号（可选）：用于请求签名
     'cert_serial'  => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    // 必填，微信商户证书公钥，支持证书内容或文件路径，仅用于提取序号
+    // 微信商户证书公钥（必填）：可填写证书内容或文件路径，仅用于提取序列号
     'cert_public'  => $certPublic,
-    // 必填，微信商户证书私钥，支持证书内容或文件路径，用于请求数据签名
+    // 微信商户证书私钥（必填）：可填写证书内容或文件路径，用于请求数据签名
     'cert_private' => $certPrivate,
-    // 批量设置自定义证书内容，支持平台证书或支付公钥，可填写文件路径及内容
+
+    // 自定义证书包：支持平台证书或支付公钥（可填写文件路径或证书内容）
     'cert_package' => [
         'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
     ],
-    // 可选，微信平台证书序号或支付证书序号，直接支持平台证书或支付公钥
+
+    // 微信平台证书或支付证书序列号（可选）
     // 'mp_cert_serial'  => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    // 可选，微信平台证书内容或支付证书内容，直接支持平台证书或支付公钥
+
+    // 微信平台证书或支付证书内容（可选）
     // 'mp_cert_content' => $certPayment,
-    // 可选，运行时的文件缓存路径
+
+    // 运行时文件缓存路径（可选）
     'cache_path'   => ''
 ];
