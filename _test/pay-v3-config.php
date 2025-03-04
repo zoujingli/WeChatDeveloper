@@ -62,21 +62,25 @@ CERT;
 
 return [
     // 可选，公众号APPID
-    'appid'           => 'wx3760axxxxxxxxxxx',
+    'appid'        => 'wx3760xxxxxxxxxxxx',
     // 必填，微信商户编号ID
-    'mch_id'          => '152xxxxxxxx',
-    // 必填，微信商户V3接口密钥，不影响发起支付但无法验证支付通知
-    'mch_v3_key'      => '98b7f45xxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'mch_id'       => '15293xxxxxx',
+    // 必填，微信商户V3接口密钥
+    'mch_v3_key'   => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     // 可选，微信商户证书序列号，可从公钥中提取，请求签名使用
-    'cert_serial'     => '49055xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'cert_serial'  => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     // 必填，微信商户证书公钥，支持证书内容或文件路径，仅用于提取序号
-    'cert_public'     => $certPublic,
+    'cert_public'  => $certPublic,
     // 必填，微信商户证书私钥，支持证书内容或文件路径，用于请求数据签名
-    'cert_private'    => $certPrivate,
-    // 可选，微信平台证书序号或支付证书序号，用于接口请求序号
-    'mp_cert_serial'  => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-    // 可选，微信平台证书内容或支付证书内容
-    'mp_cert_content' => $certPayment,
+    'cert_private' => $certPrivate,
+    // 批量设置自定义证书内容，支持平台证书或支付公钥，可填写文件路径及内容
+    'cert_package' => [
+        'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
+    ],
+    // 可选，微信平台证书序号或支付证书序号，直接支持平台证书或支付公钥
+    // 'mp_cert_serial'  => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    // 可选，微信平台证书内容或支付证书内容，直接支持平台证书或支付公钥
+    // 'mp_cert_content' => $certPayment,
     // 可选，运行时的文件缓存路径
-    'cache_path'      => ''
+    'cache_path'   => ''
 ];

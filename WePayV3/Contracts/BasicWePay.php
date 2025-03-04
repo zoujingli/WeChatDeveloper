@@ -39,7 +39,7 @@ abstract class BasicWePay
      * 实例对象静态缓存
      * @var array
      */
-    static $cache = [];
+    protected static $cache = [];
 
     /**
      * 自动配置平台证书
@@ -58,8 +58,9 @@ abstract class BasicWePay
         'cert_serial'     => '', // 商户证书序号，无需配置
         'cert_public'     => '', // 商户公钥内容，需要配置
         'cert_private'    => '', // 商户密钥内容，需要配置
-        'mp_cert_serial'  => '', // 平台证书序号，无需配置 ( 新平台，当做微信支付证书用 )
-        'mp_cert_content' => '', // 平台证书内容，无需配置 ( 新平台，当做微信支付证书用 )
+        'cert_package'    => [], // 平台证书或支付证书配置
+        'mp_cert_serial'  => '', // 平台证书序号，无需配置 ( 指定平台证书或支付公钥 )
+        'mp_cert_content' => '', // 平台证书内容，无需配置 ( 指定平台证书或支付公钥 )
     ];
 
     /**
@@ -117,10 +118,19 @@ abstract class BasicWePay
             Tools::$cache_path = $options['cache_path'];
         }
 
-        // 自动配置平台证书
+        // 批量设置自定义证书
+        if (isset($options['cert_package']) && is_array($options['cert_package'])) {
+            foreach ($options['cert_package'] as $key => $cert) {
+                $this->withCertContent($key, $cert);
+            }
+        }
+
+        // 自动配置平台证书或支付公钥
         if (empty($options['mp_cert_serial']) || empty($options['mp_cert_content'])) {
-            if ($this->autoCert) $this->_autoCert();
-        } else {
+            if ($this->autoCert && !$this->withCertPayment()) {
+                $this->_autoCert();
+            }
+        } elseif ($this->withCertContent($options['mp_cert_serial'], $options['mp_cert_content'])) {
             $this->config['mp_cert_serial'] = $options['mp_cert_serial'];
             $this->config['mp_cert_content'] = $options['mp_cert_content'];
         }
@@ -340,10 +350,10 @@ abstract class BasicWePay
      */
     protected function signVerify($data, $sign, $serial)
     {
-        if (stripos($this->config['mp_cert_serial'], 'PUB_KEY_ID_') !== false) {
-            return @openssl_verify($data, base64_decode($sign), $this->config['mp_cert_content'], OPENSSL_ALGO_SHA256);
+        if (stripos($serial, 'PUB_KEY_ID_') !== false && !empty($this->config['cert_package'][$serial])) {
+            return openssl_verify($data, base64_decode($sign), $this->config['cert_package'][$serial], OPENSSL_ALGO_SHA256);
         } else {
-            return @openssl_verify($data, base64_decode($sign), openssl_x509_read($this->_getCert($serial)), 'sha256WithRSAEncryption');
+            return openssl_verify($data, base64_decode($sign), openssl_x509_read($this->_getCert($serial)), 'sha256WithRSAEncryption');
         }
     }
 
@@ -361,11 +371,31 @@ abstract class BasicWePay
             Cert::instance($this->config)->download();
             $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
         }
-        if (empty($certs[$serial]['content']) || $certs[$serial]['expire'] < time()) {
-            throw new InvalidResponseException("读取平台证书失败！");
-        } else {
-            return $certs[$serial]['content'];
+        foreach ($certs as $cert) {
+            if ($certs[$serial]['expire'] > time()) {
+                $this->config['cert_package'][$cert['serial']] = $cert['content'];
+                if (empty($this->config['mp_cert_serial'])) {
+                    $this->config['mp_cert_serial'] = $cert['serial'];
+                    $this->config['mp_cert_content'] = $cert['content'];
+                }
+            }
         }
+        // 未设置序号时，直接返回默认证书内容
+        if (empty($serial) && !empty($this->config['mp_cert_content'])) {
+            return $this->config['mp_cert_content'];
+        }
+
+        // 遍历证书数组，找到匹配的证书
+        if ($cert = $this->withCertPayment()) {
+            return $cert;
+        }
+
+        // 检查指定序号的证书是否存在
+        if (!isset($this->config['cert_package'][$serial])) {
+            throw new InvalidResponseException("读取平台证书失败！");
+        }
+
+        return $this->config['cert_package'][$serial];
     }
 
     /**
@@ -388,11 +418,13 @@ abstract class BasicWePay
             throw new InvalidResponseException("读取平台证书失败！");
         }
         foreach ($certs as $k => $v) if ($v['expire'] > time() + 10) {
-            $this->config['mp_cert_serial'] = $k;
-            $this->config['mp_cert_content'] = $v['content'];
-            break;
+            $this->config['cert_package'][$k] = $v['content'];
+            if (empty($this->config['mp_cert_serial'])) {
+                $this->config['mp_cert_serial'] = $k;
+                $this->config['mp_cert_content'] = $v['content'];
+            }
         }
-        if (empty($this->config['mp_cert_serial']) || empty($this->config['mp_cert_content'])) {
+        if (empty($this->config['cert_package'])) {
             throw new InvalidResponseException("自动配置平台证书失败！");
         }
     }
@@ -431,5 +463,42 @@ abstract class BasicWePay
         } else {
             throw new InvalidDecryptException('Rsa Encrypt Error.');
         }
+    }
+
+    /**
+     * 设置证书内容
+     * @param string $key 证书ID或序号
+     * @param string $cert 证书文本内容
+     * @return string
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    private function withCertContent($key, $cert)
+    {
+        if (substr(trim($cert), 0, 5) == '-----') {
+            $this->config['cert_package'][$key] = $cert;
+        } elseif (file_exists($cert)) {
+            $this->config['cert_package'][$key] = file_get_contents($cert);
+        } else {
+            throw new InvalidResponseException("证书设置失败！");
+        }
+        return $cert;
+    }
+
+    /**
+     * 获取支付证书
+     * @return mixed|string
+     */
+    private function withCertPayment()
+    {
+        foreach ($this->config['cert_package'] as $key => $cert) {
+            if (strpos($key, 'PUB_KEY_ID_') === 0) {
+                if (empty($this->config['mp_cert_serial']) || empty($this->config['mp_cert_content'])) {
+                    $this->config['mp_cert_serial'] = $key;
+                    $this->config['mp_cert_content'] = $cert;
+                }
+                return $cert;
+            }
+        }
+        return '';
     }
 }
