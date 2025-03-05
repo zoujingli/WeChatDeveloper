@@ -367,35 +367,28 @@ abstract class BasicWePay
     protected function _getCert($serial = '')
     {
         $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
-        if (empty($certs) || empty($certs[$serial]['content'])) {
+        if (empty($certs) || empty($certs[$serial]['serial']) || empty($certs[$serial]['content'])) {
             Cert::instance($this->config)->download();
             $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
         }
         foreach ($certs as $cert) {
-            if ($certs[$serial]['expire'] > time()) {
+            if (!empty($cert['serial']) && !empty($cert['content']) && $cert['expire'] > time()) {
                 $this->config['cert_package'][$cert['serial']] = $cert['content'];
-                if (empty($this->config['mp_cert_serial'])) {
+                if (empty($this->config['mp_cert_serial']) && (empty($serial) || $serial === $cert['serial'])) {
                     $this->config['mp_cert_serial'] = $cert['serial'];
                     $this->config['mp_cert_content'] = $cert['content'];
                 }
             }
         }
-        // 未设置序号时，直接返回默认证书内容
-        if (empty($serial) && !empty($this->config['mp_cert_content'])) {
+        if (isset($this->config['cert_package'][$serial])) {
+            return $this->config['cert_package'][$serial];
+        } elseif (!empty($this->config['mp_cert_content'])) {
             return $this->config['mp_cert_content'];
-        }
-
-        // 遍历证书数组，找到匹配的证书
-        if ($cert = $this->withCertPayment()) {
+        } elseif ($cert = $this->withCertPayment()) {
             return $cert;
-        }
-
-        // 检查指定序号的证书是否存在
-        if (!isset($this->config['cert_package'][$serial])) {
+        } else {
             throw new InvalidResponseException("读取平台证书失败！");
         }
-
-        return $this->config['cert_package'][$serial];
     }
 
     /**

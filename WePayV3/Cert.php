@@ -42,13 +42,14 @@ class Cert extends BasicWePay
     public function download()
     {
         try {
-            $aes = new DecryptAes($this->config['mch_v3_key']);
-            $result = $this->doRequest('GET', '/v3/certificates');
             $certs = [];
+            $result = $this->doRequest('GET', '/v3/certificates');
+            $decrypt = new DecryptAes($this->config['mch_v3_key']);
             foreach ($result['data'] as $vo) {
                 $certs[$vo['serial_no']] = [
                     'expire'  => strtotime($vo['expire_time']),
-                    'content' => $aes->decryptToString(
+                    'serial'  => $vo['serial_no'],
+                    'content' => $decrypt->decryptToString(
                         $vo['encrypt_certificate']['associated_data'],
                         $vo['encrypt_certificate']['nonce'],
                         $vo['encrypt_certificate']['ciphertext']
