@@ -188,24 +188,28 @@ class Ecommerce extends BasicWePay
     /**
      * 微信支付订单号查询订单（普通支付）
      * @param string $transaction_id
+     * @param string $sub_mchid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function getTransactionsById($transaction_id)
+    public function getTransactionsById($transaction_id, $sub_mchid)
     {
         $pathinfo = "/v3/pay/partner/transactions/id/{$transaction_id}";
+        $pathinfo = $pathinfo . "?sp_mchid={$this->config['mch_id']}&sub_mchid={$sub_mchid}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 微信支付商户订单号查询订单（普通支付）
      * @param string $out_trade_no
+     * @param string $sub_mchid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function getTransactionsByTradeNo($out_trade_no)
+    public function getTransactionsByTradeNo($out_trade_no, $sub_mchid)
     {
         $pathinfo = "/v3/pay/partner/transactions/out-trade-no/{$out_trade_no}";
+        $pathinfo = $pathinfo . "?sp_mchid={$this->config['mch_id']}&sub_mchid={$sub_mchid}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
@@ -443,41 +447,44 @@ class Ecommerce extends BasicWePay
     /**
      * 查询单笔退款（按商户退款单号）(退款)
      * @param string $refund_id
+     * @param string $sub_mchid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function queryRefundsById($refund_id)
+    public function queryRefundsById($refund_id, $sub_mchid)
     {
-        $pathinfo = "/v3/ecommerce/refunds/id/{$refund_id}";
+        $pathinfo = "/v3/ecommerce/refunds/id/{$refund_id}?sub_mchid={$$sub_mchid}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 查询单笔退款（按商户退款单号）(退款)
      * @param string $out_refund_no
+     * @param string $sub_mchid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function queryRefundsByNo($out_refund_no)
+    public function queryRefundsByNo($out_refund_no, $sub_mchid)
     {
-        $pathinfo = "/v3/ecommerce/refunds/out-refund-no/{$out_refund_no}";
+        $pathinfo = "/v3/ecommerce/refunds/out-refund-no/{$out_refund_no}?sub_mchid={$sub_mchid}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 查询垫付回补结果(退款)
      * @param string $refund_id
+     * @param string $sub_mchid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function queryRefundsReturnAdvance($refund_id)
+    public function queryRefundsReturnAdvance($refund_id, $sub_mchid)
     {
-        $pathinfo = "/v3/ecommerce/refunds/{$refund_id}/return-advance";
+        $pathinfo = "/v3/ecommerce/refunds/{$refund_id}/return-advance?sub_mchid={$sub_mchid}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
-     * 查询垫付回补结果(退款)
+     * 垫付退款回补
      * @param string $refund_id
      * @param array $data
      * @return array
@@ -492,24 +499,26 @@ class Ecommerce extends BasicWePay
     /**
      * 查询二级商户账户实时余额API(余额查询)
      * @param string $sub_mchid
+     * @param string $account_type 二级商户账户类型 BASIC: 基本账户 FEES: 手续费账户 OPERATION: 运营账户 DEPOSIT: 保证金账户
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function fundBalance($sub_mchid)
+    public function fundBalance($sub_mchid, $account_type = 'BASIC')
     {
-        $pathinfo = "/v3/ecommerce/fund/balance/{$sub_mchid}";
+        $pathinfo = "/v3/ecommerce/fund/balance/{$sub_mchid}?account_type={$account_type}";
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
     /**
      * 查询二级商户账户日终余额API(余额查询)
      * @param string $sub_mchid
+     * @param array $query
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function fundEnddayBalance($sub_mchid)
+    public function fundEnddayBalance($sub_mchid, $query)
     {
-        $pathinfo = "/v3/ecommerce/fund/enddaybalance/{$sub_mchid}";
+        $pathinfo = "/v3/ecommerce/fund/enddaybalance/{$sub_mchid}?" . http_build_query($query);
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
@@ -528,12 +537,13 @@ class Ecommerce extends BasicWePay
     /**
      * 查询收付通平台账户日终余额API(余额查询)
      * @param string $account_type
+     * @param array $query
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
-    public function merchantEnddayBalance($account_type)
+    public function merchantEnddayBalance($account_type, $query)
     {
-        $pathinfo = "/v3/merchant/fund/enddaybalance/{$account_type}";
+        $pathinfo = "/v3/merchant/fund/enddaybalance/{$account_type}?" . http_build_query($query);
         return $this->doRequest('GET', $pathinfo, '', true);
     }
 
