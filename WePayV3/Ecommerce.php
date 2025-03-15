@@ -763,10 +763,10 @@ class Ecommerce extends BasicWePay
         $time = strval(time());
         $appid = $this->config['appid'];
         $nonceStr = Tools::createNoncestr();
-        if ($type === 'app') {
+        if ($type === Order::WXPAY_APP) {
             $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, $prepay_id, '']));
             return ['partnerId' => $this->config['mch_id'], 'prepayId' => $prepay_id, 'package' => 'Sign=WXPay', 'nonceStr' => $nonceStr, 'timeStamp' => $time, 'sign' => $sign];
-        } elseif ($type === 'jsapi') {
+        } elseif ($type === Order::WXPAY_JSAPI) {
             $sign = $this->signBuild(join("\n", [$appid, $time, $nonceStr, "prepay_id={$prepay_id}", '']));
             return ['appId' => $appid, 'timestamp' => $time, 'timeStamp' => $time, 'nonceStr' => $nonceStr, 'package' => "prepay_id={$prepay_id}", 'signType' => 'RSA', 'paySign' => $sign];
         } else {
