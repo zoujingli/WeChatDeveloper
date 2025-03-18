@@ -38,4 +38,33 @@ class Operation extends BasicWeChat
         $url = 'https://api.weixin.qq.com/wxaapi/userlog/userlog_search?access_token=ACCESS_TOKEN';
         return $this->callPostApi($url, $data, true);
     }
+
+    /**
+     * 获取 mediaId 图片
+     * @param array $data
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function getFeedbackmedia($data)
+    {
+        $query = http_build_query($data);
+        $url = 'https://api.weixin.qq.com/cgi-bin/media/getfeedbackmedia?'. $query .'&access_token=ACCESS_TOKEN';
+        return $this->callGetApi($url);
+    }
+
+
+    /**
+     * 实时日志查询
+     * @param array $data
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function getFeedback($data)
+    {
+        $query = http_build_query($data);
+        $url = 'https://api.weixin.qq.com/wxaapi/userlog/userlog_search?'.$query.'&access_token=ACCESS_TOKEN';
+        return $this->callGetApi($url);
+    }
 }
