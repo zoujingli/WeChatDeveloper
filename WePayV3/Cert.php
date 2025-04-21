@@ -44,6 +44,9 @@ class Cert extends BasicWePay
         try {
             $certs = [];
             $result = $this->doRequest('GET', '/v3/certificates');
+            if (empty($result['data']) && !empty($result['message'])) {
+                throw new InvalidResponseException($result['message']);
+            }
             $decrypt = new DecryptAes($this->config['mch_v3_key']);
             foreach ($result['data'] as $vo) {
                 $certs[$vo['serial_no']] = [
