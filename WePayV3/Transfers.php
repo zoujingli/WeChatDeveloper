@@ -30,6 +30,7 @@ class Transfers extends BasicWePay
      * 新版商家转换到零钱
      * @param $body
      * @return array|string
+     * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @link https://pay.weixin.qq.com/doc/v3/merchant/4012716434
      */
@@ -42,6 +43,17 @@ class Transfers extends BasicWePay
             $body['user_name'] = $this->rsaEncode($body['user_name']);
         }
         return $this->doRequest('POST', '/v3/fund-app/mch-transfer/transfer-bills', json_encode($body, JSON_UNESCAPED_UNICODE), true);
+    }
+
+    /**
+     * 查询转账结果
+     * @param $out_bill_no
+     * @return array|string
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    public function billsQuery($out_bill_no)
+    {
+        return $this->doRequest('GET', "/v3/fund-app/mch-transfer/transfer-bills/out-bill-no/{$out_bill_no}", '', true);
     }
 
     /**
