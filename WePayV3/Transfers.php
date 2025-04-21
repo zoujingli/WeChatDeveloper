@@ -25,6 +25,25 @@ use WePayV3\Contracts\BasicWePay;
  */
 class Transfers extends BasicWePay
 {
+
+    /**
+     * 新版商家转换到零钱
+     * @param $body
+     * @return array|string
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @link https://pay.weixin.qq.com/doc/v3/merchant/4012716434
+     */
+    public function bills($body)
+    {
+        if (empty($body['appid'])) {
+            $body['appid'] = $this->config['appid'];
+        }
+        if (!empty($body['user_name'])) {
+            $body['user_name'] = $this->rsaEncode($body['user_name']);
+        }
+        return $this->doRequest('POST', '/v3/fund-app/mch-transfer/transfer-bills', json_encode($body, JSON_UNESCAPED_UNICODE), true);
+    }
+
     /**
      * 发起商家批量转账
      * @param array $body
