@@ -1,5 +1,6 @@
 # WeChatDeveloper for PHP
-
+[![star](https://gitcode.com/ThinkAdmin/WeChatDeveloper/star/badge.svg)](https://gitcode.com/ThinkAdmin/ThinkAdmin)
+[![star](https://gitee.com/zoujingli/WeChatDeveloper/badge/star.svg?theme=gvp)](https://gitee.com/zoujingli/ThinkAdmin)
 [![Latest Stable Version](https://poser.pugx.org/zoujingli/wechat-developer/v/stable)](https://packagist.org/packages/zoujingli/wechat-developer)
 [![Total Downloads](https://poser.pugx.org/zoujingli/wechat-developer/downloads)](https://packagist.org/packages/zoujingli/wechat-developer)
 [![Monthly Downloads](https://poser.pugx.org/zoujingli/wechat-developer/d/monthly)](https://packagist.org/packages/zoujingli/wechat-developer)
