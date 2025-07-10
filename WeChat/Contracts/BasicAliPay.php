@@ -153,6 +153,22 @@ abstract class BasicAliPay
     }
 
     /**
+     * 支付宝订单退款查询
+     * @param array|string $options 退款参数或退款商户订单号
+     * @param array|null $queryOptions 查询选项
+     * @return array|bool
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function refundQuery($options, $queryOptions = null)
+    {
+        if (!is_array($options)) $options = ['out_trade_no' => $options];
+        empty($queryOptions) || $options['query_options'] = $queryOptions;
+        $this->options->set('method', 'alipay.trade.fastpay.refund.query');
+        return $this->getResult($options);
+    }
+
+    /**
      * 关闭支付宝进行中的订单
      * @param array|string $options
      * @return array|boolean
