@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,15 +19,14 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 公众号小程序订阅消息支持
- * Class Mini
- * @package WeChat
+ * 小程序订阅消息
+ * @package WeMini
  */
 class Newtmpl extends BasicWeChat
 {
     /**
-     * 获取小程序账号的类目
-     * @param array $data 类目信息列表
+     * 添加账号类目
+     * @param array $data 类目信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,7 +38,7 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 获取小程序账号的类目
+     * 获取账号类目
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -51,7 +50,7 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 获取小程序账号的类目
+     * 删除账号类目
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -63,8 +62,8 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 获取帐号所属类目下的公共模板标题
-     * @param string $ids 类目 id，多个用逗号隔开
+     * 获取类目下公共模板标题
+     * @param string $ids 类目ID，逗号分隔
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -77,8 +76,8 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 获取模板标题下的关键词列表
-     * @param string $tid 模板标题 id，可通过接口获取
+     * 获取模板标题关键词
+     * @param string $tid 模板标题ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -91,10 +90,10 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 组合模板并添加至帐号下的个人模板库
-     * @param string $tid 模板标题 id，可通过接口获取，也可登录小程序后台查看获取
-     * @param array $kidList 开发者自行组合好的模板关键词列表，关键词顺序可以自由搭配（例如 [3,5,4] 或 [4,5,3]），最多支持5个，最少2个关键词组合
-     * @param string $sceneDesc 服务场景描述，15个字以内
+     * 组合模板并入库
+     * @param string $tid 模板标题ID
+     * @param array $kidList 关键词ID列表
+     * @param string $sceneDesc 场景描述
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -106,7 +105,7 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 获取当前帐号下的个人模板列表
+     * 获取个人模板列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -118,8 +117,8 @@ class Newtmpl extends BasicWeChat
     }
 
     /**
-     * 删除帐号下的个人模板
-     * @param string $priTmplId 要删除的模板id
+     * 删除个人模板
+     * @param string $priTmplId 模板ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -132,7 +131,7 @@ class Newtmpl extends BasicWeChat
 
     /**
      * 发送订阅消息
-     * @param array $data 发送的消息对象数组
+     * @param array $data 消息数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,7 +21,6 @@ use WeChat\Contracts\Tools;
 
 /**
  * 微信小程序二维码
- * Class Qrcode
  * @package WeMini
  */
 class Qrcode extends BasicWeChat
@@ -54,6 +53,26 @@ class Qrcode extends BasicWeChat
         $lineColor = empty($lineColor) ? $this->lineColor : $lineColor;
         $data = ['path' => $path, 'width' => $width, 'auto_color' => $autoColor, 'line_color' => $lineColor, 'is_hyaline' => $isHyaline];
         return $this->parseResult(Tools::post($url, Tools::arr2json(array_merge($data, $extra))), $outType);
+    }
+
+    /**
+     * 解释接口数据
+     * @param bool|string $result
+     * @param null|string $outType
+     * @return array|mixed
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     */
+    private function parseResult($result, $outType)
+    {
+        if (is_array($json = json_decode($result, true))) {
+            if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
+                [$this->delAccessToken(), $this->isTry = true];
+                return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+            }
+            return Tools::json2arr($result);
+        } else {
+            return is_null($outType) ? $result : $outType($result);
+        }
     }
 
     /**
@@ -96,25 +115,5 @@ class Qrcode extends BasicWeChat
         $url = 'https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->parseResult(Tools::post($url, Tools::arr2json(['path' => $path, 'width' => $width])), $outType);
-    }
-
-    /**
-     * 解释接口数据
-     * @param bool|string $result
-     * @param null|string $outType
-     * @return array|mixed
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     */
-    private function parseResult($result, $outType)
-    {
-        if (is_array($json = json_decode($result, true))) {
-            if (!$this->isTry && isset($json['errcode']) && in_array($json['errcode'], ['40014', '40001', '41001', '42001'])) {
-                [$this->delAccessToken(), $this->isTry = true];
-                return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
-            }
-            return Tools::json2arr($result);
-        } else {
-            return is_null($outType) ? $result : $outType($result);
-        }
     }
 }

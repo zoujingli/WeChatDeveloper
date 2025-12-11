@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,16 +21,15 @@ use WeChat\Contracts\Tools;
 
 /**
  * 微信商户订单
- * Class Order
  * @package WePay
  */
 class Order extends BasicWePay
 {
 
     /**
-     * 统一下单
-     * @param array $options
-     * @return array
+     * 统一下单接口
+     * @param array $options 订单参数（out_trade_no, body, total_fee, notify_url, trade_type等）
+     * @return array 返回prepay_id等支付参数
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -41,9 +40,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 刷卡支付
-     * @param array $options
-     * @return array
+     * 刷卡支付接口（被扫支付）
+     * @param array $options 支付参数（auth_code, out_trade_no, body, total_fee等）
+     * @return array 支付结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -54,9 +53,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 查询订单
-     * @param array $options
-     * @return array
+     * 查询订单接口
+     * @param array $options 查询参数（transaction_id或out_trade_no二选一）
+     * @return array 订单详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -67,9 +66,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 关闭订单
+     * 关闭订单接口
      * @param string $outTradeNo 商户订单号
-     * @return array
+     * @return array 关闭结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -80,9 +79,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 创建JsApi及H5支付参数
-     * @param string $prepayId 统一下单预支付码
-     * @return array
+     * 生成JSAPI支付参数（用于前端调起支付）
+     * @param string $prepayId 统一下单返回的prepay_id
+     * @return array JSAPI支付所需参数（appId, timeStamp, nonceStr, package, signType, paySign）
      */
     public function jsapiParams($prepayId)
     {
@@ -98,9 +97,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 获取支付规则二维码
-     * @param string $productId 商户定义的商品id或者订单号
-     * @return string
+     * 生成Native支付二维码URL
+     * @param string $productId 商品ID或订单号
+     * @return string 支付二维码URL（weixin://wxpay/bizpayurl?xxx）
      */
     public function qrcParams($productId)
     {
@@ -116,9 +115,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 获取微信App支付秘需参数
-     * @param string $prepayId 统一下单预支付码
-     * @return array
+     * 生成APP支付参数（用于移动应用调起支付）
+     * @param string $prepayId 统一下单返回的prepay_id
+     * @return array APP支付所需参数（appid, partnerid, prepayid, package, timestamp, noncestr, sign）
      */
     public function appParams($prepayId)
     {
@@ -135,9 +134,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 刷卡支付 撤销订单
-     * @param array $options
-     * @return array
+     * 撤销订单接口（刷卡支付专用，需要证书）
+     * @param array $options 撤销参数（transaction_id或out_trade_no二选一）
+     * @return array 撤销结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -148,9 +147,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 刷卡支付 授权码查询openid
-     * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
-     * @return array
+     * 授权码查询openid接口
+     * @param string $authCode 授权码（用户微信中的条码或二维码信息）
+     * @return array 包含openid等信息
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -161,9 +160,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 刷卡支付 交易保障
-     * @param array $options
-     * @return array
+     * 交易保障接口（用于上报交易数据）
+     * @param array $options 上报参数（interface_url, execute_time, return_code, result_code等）
+     * @return array 上报结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

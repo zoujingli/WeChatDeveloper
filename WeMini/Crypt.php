@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -24,50 +24,17 @@ use WXBizDataCrypt;
 
 
 /**
- * 数据加密处理
- * Class Crypt
+ * 小程序数据加解密
  * @package WeMini
  */
 class Crypt extends BasicWeChat
 {
 
     /**
-     * 数据签名校验
-     * @param string $iv
-     * @param string $sessionKey
-     * @param string $encryptedData
-     * @return bool|array
-     */
-    public function decode($iv, $sessionKey, $encryptedData)
-    {
-        require_once __DIR__ . DIRECTORY_SEPARATOR . 'crypt' . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
-        $pc = new WXBizDataCrypt($this->config->get('appid'), $sessionKey);
-        $errCode = $pc->decryptData($encryptedData, $iv, $data);
-        if ($errCode == 0) {
-            return json_decode($data, true);
-        }
-        return false;
-    }
-
-    /**
-     * 登录凭证校验
-     * @param string $code 登录时获取的 code
-     * @return array
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public function session($code)
-    {
-        $appid = $this->config->get('appid');
-        $secret = $this->config->get('appsecret');
-        $url = "https://api.weixin.qq.com/sns/jscode2session?appid={$appid}&secret={$secret}&js_code={$code}&grant_type=authorization_code";
-        return json_decode(Tools::get($url), true);
-    }
-
-    /**
-     * 换取用户信息
-     * @param string $code 用户登录凭证（有效期五分钟）
-     * @param string $iv 加密算法的初始向量
-     * @param string $encryptedData 加密数据( encryptedData )
+     * 通过 code 解密用户信息
+     * @param string $code 登录凭证
+     * @param string $iv 初始向量
+     * @param string $encryptedData 加密数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -87,8 +54,41 @@ class Crypt extends BasicWeChat
     }
 
     /**
-     * 通过授权码换取手机号
-     * @param string $code
+     * code 换取 session_key
+     * @param string $code 登录 code
+     * @return array
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function session($code)
+    {
+        $appid = $this->config->get('appid');
+        $secret = $this->config->get('appsecret');
+        $url = "https://api.weixin.qq.com/sns/jscode2session?appid={$appid}&secret={$secret}&js_code={$code}&grant_type=authorization_code";
+        return json_decode(Tools::get($url), true);
+    }
+
+    /**
+     * 解密数据
+     * @param string $iv 初始向量
+     * @param string $sessionKey 会话密钥
+     * @param string $encryptedData 加密数据
+     * @return bool|array
+     */
+    public function decode($iv, $sessionKey, $encryptedData)
+    {
+        require_once __DIR__ . DIRECTORY_SEPARATOR . 'crypt' . DIRECTORY_SEPARATOR . 'wxBizDataCrypt.php';
+        $pc = new WXBizDataCrypt($this->config->get('appid'), $sessionKey);
+        $data = '';
+        $errCode = $pc->decryptData($encryptedData, $iv, $data);
+        if ($errCode == 0) {
+            return json_decode($data, true);
+        }
+        return false;
+    }
+
+    /**
+     * 通过 code 获取手机号
+     * @param string $code 授权码
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -101,11 +101,11 @@ class Crypt extends BasicWeChat
     }
 
     /**
-     * 用户支付完成后，获取该用户的 UnionId
-     * @param string $openid 支付用户唯一标识
+     * 支付后获取用户 UnionId
+     * @param string $openid 用户 openid
      * @param null|string $transaction_id 微信支付订单号
-     * @param null|string $mch_id 微信支付分配的商户号，和商户订单号配合使用
-     * @param null|string $out_trade_no 微信支付商户订单号，和商户号配合使用
+     * @param null|string $mch_id 商户号
+     * @param null|string $out_trade_no 商户订单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -113,9 +113,9 @@ class Crypt extends BasicWeChat
     public function getPaidUnionId($openid, $transaction_id = null, $mch_id = null, $out_trade_no = null)
     {
         $url = "https://api.weixin.qq.com/wxa/getpaidunionid?access_token=ACCESS_TOKEN&openid={$openid}";
-        if (is_null($mch_id)) $url .= "&mch_id={$mch_id}";
-        if (is_null($out_trade_no)) $url .= "&out_trade_no={$out_trade_no}";
-        if (is_null($transaction_id)) $url .= "&transaction_id={$transaction_id}";
+        if (!is_null($mch_id)) $url .= "&mch_id={$mch_id}";
+        if (!is_null($out_trade_no)) $url .= "&out_trade_no={$out_trade_no}";
+        if (!is_null($transaction_id)) $url .= "&transaction_id={$transaction_id}";
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->callGetApi($url);
     }

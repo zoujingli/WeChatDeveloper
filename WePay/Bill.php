@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,16 +22,15 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信商户账单及评论
- * Class Bill
  * @package WePay
  */
 class Bill extends BasicWePay
 {
     /**
      * 下载对账单
-     * @param array $options 静音参数
-     * @param null|string $outType 输出类型
-     * @return bool|string
+     * @param array $options 账单参数（bill_date, bill_type 等）
+     * @param null|string $outType 输出处理回调，为 null 则返回原始内容
+     * @return bool|string 原始账单文本或回调结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -51,9 +50,9 @@ class Bill extends BasicWePay
 
 
     /**
-     * 拉取订单评价数据
-     * @param array $options
-     * @return array
+     * 拉取订单评价数据（需证书）
+     * @param array $options 查询参数（bill_date, offset, limit 等）
+     * @return array 评价数据
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

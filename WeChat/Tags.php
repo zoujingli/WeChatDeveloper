@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,13 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 用户标签管理
- * Class Tags
  * @package WeChat
  */
 class Tags extends BasicWeChat
 {
     /**
-     * 获取粉丝标签列表
+     * 获取标签列表
+     * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -37,8 +37,8 @@ class Tags extends BasicWeChat
     }
 
     /**
-     * 创建粉丝标签
-     * @param string $name
+     * 创建标签
+     * @param string $name 标签名称
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -50,8 +50,8 @@ class Tags extends BasicWeChat
     }
 
     /**
-     * 更新粉丝标签
-     * @param integer $id 标签ID
+     * 更新标签
+     * @param int $id 标签ID
      * @param string $name 标签名称
      * @return array
      * @throws Exceptions\InvalidResponseException
@@ -64,8 +64,8 @@ class Tags extends BasicWeChat
     }
 
     /**
-     * 删除粉丝标签
-     * @param int $tagId
+     * 删除标签
+     * @param int $tagId 标签ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -78,8 +78,8 @@ class Tags extends BasicWeChat
 
     /**
      * 批量为用户打标签
-     * @param array $openids
-     * @param integer $tagId
+     * @param array $openids openid 列表
+     * @param int $tagId 标签ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -91,9 +91,9 @@ class Tags extends BasicWeChat
     }
 
     /**
-     * 批量为用户取消标签
-     * @param array $openids
-     * @param integer $tagId
+     * 批量取消用户标签
+     * @param array $openids openid 列表
+     * @param int $tagId 标签ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -105,8 +105,8 @@ class Tags extends BasicWeChat
     }
 
     /**
-     * 获取用户身上的标签列表
-     * @param string $openid
+     * 获取用户标签列表
+     * @param string $openid 用户 openid
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException

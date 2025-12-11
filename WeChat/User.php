@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,17 +20,16 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信粉丝管理
- * Class User
  * @package WeChat
  */
 class User extends BasicWeChat
 {
 
     /**
-     * 设置用户备注名
-     * @param string $openid
-     * @param string $remark
-     * @return array
+     * 设置用户备注名接口
+     * @param string $openid 用户openid
+     * @param string $remark 备注名（长度不超过30字符）
+     * @return array 操作结果
      * @throws Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -41,10 +40,10 @@ class User extends BasicWeChat
     }
 
     /**
-     * 获取用户基本信息（包括UnionID机制）
-     * @param string $openid
-     * @param string $lang
-     * @return array
+     * 获取用户基本信息接口（包括UnionID）
+     * @param string $openid 用户openid
+     * @param string $lang 返回国家地区语言版本（zh_CN, zh_TW, en）
+     * @return array 用户信息（nickname, headimgurl, sex, province, city, country, unionid等）
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -55,10 +54,10 @@ class User extends BasicWeChat
     }
 
     /**
-     * 批量获取用户基本信息
-     * @param array $openids
-     * @param string $lang
-     * @return array
+     * 批量获取用户基本信息接口
+     * @param array $openids 用户openid列表（最多100个）
+     * @param string $lang 返回国家地区语言版本
+     * @return array 用户信息列表
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -73,9 +72,9 @@ class User extends BasicWeChat
     }
 
     /**
-     * 获取用户列表
-     * @param string $next_openid
-     * @return array
+     * 获取用户列表接口
+     * @param string $next_openid 第一个拉取的openid，不填默认从头开始拉取
+     * @return array 用户列表（total, count, data.openid, next_openid）
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -86,10 +85,10 @@ class User extends BasicWeChat
     }
 
     /**
-     * 获取标签下粉丝列表
+     * 获取标签下粉丝列表接口
      * @param integer $tagid 标签ID
-     * @param string $nextOpenid 第一个拉取的OPENID
-     * @return array
+     * @param string $nextOpenid 第一个拉取的openid，不填默认从头开始拉取
+     * @return array 粉丝列表（count, data.openid, next_openid）
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -100,9 +99,9 @@ class User extends BasicWeChat
     }
 
     /**
-     * 获取公众号的黑名单列表
-     * @param string $beginOpenid
-     * @return array
+     * 获取公众号黑名单列表接口
+     * @param string $beginOpenid 第一个拉取的openid，不填默认从头开始拉取
+     * @return array 黑名单列表（total, count, data.openid, next_openid）
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -113,9 +112,9 @@ class User extends BasicWeChat
     }
 
     /**
-     * 批量拉黑用户
-     * @param array $openids
-     * @return array
+     * 批量拉黑用户接口
+     * @param array $openids 用户openid列表（最多20个）
+     * @return array 操作结果
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */
@@ -126,9 +125,9 @@ class User extends BasicWeChat
     }
 
     /**
-     * 批量取消拉黑用户
-     * @param array $openids
-     * @return array
+     * 批量取消拉黑用户接口
+     * @param array $openids 用户openid列表（最多20个）
+     * @return array 操作结果
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
      */

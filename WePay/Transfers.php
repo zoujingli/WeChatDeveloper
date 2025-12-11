@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,16 +20,15 @@ use WeChat\Contracts\BasicWePay;
 
 /**
  * 微信商户打款到零钱
- * Class Transfers
  * @package WePay
  */
 class Transfers extends BasicWePay
 {
 
     /**
-     * 企业付款到零钱
-     * @param array $options
-     * @return array
+     * 企业付款到零钱（需证书）
+     * @param array $options 付款参数（partner_trade_no, openid, amount, desc, check_name 等）
+     * @return array 付款结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -44,9 +43,9 @@ class Transfers extends BasicWePay
     }
 
     /**
-     * 查询企业付款到零钱
-     * @param string $partnerTradeNo 商户调用企业付款API时使用的商户订单号
-     * @return array
+     * 查询企业付款到零钱结果
+     * @param string $partnerTradeNo 商户付款单号
+     * @return array 付款状态
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

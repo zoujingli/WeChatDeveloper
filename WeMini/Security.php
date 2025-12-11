@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,15 +20,14 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序内容安全
- * Class Security
  * @package WeMini
  */
 class Security extends BasicWeChat
 {
 
     /**
-     * 校验一张图片是否含有违法违规内容
-     * @param string $media 要检测的图片文件，格式支持PNG、JPEG、JPG、GIF，图片尺寸不超过 750px x 1334px
+     * 图片内容安全校验
+     * @param string $media 图片文件
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,9 +39,9 @@ class Security extends BasicWeChat
     }
 
     /**
-     * 异步校验图片/音频是否含有违法违规内容
-     * @param string $media_url
-     * @param string $media_type
+     * 异步校验媒体（图片/音频）
+     * @param string $media_url 媒体 URL
+     * @param string $media_type 1 音频 | 2 图片
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -54,8 +53,8 @@ class Security extends BasicWeChat
     }
 
     /**
-     * 检查一段文本是否含有违法违规内容
-     * @param string $content
+     * 文本内容安全校验
+     * @param string $content 文本内容
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

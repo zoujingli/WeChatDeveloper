@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,15 +20,14 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序即时配送
- * Class Delivery
  * @package WeMini
  */
 class Delivery extends BasicWeChat
 {
 
     /**
-     * 异常件退回商家商家确认收货接口
-     * @param array $data
+     * 异常件退回确认收货
+     * @param array $data 请求参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,8 +39,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 下配送单接口
-     * @param array $data
+     * 下配送单
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -53,8 +52,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 可以对待接单状态的订单增加小费
-     * @param array $data
+     * 待接单订单加小费
+     * @param array $data 订单与小费信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -66,8 +65,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 取消配送单接口
-     * @param array $data
+     * 取消配送单
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -79,8 +78,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 获取已支持的配送公司列表接口
-     * @param array $data
+     * 获取配送公司列表
+     * @param array $data 请求参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -93,7 +92,7 @@ class Delivery extends BasicWeChat
 
     /**
      * 拉取已绑定账号
-     * @param array $data
+     * @param array $data 请求参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -105,8 +104,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 拉取配送单信息
-     * @param array $data
+     * 查询配送单
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -118,8 +117,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 模拟配送公司更新配送单状态
-     * @param array $data
+     * 模拟更新配送单状态
+     * @param array $data 模拟参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -131,8 +130,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 预下配送单接口
-     * @param array $data
+     * 预下单
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -144,8 +143,8 @@ class Delivery extends BasicWeChat
     }
 
     /**
-     * 预取消配送单接口
-     * @param array $data
+     * 预取消配送单
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -158,7 +157,7 @@ class Delivery extends BasicWeChat
 
     /**
      * 重新下单
-     * @param array $data
+     * @param array $data 订单信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

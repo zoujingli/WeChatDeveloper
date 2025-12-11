@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,16 +22,15 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信素材管理
- * Class Media
  * @package WeChat
  */
 class Media extends BasicWeChat
 {
     /**
      * 新增临时素材
-     * @param string $filename 文件名称
-     * @param string $type 媒体文件类型(image|voice|video|thumb)
-     * @return array
+     * @param string $filename 本地文件路径
+     * @param string $type 媒体类型 image|voice|video|thumb
+     * @return array 上传结果（media_id 等）
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -46,8 +45,8 @@ class Media extends BasicWeChat
 
     /**
      * 获取临时素材
-     * @param string $media_id
-     * @param string $outType 返回处理函数
+     * @param string $media_id 媒体 ID
+     * @param string $outType 可选：回调处理或 'url' 仅返回 URL
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -69,8 +68,8 @@ class Media extends BasicWeChat
     }
 
     /**
-     * 新增图文素材
-     * @param array $data 文件名称
+     * 新增永久图文素材
+     * @param array $data 图文列表 articles
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -83,8 +82,8 @@ class Media extends BasicWeChat
 
     /**
      * 更新图文素材
-     * @param string $media_id 要修改的图文消息的id
-     * @param int $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
+     * @param string $media_id 图文 media_id
+     * @param int $index 文章位置（0 开始）
      * @param array $news 文章内容
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -97,9 +96,9 @@ class Media extends BasicWeChat
     }
 
     /**
-     * 上传图文消息内的图片获取URL
-     * @param mixed $filename
-     * @return array
+     * 上传图文消息内的图片，获取 URL
+     * @param string $filename 本地文件
+     * @return array 含 url
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -111,9 +110,9 @@ class Media extends BasicWeChat
 
     /**
      * 新增其他类型永久素材
-     * @param mixed $filename 文件名称
-     * @param string $type 媒体文件类型(image|voice|video|thumb)
-     * @param array $description 包含素材的描述信息
+     * @param string $filename 本地文件路径
+     * @param string $type 媒体类型 image|voice|video|thumb
+     * @param array $description 视频描述等
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -129,8 +128,8 @@ class Media extends BasicWeChat
 
     /**
      * 获取永久素材
-     * @param string $media_id
-     * @param null|string $outType 输出类型
+     * @param string $media_id 媒体 ID
+     * @param null|string $outType 回调处理或 'url' 返回地址
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -153,7 +152,7 @@ class Media extends BasicWeChat
 
     /**
      * 删除永久素材
-     * @param string $mediaId
+     * @param string $mediaId 媒体 ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -178,9 +177,9 @@ class Media extends BasicWeChat
 
     /**
      * 获取素材列表
-     * @param string $type
-     * @param int $offset
-     * @param int $count
+     * @param string $type image|voice|video|news
+     * @param int $offset 起始位置
+     * @param int $count 拉取数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

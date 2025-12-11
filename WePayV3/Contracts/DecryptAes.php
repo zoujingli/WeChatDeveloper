@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,16 +21,14 @@ use WeChat\Exceptions\InvalidDecryptException;
 
 /**
  * Aes 解密工具类
- * Class DecryptAes
  * @package WePayV3\Contracts
  */
 class DecryptAes
 {
 
-    private $aesKey;
-
     const KEY_LENGTH_BYTE = 32;
     const AUTH_TAG_LENGTH_BYTE = 16;
+    private $aesKey;
 
     /**
      * Constructor

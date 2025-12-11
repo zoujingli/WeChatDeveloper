@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,16 +20,15 @@ use WeChat\Contracts\BasicWePay;
 
 /**
  * 微信分账
- * Class ProfitSharing
  * @package WePay
  */
 class ProfitSharing extends BasicWePay
 {
 
     /**
-     * 请求单次分账
-     * @param array $options
-     * @return array
+     * 请求单次分账（需证书）
+     * @param array $options 分账参数（transaction_id, out_order_no, receivers 等）
+     * @return array 分账结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -40,9 +39,9 @@ class ProfitSharing extends BasicWePay
     }
 
     /**
-     * 请求多次分账
-     * @param array $options
-     * @return array
+     * 请求多次分账（需证书）
+     * @param array $options 分账参数（transaction_id, out_order_no, receivers 等）
+     * @return array 分账结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -54,8 +53,8 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 查询分账结果
-     * @param array $options
-     * @return array
+     * @param array $options 查询参数（transaction_id 与 out_order_no）
+     * @return array 分账状态
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -67,7 +66,7 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 添加分账接收方
-     * @param array $options
+     * @param array $options 接收方信息（type, account, name, relation_type 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -80,7 +79,7 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 删除分账接收方
-     * @param array $options
+     * @param array $options 接收方信息（type, account）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -92,9 +91,9 @@ class ProfitSharing extends BasicWePay
     }
 
     /**
-     * 完结分账
-     * @param array $options
-     * @return array
+     * 完结分账（需证书）
+     * @param array $options 完结参数（transaction_id, out_order_no, description 等）
+     * @return array 完结结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -106,8 +105,8 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 查询订单待分账金额
-     * @param array $options
-     * @return array
+     * @param array $options 查询参数（transaction_id）
+     * @return array 待分账金额
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -118,9 +117,9 @@ class ProfitSharing extends BasicWePay
     }
 
     /**
-     * 分账回退
-     * @param array $options
-     * @return array
+     * 分账回退（需证书）
+     * @param array $options 回退参数（out_return_no, out_order_no, return_account_type 等）
+     * @return array 回退结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -132,8 +131,8 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 回退结果查询
-     * @param array $options
-     * @return array
+     * @param array $options 查询参数（out_return_no 与 out_order_no）
+     * @return array 回退状态
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

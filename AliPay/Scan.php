@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝扫码支付
- * Class Scan
  * @package AliPay
  */
 class Scan extends BasicAliPay
@@ -36,9 +35,9 @@ class Scan extends BasicAliPay
     }
 
     /**
-     * 创建数据操作
-     * @param array $options
-     * @return array|bool
+     * 预创建扫码支付订单（返回二维码地址）
+     * @param array $options 订单参数（out_trade_no, subject, total_amount 等）
+     * @return array|bool 包含 qr_code 的预下单结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

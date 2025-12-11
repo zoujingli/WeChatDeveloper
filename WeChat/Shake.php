@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,14 +21,13 @@ use WeChat\Contracts\Tools;
 
 /**
  * 揺一揺周边
- * Class Shake
  * @package WeChat
  */
 class Shake extends BasicWeChat
 {
     /**
-     * 申请开通功能
-     * @param array $data
+     * 申请开通摇一摇
+     * @param array $data 资质信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -52,11 +51,11 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 申请设备ID
-     * @param string $quantity 申请的设备ID的数量，单次新增设备超过500个，需走人工审核流程
-     * @param string $apply_reason 申请理由，不超过100个汉字或200个英文字母
-     * @param null|string $comment 备注，不超过15个汉字或30个英文字母
-     * @param null|string $poi_id 设备关联的门店ID，关联门店后，在门店1KM的范围内有优先摇出信息的机会。
+     * 申请设备 ID
+     * @param string $quantity 数量（>500 走人工审核）
+     * @param string $apply_reason 理由
+     * @param null|string $comment 备注
+     * @param null|string $poi_id 门店ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -71,8 +70,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 查询设备ID申请审核状态
-     * @param integer $applyId 批次ID，申请设备ID时所返回的批次ID
+     * 查询设备 ID 申请状态
+     * @param int $applyId 批次ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -85,7 +84,7 @@ class Shake extends BasicWeChat
 
     /**
      * 编辑设备信息
-     * @param array $data
+     * @param array $data 设备参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -97,8 +96,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 配置设备与门店的关联关系
-     * @param array $data
+     * 设备绑定门店
+     * @param array $data 绑定参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -111,7 +110,7 @@ class Shake extends BasicWeChat
 
     /**
      * 查询设备列表
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -123,8 +122,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 页面管理
-     * @param array $data
+     * 创建页面
+     * @param array $data 页面参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -136,8 +135,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 编辑页面信息
-     * @param array $data
+     * 编辑页面
+     * @param array $data 页面参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -150,7 +149,7 @@ class Shake extends BasicWeChat
 
     /**
      * 查询页面列表
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -163,7 +162,7 @@ class Shake extends BasicWeChat
 
     /**
      * 删除页面
-     * @param integer $pageId 指定页面的id
+     * @param int $pageId 页面ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -176,8 +175,8 @@ class Shake extends BasicWeChat
 
     /**
      * 上传图片素材
-     * @param string $filename 图片名字
-     * @param string $type Icon：摇一摇页面展示的icon图；License：申请开通摇一摇周边功能时需上传的资质文件；若不传type，则默认type=icon
+     * @param string $filename 图片路径
+     * @param string $type icon|license
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -189,8 +188,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 配置设备与页面的关联关系
-     * @param array $data
+     * 配置设备与页面关联
+     * @param array $data 关联参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -202,8 +201,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 查询设备与页面的关联关系
-     * @param array $data
+     * 查询设备与页面关联
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -215,8 +214,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 以设备为维度的数据统计接口
-     * @param array $data
+     * 设备维度数据统计
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -228,9 +227,9 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 批量查询设备统计数据接口
-     * @param integer $date 指定查询日期时间戳，单位为秒
-     * @param integer $pageIndex 指定查询的结果页序号；返回结果按摇周边人数降序排序，每50条记录为一页
+     * 批量查询设备统计
+     * @param int $date 日期时间戳（秒）
+     * @param int $pageIndex 页码
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -242,10 +241,10 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 以页面为维度的数据统计接口
-     * @param integer $pageId 指定页面的设备ID
-     * @param integer $beginDate 起始日期时间戳，最长时间跨度为30天，单位为秒
-     * @param integer $endDate 结束日期时间戳，最长时间跨度为30天，单位为秒
+     * 页面维度数据统计
+     * @param int $pageId 页面ID
+     * @param int $beginDate 起始时间戳
+     * @param int $endDate 结束时间戳
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -258,8 +257,8 @@ class Shake extends BasicWeChat
 
     /**
      * 编辑分组信息
-     * @param integer $groupId 分组唯一标识，全局唯一
-     * @param string $groupName 分组名称，不超过100汉字或200个英文字母
+     * @param int $groupId 分组ID
+     * @param string $groupName 分组名称
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -272,7 +271,7 @@ class Shake extends BasicWeChat
 
     /**
      * 删除分组
-     * @param integer $groupId 分组唯一标识，全局唯一
+     * @param int $groupId 分组ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -285,8 +284,8 @@ class Shake extends BasicWeChat
 
     /**
      * 查询分组列表
-     * @param integer $begin 分组列表的起始索引值
-     * @param integer $count 待查询的分组数量，不能超过1000个
+     * @param int $begin 起始索引
+     * @param int $count 数量（<=1000）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -300,9 +299,9 @@ class Shake extends BasicWeChat
 
     /**
      * 查询分组详情
-     * @param integer $group_id 分组唯一标识，全局唯一
-     * @param integer $begin 分组里设备的起始索引值
-     * @param integer $count 待查询的分组里设备的数量，不能超过1000个
+     * @param int $group_id 分组ID
+     * @param int $begin 设备起始索引
+     * @param int $count 数量（<=1000）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -314,8 +313,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 添加设备到分组
-     * @param array $data
+     * 分组添加设备
+     * @param array $data 设备参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -327,8 +326,8 @@ class Shake extends BasicWeChat
     }
 
     /**
-     * 从分组中移除设备
-     * @param array $data
+     * 分组移除设备
+     * @param array $data 设备参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

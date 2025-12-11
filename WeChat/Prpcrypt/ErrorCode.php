@@ -5,7 +5,6 @@ namespace WeChat\Prpcrypt;
 /**
  * 仅用作类内部使用
  * 不用于官方API接口的errCode码
- * Class ErrorCode
  */
 class ErrorCode
 {

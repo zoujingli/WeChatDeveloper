@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -24,16 +24,15 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信商户打款到银行卡
- * Class TransfersBank
  * @package WePay
  */
 class TransfersBank extends BasicWePay
 {
 
     /**
-     * 企业付款到银行卡
-     * @param array $options
-     * @return array
+     * 企业付款到银行卡（需证书，敏感字段 RSA 加密）
+     * @param array $options 付款参数（partner_trade_no, enc_bank_no, enc_true_name, bank_code, amount, desc 等）
+     * @return array 付款结果
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -67,24 +66,10 @@ class TransfersBank extends BasicWePay
     }
 
     /**
-     * 商户企业付款到银行卡操作进行结果查询
-     * @param string $partnerTradeNo 商户订单号，需保持唯一
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public function query($partnerTradeNo)
-    {
-        $this->params->offsetUnset('appid');
-        $url = 'https://api.mch.weixin.qq.com/mmpaysptrans/query_bank';
-        return $this->callPostApi($url, ['partner_trade_no' => $partnerTradeNo], true, 'MD5', false);
-    }
-
-    /**
-     * RSA加密处理
-     * @param string $string
+     * RSA 加密银行卡号/姓名
+     * @param string $string 待加密字符串
      * @param string $encrypted
-     * @return string
+     * @return string base64 编码密文
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -103,8 +88,8 @@ class TransfersBank extends BasicWePay
     }
 
     /**
-     * 获取签名文件内容
-     * @return string
+     * 获取 RSA 公钥内容
+     * @return string 公钥内容
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -122,5 +107,19 @@ class TransfersBank extends BasicWePay
         }
         Tools::setCache($cacheKey, $data['pub_key'], 600);
         return $data['pub_key'];
+    }
+
+    /**
+     * 查询企业付款到银行卡结果
+     * @param string $partnerTradeNo 商户订单号
+     * @return array 付款状态
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function query($partnerTradeNo)
+    {
+        $this->params->offsetUnset('appid');
+        $url = 'https://api.mch.weixin.qq.com/mmpaysptrans/query_bank';
+        return $this->callPostApi($url, ['partner_trade_no' => $partnerTradeNo], true, 'MD5', false);
     }
 }

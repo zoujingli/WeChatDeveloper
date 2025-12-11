@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -23,16 +23,15 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信商户退款
- * Class Refund
  * @package WePay
  */
 class Refund extends BasicWePay
 {
 
     /**
-     * 创建退款订单
-     * @param array $options
-     * @return array
+     * 申请退款接口（需要证书）
+     * @param array $options 退款参数（transaction_id或out_trade_no, out_refund_no, total_fee, refund_fee等）
+     * @return array 退款结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -43,9 +42,9 @@ class Refund extends BasicWePay
     }
 
     /**
-     * 查询退款
-     * @param array $options
-     * @return array
+     * 查询退款接口
+     * @param array $options 查询参数（transaction_id, out_trade_no, out_refund_no, refund_id四选一）
+     * @return array 退款详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -56,9 +55,9 @@ class Refund extends BasicWePay
     }
 
     /**
-     * 获取退款通知
-     * @param string|array $xml
-     * @return array
+     * 解析退款通知（自动解密req_info）
+     * @param string|array $xml 退款通知XML数据，为空则从POST获取
+     * @return array 解密后的退款通知数据
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      */

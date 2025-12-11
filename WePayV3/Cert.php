@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,7 +22,6 @@ use WePayV3\Contracts\DecryptAes;
 
 /**
  * 平台证书管理
- * Class Cert
  * @package WePayV3
  */
 class Cert extends BasicWePay
@@ -35,7 +34,7 @@ class Cert extends BasicWePay
     protected $autoCert = false;
 
     /**
-     * 商户平台下载证书
+     * 下载并缓存平台证书
      * @return void
      * @throws \WeChat\Exceptions\InvalidResponseException
      */

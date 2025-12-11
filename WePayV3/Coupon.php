@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,8 +20,7 @@ use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 微信支付代金券
- * @class Coupon
+ * 微信支付代金券 (V3)
  * @package WePayV3
  */
 class Coupon extends BasicWePay
@@ -30,7 +29,7 @@ class Coupon extends BasicWePay
 
     /**
      * 创建代金券批次
-     * @param array $data
+     * @param array $data 批次参数（stock_name, belong_merchant 等）
      * @return array|string
      * @throws InvalidResponseException
      */
@@ -83,7 +82,7 @@ class Coupon extends BasicWePay
      * 查询批次详情
      * @param string $stock_id 批次号
      * @param string $stock_creator_mchid 创建批次的商户号
-     * @return array|string
+     * @return array|string 批次详情
      * @throws InvalidResponseException
      */
     public function stocksDetail($stock_id, $stock_creator_mchid)
@@ -94,7 +93,7 @@ class Coupon extends BasicWePay
 
     /**
      * 代金券批次可用商品
-     * @param array $param
+     * @param array $param 包含 stock_id 等
      * @return array|string
      * @throws InvalidResponseException
      */
@@ -106,7 +105,7 @@ class Coupon extends BasicWePay
 
     /**
      * 设置消息通知地址
-     * @param array $param
+     * @param array $param 回调参数（notify_url, switch 等）
      * @return array|string
      * @throws InvalidResponseException
      */
@@ -117,8 +116,8 @@ class Coupon extends BasicWePay
     }
 
     /**
-     * 发放代金券批次
-     * @param array $param 请求参数
+     * 发放代金券
+     * @param array $param 请求参数（openid, stock_id 等）
      * @return array|string
      * @throws InvalidResponseException
      */
@@ -129,9 +128,9 @@ class Coupon extends BasicWePay
     }
 
     /**
-     * 根据商户号查用户的券
-     * @param array $param 请求参数
-     * @return array|string
+     * 查询用户名下券（按商户号）
+     * @param array $param 请求参数（openid, appid, stock_id 等）
+     * @return array|string 券列表
      * @throws InvalidResponseException
      */
     public function couponsList(array $param)
@@ -141,10 +140,10 @@ class Coupon extends BasicWePay
     }
 
     /**
-     * 查询代金券详情
-     * @param string $openid 用户openid
-     * @param string $coupon_id 代金券id
-     * @param string $appid 公众账号ID
+     * 查询单张代金券详情
+     * @param string $openid 用户 openid
+     * @param string $coupon_id 代金券 id
+     * @param string $appid 公众账号或小程序 appid
      * @return array|string
      * @throws InvalidResponseException
      */

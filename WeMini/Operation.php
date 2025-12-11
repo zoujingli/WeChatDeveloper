@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序运维中心
- * Class Operation
  * @package WeMini
  */
 class Operation extends BasicWeChat
@@ -28,7 +27,7 @@ class Operation extends BasicWeChat
 
     /**
      * 实时日志查询
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,8 +39,8 @@ class Operation extends BasicWeChat
     }
 
     /**
-     * 获取 mediaId 图片
-     * @param array $data
+     * 获取反馈媒体文件
+     * @param array $data query 参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -49,14 +48,14 @@ class Operation extends BasicWeChat
     public function getFeedbackmedia($data)
     {
         $query = http_build_query($data);
-        $url = 'https://api.weixin.qq.com/cgi-bin/media/getfeedbackmedia?'. $query .'&access_token=ACCESS_TOKEN';
+        $url = 'https://api.weixin.qq.com/cgi-bin/media/getfeedbackmedia?' . $query . '&access_token=ACCESS_TOKEN';
         return $this->callGetApi($url);
     }
 
 
     /**
-     * 实时日志查询
-     * @param array $data
+     * 获取用户反馈列表
+     * @param array $data query 参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -64,7 +63,7 @@ class Operation extends BasicWeChat
     public function getFeedback($data)
     {
         $query = http_build_query($data);
-        $url = 'https://api.weixin.qq.com/wxaapi/userlog/userlog_search?'.$query.'&access_token=ACCESS_TOKEN';
+        $url = 'https://api.weixin.qq.com/wxaapi/userlog/userlog_search?' . $query . '&access_token=ACCESS_TOKEN';
         return $this->callGetApi($url);
     }
 }

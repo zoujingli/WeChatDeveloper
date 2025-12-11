@@ -5,8 +5,7 @@ namespace WePayV3;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 普通商户消费者投诉2.0
- * @class Complaints
+ * 消费者投诉 2.0
  * @package WePayV3
  */
 class Complaints extends BasicWePay
@@ -14,11 +13,11 @@ class Complaints extends BasicWePay
 
     /**
      * 查询投诉列表
-     * @param int $offset 分页开始位置
+     * @param int $offset 分页起始
      * @param int $limit 分页大小
-     * @param String $begin_date 开始日期
-     * @param String $end_date 结束日期
-     * @return array|string
+     * @param string $begin_date 开始日期（YYYY-MM-DD）
+     * @param string $end_date 结束日期（YYYY-MM-DD）
+     * @return array|string 投诉列表
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function complaintList($offset, $limit, $begin_date, $end_date)
@@ -30,8 +29,8 @@ class Complaints extends BasicWePay
 
     /**
      * 查询投诉详情
-     * @param string $complaint_id 被投诉单号
-     * @return array|string
+     * @param string $complaint_id 投诉单号
+     * @return array|string 投诉详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function complaintDetails($complaint_id)
@@ -42,8 +41,8 @@ class Complaints extends BasicWePay
 
     /**
      * 查询投诉协商历史
-     * @param string $complaint_id 被投诉单号
-     * @return array|string
+     * @param string $complaint_id 投诉单号
+     * @return array|string 协商记录
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function negotiationHistory($complaint_id)
@@ -54,7 +53,7 @@ class Complaints extends BasicWePay
 
     /**
      * 创建投诉通知回调地址
-     * @param string $url 回调通知地址
+     * @param string $url 回调地址
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -77,7 +76,7 @@ class Complaints extends BasicWePay
 
     /**
      * 更新投诉通知回调地址
-     * @param string $url 回调通知地址
+     * @param string $url 回调地址
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -98,8 +97,8 @@ class Complaints extends BasicWePay
 
     /**
      * 回复投诉
-     * @param string $complaint_id 被投诉单号
-     * @param array $content 回复内容
+     * @param string $complaint_id 投诉单号
+     * @param array $content 回复内容（含跳转链接、文本等）
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -111,8 +110,8 @@ class Complaints extends BasicWePay
     }
 
     /**
-     * 反馈处理完成
-     * @param string $complaint_id 被投诉单号
+     * 标记投诉处理完成
+     * @param string $complaint_id 投诉单号
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -124,8 +123,8 @@ class Complaints extends BasicWePay
     }
 
     /**
-     * 图片请求接口
-     * @param string $pathinfo
+     * 下载投诉图片
+     * @param string $pathinfo 文件路径（接口返回的下载地址 path）
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -135,8 +134,8 @@ class Complaints extends BasicWePay
     }
 
     /**
-     * 图片上传接口
-     * @param array $imginfo
+     * 上传投诉相关图片
+     * @param array $imginfo 图片上传参数（文件流对应的 media 字段等）
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */

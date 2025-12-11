@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -24,7 +24,6 @@ use WePayV3\Contracts\DecryptAes;
 
 /**
  * 直连商户 | 订单支付接口
- * Class Order
  * @package WePayV3
  */
 class Order extends BasicWePay
@@ -35,10 +34,10 @@ class Order extends BasicWePay
     const WXPAY_NATIVE = 'native';
 
     /**
-     * 创建支付订单
-     * @param string $type 支付类型
-     * @param array $data 支付参数
-     * @return array
+     * 创建支付订单（V3）
+     * @param string $type 支付类型 h5|app|jsapi|native
+     * @param array $data 支付参数，按各场景必填（appid, mchid, description, out_trade_no, notify_url 等）
+     * @return array 预支付结果或前端调起参数
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_1.shtml
      */
@@ -78,8 +77,8 @@ class Order extends BasicWePay
 
     /**
      * 支付订单查询
-     * @param string $tradeNo 订单单号
-     * @return array
+     * @param string $tradeNo 商户订单号 out_trade_no
+     * @return array 订单详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_2.shtml
      */
@@ -91,8 +90,8 @@ class Order extends BasicWePay
 
     /**
      * 关闭支付订单
-     * @param string $tradeNo 订单单号
-     * @return array
+     * @param string $tradeNo 商户订单号 out_trade_no
+     * @return array 关闭结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function close($tradeNo)
@@ -103,31 +102,9 @@ class Order extends BasicWePay
     }
 
     /**
-     * 支付通知解析
-     * @param array|null $data
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidDecryptException
-     */
-    public function notify($data = [])
-    {
-        if (empty($data)) {
-            $data = json_decode(Tools::getRawInput(), true);
-        }
-        if (isset($data['resource'])) {
-            $aes = new DecryptAes($this->config['mch_v3_key']);
-            $data['result'] = $aes->decryptToString(
-                $data['resource']['associated_data'],
-                $data['resource']['nonce'],
-                $data['resource']['ciphertext']
-            );
-        }
-        return $data;
-    }
-
-    /**
-     * 创建退款订单
-     * @param array $data 退款参数
-     * @return array
+     * 创建退款订单（V3）
+     * @param array $data 退款参数（out_trade_no 或 transaction_id，out_refund_no，amount 等）
+     * @return array 退款结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_9.shtml
      */
@@ -139,8 +116,8 @@ class Order extends BasicWePay
 
     /**
      * 退款订单查询
-     * @param string $refundNo 退款单号
-     * @return array
+     * @param string $refundNo 商户退款单号 out_refund_no
+     * @return array 退款详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_1_10.shtml
      */
@@ -163,9 +140,31 @@ class Order extends BasicWePay
     }
 
     /**
+     * 支付/退款通知解析（自动解密 resource）
+     * @param array|null $data 通知原文，为空则从输入流读取
+     * @return array 解析后的通知数据，包含 result 字段（明文）
+     * @throws \WeChat\Exceptions\InvalidDecryptException
+     */
+    public function notify($data = [])
+    {
+        if (empty($data)) {
+            $data = json_decode(Tools::getRawInput(), true);
+        }
+        if (isset($data['resource'])) {
+            $aes = new DecryptAes($this->config['mch_v3_key']);
+            $data['result'] = $aes->decryptToString(
+                $data['resource']['associated_data'],
+                $data['resource']['nonce'],
+                $data['resource']['ciphertext']
+            );
+        }
+        return $data;
+    }
+
+    /**
      * 申请交易账单
-     * @param array|string $params
-     * @return array
+     * @param array|string $params 账单参数（bill_date, bill_type 等）或已拼好的查询串
+     * @return array 含下载地址的申请结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_3_6.shtml
      */
@@ -177,8 +176,8 @@ class Order extends BasicWePay
 
     /**
      * 申请资金账单
-     * @param array|string $params
-     * @return array
+     * @param array|string $params 账单参数（bill_date, account_type 等）或已拼好的查询串
+     * @return array 含下载地址的申请结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_3_7.shtml
      */
@@ -190,8 +189,8 @@ class Order extends BasicWePay
 
     /**
      * 下载账单文件
-     * @param string $fileurl
-     * @return string 二进制 Excel 内容
+     * @param string $fileurl 申请账单返回的 download_url
+     * @return string 二进制内容（gzip/CSV/Excel）
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter7_6_1.shtml
      */

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝网站支付
- * Class Web
  * @package AliPay
  */
 class Web extends BasicAliPay
@@ -37,9 +36,9 @@ class Web extends BasicAliPay
     }
 
     /**
-     * 创建数据操作
-     * @param array $options
-     * @return string
+     * 生成网站支付表单HTML
+     * @param array $options 订单参数（out_trade_no, total_amount, subject等）
+     * @return string 支付表单HTML（自动提交到支付宝）
      */
     public function apply($options)
     {

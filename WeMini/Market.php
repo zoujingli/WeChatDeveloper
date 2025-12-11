@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,15 +19,14 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 微信小程序服务市场
- * Class Ocr
+ * 小程序服务市场
  * @package WeMini
  */
 class Market extends BasicWeChat
 {
     /**
-     * 调用服务平台上架的API
-     * @param array $data
+     * 调用上架服务
+     * @param array $data 服务参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,8 +38,8 @@ class Market extends BasicWeChat
     }
 
     /**
-     * 获取服务市场返回的数据
-     * @param array $data
+     * 拉取服务结果
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

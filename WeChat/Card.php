@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 卡券管理
- * Class Card
  * @package WeChat
  */
 class Card extends BasicWeChat
 {
     /**
      * 创建卡券
-     * @param array $data
+     * @param array $data 卡券数据（card 对象）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -39,9 +38,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 设置买单接口
-     * @param string $cardId
-     * @param bool $isOpen
+     * 设置买单开关
+     * @param string $cardId 卡券ID
+     * @param bool $isOpen 是否开启
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -53,9 +52,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 设置自助核销接口
-     * @param string $cardId
-     * @param bool $isOpen
+     * 设置自助核销
+     * @param string $cardId 卡券ID
+     * @param bool $isOpen 是否开启
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -67,8 +66,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 创建二维码接口
-     * @param array $data
+     * 创建卡券二维码
+     * @param array $data 二维码参数（action_name, card 等）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -80,8 +79,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 创建货架接口
-     * @param array $data
+     * 创建卡券货架
+     * @param array $data 货架参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -93,9 +92,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 导入自定义code
-     * @param string $cardId
-     * @param array $code
+     * 导入自定义 code
+     * @param string $cardId 卡券ID
+     * @param array $code code 列表（最多10万）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -107,8 +106,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 查询导入code数目
-     * @param string $cardId
+     * 查询已导入 code 数量
+     * @param string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -120,9 +119,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 核查code接口
-     * @param string $cardId 进行导入code的卡券ID
-     * @param array $code 已经微信卡券后台的自定义code，上限为100个
+     * 校验导入的 code
+     * @param string $cardId 卡券ID
+     * @param array $code 自定义 code 列表（<=100）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -134,8 +133,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 图文消息群发卡券
-     * @param string $cardId
+     * 获取图文群发卡券的 HTML
+     * @param string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -148,8 +147,8 @@ class Card extends BasicWeChat
 
     /**
      * 设置测试白名单
-     * @param array $openids
-     * @param array $usernames
+     * @param array $openids 测试 openid 列表
+     * @param array $usernames 测试微信号列表
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -161,10 +160,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 线下核销查询Code
-     * @param string $code 单张卡券的唯一标准
-     * @param string $cardId 卡券ID代表一类卡券。自定义code卡券必填
-     * @param bool $checkConsume 是否校验code核销状态，填入true和false时的code异常状态返回数据不同
+     * 查询 Code 状态
+     * @param string $code 卡券 code
+     * @param string $cardId 卡券ID（自定义 code 必填）
+     * @param bool $checkConsume 是否校验核销状态
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -179,9 +178,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 线下核销核销Code
-     * @param string $code 需核销的Code码
-     * @param null $card_id 券ID。创建卡券时use_custom_code填写true时必填。非自定义Code不必填写
+     * 核销 Code
+     * @param string $code 待核销的 code
+     * @param null|string $card_id 卡券ID（自定义 code 必填）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -195,8 +194,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * Code解码接口
-     * @param string $encryptCode
+     * 解码加密 Code
+     * @param string $encryptCode 加密 code
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -208,9 +207,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 获取用户已领取卡券接口
-     * @param string $openid
-     * @param null|string $cardId
+     * 获取用户已领取卡券
+     * @param string $openid 用户 openid
+     * @param null|string $cardId 卡券ID（可选）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -225,7 +224,7 @@ class Card extends BasicWeChat
 
     /**
      * 查看卡券详情
-     * @param string $cardId
+     * @param string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -237,10 +236,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 批量查询卡券列表
-     * @param int $offset 查询卡列表的起始偏移量，从0开始，即offset: 5是指从从列表里的第六个开始读取
-     * @param int $count 需要查询的卡片的数量（数量最大50）
-     * @param array $statusList 支持开发者拉出指定状态的卡券列表
+     * 批量查询卡券
+     * @param int $offset 起始偏移量
+     * @param int $count 拉取数量（<=50）
+     * @param array $statusList 状态过滤
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -254,9 +253,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 更改卡券信息接口
-     * @param string $cardId
-     * @param array $memberCard
+     * 更新会员卡信息
+     * @param string $cardId 卡券ID
+     * @param array $memberCard 会员卡内容
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -268,10 +267,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 修改库存接口
+     * 修改库存
      * @param string $card_id 卡券ID
-     * @param null|integer $increase_stock_value 增加多少库存，支持不填或填0
-     * @param null|integer $reduce_stock_value 减少多少库存，可以不填或填0
+     * @param int|null $increase_stock_value 增加库存
+     * @param int|null $reduce_stock_value 减少库存
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -286,9 +285,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 更改Code接口
-     * @param string $code 需变更的Code码
-     * @param string $new_code 变更后的有效Code码
+     * 变更 Code
+     * @param string $code 原 code
+     * @param string $new_code 新 code
      * @param null|string $card_id 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
@@ -303,8 +302,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 删除卡券接口
-     * @param string $cardId
+     * 删除卡券
+     * @param string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -316,10 +315,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 设置卡券失效接口
-     * @param string $code
-     * @param string $cardId
-     * @param null|string $reason
+     * 设置卡券失效
+     * @param string $code 卡券 code
+     * @param string $cardId 卡券ID
+     * @param null|string $reason 失效原因
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -333,10 +332,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 拉取卡券概况数据接口
-     * @param string $beginDate 查询数据的起始时间
-     * @param string $endDate 查询数据的截至时间
-     * @param string $condSource 卡券来源(0为公众平台创建的卡券数据 1是API创建的卡券数据)
+     * 拉取卡券概况数据
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期
+     * @param string $condSource 卡券来源 0|1
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -349,11 +348,11 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 获取免费券数据接口
-     * @param string $beginDate 查询数据的起始时间
-     * @param string $endDate 查询数据的截至时间
-     * @param integer $condSource 卡券来源，0为公众平台创建的卡券数据、1是API创建的卡券数据
-     * @param null $cardId 卡券ID
+     * 获取免费券数据
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期
+     * @param int $condSource 卡券来源 0|1
+     * @param null|string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -369,7 +368,7 @@ class Card extends BasicWeChat
 
     /**
      * 激活会员卡
-     * @param array $data
+     * @param array $data 激活参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -381,9 +380,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 设置开卡字段接口
-     * 用户激活时需要填写的选项
-     * @param array $data
+     * 设置开卡字段（激活表单）
+     * @param array $data 表单字段
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -395,9 +393,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 获取用户提交资料
-     * 根据activate_ticket获取到用户填写的信息
-     * @param string $activateTicket
+     * 获取用户提交的激活资料
+     * @param string $activateTicket 激活 ticket
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -410,7 +407,7 @@ class Card extends BasicWeChat
 
     /**
      * 更新会员信息
-     * @param array $data
+     * @param array $data 更新参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -422,10 +419,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 拉取会员卡概况数据接口
-     * @param string $beginDate 查询数据的起始时间
-     * @param string $endDate 查询数据的截至时间
-     * @param string $condSource 卡券来源(0为公众平台创建的卡券数据 1是API创建的卡券数据)
+     * 拉取会员卡概况数据
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期
+     * @param string $condSource 卡券来源 0|1
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -438,10 +435,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 拉取单张会员卡数据接口
-     * @param string $beginDate 查询数据的起始时间
-     * @param string $endDate 查询数据的截至时间
-     * @param string $cardId 卡券id
+     * 拉取单张会员卡数据
+     * @param string $beginDate 开始日期
+     * @param string $endDate 结束日期
+     * @param string $cardId 卡券ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -454,9 +451,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 拉取会员信息（积分查询）接口
-     * @param string $cardId 查询会员卡的cardid
-     * @param string $code 所查询用户领取到的code值
+     * 查询会员信息（积分）
+     * @param string $cardId 会员卡ID
+     * @param string $code 用户 code
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -469,8 +466,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 设置支付后投放卡券接口
-     * @param array $data
+     * 支付后投放卡券规则
+     * @param array $data 规则参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -483,7 +480,7 @@ class Card extends BasicWeChat
 
     /**
      * 删除支付后投放卡券规则
-     * @param integer $ruleId 支付即会员的规则名称
+     * @param int $ruleId 规则ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -495,8 +492,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 查询支付后投放卡券规则详情
-     * @param integer $ruleId 要查询规则id
+     * 查询支付后投放卡券规则
+     * @param int $ruleId 规则ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -508,10 +505,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 批量查询支付后投放卡券规则
-     * @param integer $offset 起始偏移量
-     * @param integer $count 查询的数量
-     * @param bool $effective 是否仅查询生效的规则
+     * 批量查询支付后投放规则
+     * @param int $offset 起始偏移
+     * @param int $count 数量
+     * @param bool $effective 是否仅查询生效规则
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -524,8 +521,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 创建支付后领取立减金活动
-     * @param array $data
+     * 创建支付后立减金活动
+     * @param array $data 活动参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -537,7 +534,7 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 开通券点账户接口
+     * 开通券点账户
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -549,9 +546,9 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 对优惠券批价
-     * @param string $cardId 需要来配置库存的card_id
-     * @param integer $quantity 本次需要兑换的库存数目
+     * 预估优惠券库存价格
+     * @param string $cardId 卡券ID
+     * @param int $quantity 兑换数量
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -563,7 +560,7 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 查询券点余额接口
+     * 查询券点余额
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -575,10 +572,10 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 确认兑换库存接口
-     * @param string $cardId 需要来兑换库存的card_id
-     * @param integer $quantity 本次需要兑换的库存数目
-     * @param string $orderId 仅可以使用上面得到的订单号，保证批价有效性
+     * 确认兑换库存
+     * @param string $cardId 卡券ID
+     * @param int $quantity 数量
+     * @param string $orderId 批价返回的订单号
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -591,8 +588,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 充值券点接口
-     * @param integer $coinCount
+     * 充值券点
+     * @param int $coinCount 充值数量
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -604,8 +601,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 查询订单详情接口
-     * @param string $orderId
+     * 查询券点订单详情
+     * @param string $orderId 订单号
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -617,8 +614,8 @@ class Card extends BasicWeChat
     }
 
     /**
-     * 查询券点流水详情接口
-     * @param array $data
+     * 查询券点流水
+     * @param array $data 查询参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -631,7 +628,7 @@ class Card extends BasicWeChat
 
     /**
      * 获取开卡插件参数
-     * @param array $data
+     * @param array $data 入口参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Exceptions\InvalidInstanceException;
 /**
  * 加载缓存器
  *
- * Class We
  * @library WeChatDeveloper
  * @author Anyon<zoujingli@qq.com>
  * @date 2018/05/24 13:23
@@ -59,7 +58,7 @@ use WeChat\Exceptions\InvalidInstanceException;
  * ----- WeMini -----
  * @method \WeMini\Crypt WeMiniCrypt($options = []) static 小程序数据加密处理
  * @method \WeMini\Delivery WeMiniDelivery($options = []) static 小程序即时配送
- * @method \WeMini\Shipping WeMiniShipping($options = []) satic 小程序发货信息
+ * @method \WeMini\Shipping WeMiniShipping($options = []) static 小程序发货信息
  * @method \WeMini\Guide WeMiniGuide($options = []) static 小程序导购助手
  * @method \WeMini\Image WeMiniImage($options = []) static 小程序图像处理
  * @method \WeMini\Live WeMiniLive($options = []) static 小程序直播接口

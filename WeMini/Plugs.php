@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,15 +19,14 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 微信小程序插件管理
- * Class Plugs
+ * 小程序插件管理
  * @package WeMini
  */
 class Plugs extends BasicWeChat
 {
     /**
-     * 1.申请使用插件
-     * @param string $plugin_appid 插件appid
+     * 申请使用插件
+     * @param string $plugin_appid 插件 appid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,7 +38,7 @@ class Plugs extends BasicWeChat
     }
 
     /**
-     * 2.查询已添加的插件
+     * 查询已添加插件
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -51,8 +50,8 @@ class Plugs extends BasicWeChat
     }
 
     /**
-     * 3.删除已添加的插件
-     * @param string $plugin_appid 插件appid
+     * 删除插件
+     * @param string $plugin_appid 插件 appid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -64,9 +63,8 @@ class Plugs extends BasicWeChat
     }
 
     /**
-     * 获取当前所有插件使用方
-     * 修改插件使用申请的状态
-     * @param array $data
+     * 获取插件使用方或修改申请状态
+     * @param array $data 请求参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -78,9 +76,9 @@ class Plugs extends BasicWeChat
     }
 
     /**
-     * 4.获取当前所有插件使用方（供插件开发者调用）
-     * @param integer $page 拉取第page页的数据
-     * @param integer $num 表示每页num条记录
+     * 获取插件使用方列表（开发者）
+     * @param int $page 页码
+     * @param int $num 每页数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -93,8 +91,8 @@ class Plugs extends BasicWeChat
     }
 
     /**
-     * 5.修改插件使用申请的状态（供插件开发者调用）
-     * @param string $action dev_agree：同意申请；dev_refuse：拒绝申请；dev_delete：删除已拒绝的申请者
+     * 修改插件申请状态（开发者）
+     * @param string $action dev_agree|dev_refuse|dev_delete
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

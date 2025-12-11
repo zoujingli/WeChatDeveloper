@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,15 +20,14 @@ use WeChat\Contracts\BasicPushEvent;
 
 /**
  * 公众号推送管理
- * Class Receive
  * @package WeChat
  */
 class Receive extends BasicPushEvent
 {
 
     /**
-     * 转发多客服消息
-     * @param string $account
+     * 转发到多客服
+     * @param string $account 可选客服账号
      * @return $this
      */
     public function transferCustomerService($account = '')
@@ -61,8 +60,8 @@ class Receive extends BasicPushEvent
     }
 
     /**
-     * 设置回复图文
-     * @param array $newsData
+     * 设置图文消息
+     * @param array $newsData Articles 列表
      * @return $this
      */
     public function news($newsData = [])
@@ -80,7 +79,7 @@ class Receive extends BasicPushEvent
 
     /**
      * 设置图片消息
-     * @param string $mediaId 图片媒体ID
+     * @param string $mediaId 图片 media_id
      * @return $this
      */
     public function image($mediaId = '')
@@ -96,8 +95,8 @@ class Receive extends BasicPushEvent
     }
 
     /**
-     * 设置语音回复消息
-     * @param string $mediaid 语音媒体ID
+     * 设置语音消息
+     * @param string $mediaid 语音 media_id
      * @return $this
      */
     public function voice($mediaid = '')
@@ -113,10 +112,10 @@ class Receive extends BasicPushEvent
     }
 
     /**
-     * 设置视频回复消息
-     * @param string $mediaid 视频媒体ID
-     * @param string $title 视频标题
-     * @param string $description 视频描述
+     * 设置视频消息
+     * @param string $mediaid 视频 media_id
+     * @param string $title 标题
+     * @param string $description 描述
      * @return $this
      */
     public function video($mediaid = '', $title = '', $description = '')
@@ -136,12 +135,12 @@ class Receive extends BasicPushEvent
     }
 
     /**
-     * 设置音乐回复消息
-     * @param string $title 音乐标题
-     * @param string $desc 音乐描述
-     * @param string $musicurl 音乐地址
-     * @param string $hgmusicurl 高清音乐地址
-     * @param string $thumbmediaid 音乐图片缩略图的媒体id（可选）
+     * 设置音乐消息
+     * @param string $title 标题
+     * @param string $desc 描述
+     * @param string $musicurl 音乐链接
+     * @param string $hgmusicurl 高清链接
+     * @param string $thumbmediaid 缩略图 media_id
      * @return $this
      */
     public function music($title, $desc, $musicurl, $hgmusicurl = '', $thumbmediaid = '')

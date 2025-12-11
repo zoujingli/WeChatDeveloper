@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -24,8 +24,7 @@ use WePay\Transfers;
 use WePay\TransfersBank;
 
 /**
- * 微信支付商户
- * Class Pay
+ * 微信支付商户聚合入口（V2）
  * @package WeChat\Contracts
  */
 class Pay extends BasicWePay
@@ -33,8 +32,8 @@ class Pay extends BasicWePay
 
     /**
      * 统一下单
-     * @param array $options
-     * @return array
+     * @param array $options 下单参数（out_trade_no, body, total_fee, notify_url, trade_type 等）
+     * @return array 预支付信息
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -44,8 +43,8 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 刷卡支付
-     * @param array $options
+     * 刷卡支付（被扫）
+     * @param array $options 支付参数（auth_code, out_trade_no, total_fee 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -56,9 +55,9 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 创建JsApi及H5支付参数
-     * @param string $prepay_id 统一下单预支付码
-     * @return array
+     * 生成 JSAPI/H5 支付参数
+     * @param string $prepay_id 统一下单返回的 prepay_id
+     * @return array 前端调起参数
      */
     public function createParamsForJsApi($prepay_id)
     {
@@ -66,9 +65,9 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 获取APP支付参数
-     * @param string $prepay_id 统一下单预支付码
-     * @return array
+     * 生成 APP 支付参数
+     * @param string $prepay_id 统一下单返回的 prepay_id
+     * @return array APP 支付参数
      */
     public function createParamsForApp($prepay_id)
     {
@@ -76,8 +75,8 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 获取支付规则二维码
-     * @param string $product_id 商户定义的商品id 或者订单号
+     * 生成 Native 支付二维码 URL
+     * @param string $product_id 商品 ID 或订单号
      * @return string
      */
     public function createParamsForRuleQrc($product_id)
@@ -87,8 +86,8 @@ class Pay extends BasicWePay
 
     /**
      * 查询订单
-     * @param array $options
-     * @return array
+     * @param array $options 查询参数（transaction_id 或 out_trade_no）
+     * @return array 订单详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -111,7 +110,7 @@ class Pay extends BasicWePay
 
     /**
      * 申请退款
-     * @param array $options
+     * @param array $options 退款参数（out_trade_no/transaction_id，out_refund_no，total_fee，refund_fee 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -123,7 +122,7 @@ class Pay extends BasicWePay
 
     /**
      * 查询退款
-     * @param array $options
+     * @param array $options 查询参数（transaction_id/out_trade_no/out_refund_no/refund_id 四选一）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -134,8 +133,8 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 交易保障
-     * @param array $options
+     * 交易保障上报
+     * @param array $options 上报参数（interface_url, execute_time, return_code 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -146,9 +145,9 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 授权码查询openid
-     * @param string $authCode 扫码支付授权码，设备读取用户微信中的条码或者二维码信息
-     * @return array
+     * 授权码查询 openid
+     * @param string $authCode 扫码支付授权码
+     * @return array 含 openid
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -159,8 +158,8 @@ class Pay extends BasicWePay
 
     /**
      * 下载对账单
-     * @param array $options 静音参数
-     * @param null|string $outType 输出类型
+     * @param array $options 账单参数（bill_date, bill_type 等）
+     * @param null|string $outType 输出处理回调，为 null 返回原始内容
      * @return bool|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -171,8 +170,8 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 拉取订单评价数据
-     * @param array $options
+     * 拉取订单评价数据（需证书）
+     * @param array $options 查询参数（bill_date, offset, limit 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -184,7 +183,7 @@ class Pay extends BasicWePay
 
     /**
      * 企业付款到零钱
-     * @param array $options
+     * @param array $options 付款参数（partner_trade_no, openid, amount, desc 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -196,7 +195,7 @@ class Pay extends BasicWePay
 
     /**
      * 查询企业付款到零钱
-     * @param string $partner_trade_no 商户调用企业付款API时使用的商户订单号
+     * @param string $partner_trade_no 商户付款单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -208,7 +207,7 @@ class Pay extends BasicWePay
 
     /**
      * 企业付款到银行卡
-     * @param array $options
+     * @param array $options 付款参数（partner_trade_no, enc_bank_no, enc_true_name, bank_code, amount 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -220,8 +219,8 @@ class Pay extends BasicWePay
     }
 
     /**
-     * 商户企业付款到银行卡操作进行结果查询
-     * @param string $partner_trade_no 商户订单号，需保持唯一
+     * 查询企业付款到银行卡结果
+     * @param string $partner_trade_no 商户付款单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

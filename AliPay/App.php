@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝App支付网关
- * Class App
  * @package AliPay
  */
 class App extends BasicAliPay
@@ -38,9 +37,9 @@ class App extends BasicAliPay
     }
 
     /**
-     * 创建数据操作
-     * @param array $options
-     * @return string
+     * 生成APP支付参数字符串
+     * @param array $options 订单参数（out_trade_no, total_amount, subject等）
+     * @return string URL编码后的参数字符串（用于APP调起支付）
      */
     public function apply($options)
     {

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,15 +19,14 @@ namespace WePayV3;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 普通商户商家分账
- * Class Profitsharing
+ * 商家分账 (V3)
  * @package WePayV3
  */
 class ProfitSharing extends BasicWePay
 {
     /**
      * 请求分账
-     * @param array $options
+     * @param array $options 分账参数（transaction_id, out_order_no, receivers 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -41,7 +40,7 @@ class ProfitSharing extends BasicWePay
      * 查询分账结果
      * @param string $outOrderNo 商户分账单号
      * @param string $transactionId 微信订单号
-     * @return array
+     * @return array 分账状态
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function query($outOrderNo, $transactionId)
@@ -52,7 +51,7 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 解冻剩余资金
-     * @param array $options
+     * @param array $options 解冻参数（transaction_id, out_order_no, description）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -64,7 +63,7 @@ class ProfitSharing extends BasicWePay
     /**
      * 查询剩余待分金额
      * @param string $transactionId 微信订单号
-     * @return array
+     * @return array 待分金额
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function amounts($transactionId)
@@ -75,7 +74,7 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 添加分账接收方
-     * @param array $options
+     * @param array $options 接收方信息（type, account, name 等，name 需 RSA）
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -91,7 +90,7 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 删除分账接收方
-     * @param array $options
+     * @param array $options 接收方信息（type, account）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -103,8 +102,8 @@ class ProfitSharing extends BasicWePay
 
     /**
      * 请求分账回退
-     * @param array $options
-     * @return array
+     * @param array $options 回退参数（out_return_no, out_order_no, return_account 等）
+     * @return array 回退结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function backspace(array $options)

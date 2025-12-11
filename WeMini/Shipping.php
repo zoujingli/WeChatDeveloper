@@ -5,16 +5,15 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 小程序发货信息管理服务
- * @class Shipping
+ * 小程序发货信息管理
  * @package WeMini
  */
 class Shipping extends BasicWeChat
 {
 
     /**
-     * 发货信息录入接口
-     * @param array $data
+     * 录入发货信息
+     * @param array $data 发货数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -26,8 +25,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 发货信息合单录入接口
-     * @param array $data
+     * 合单发货录入
+     * @param array $data 发货数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,8 +38,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 查询订单发货状态
-     * @param array $data
+     * 查询发货状态
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -52,8 +51,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 查询订单列表
-     * @param array $data
+     * 查询发货订单列表
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -65,8 +64,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 确认收货提醒接口
-     * @param array $data
+     * 提醒确认收货
+     * @param array $data 提醒参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -78,8 +77,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 消息跳转路径设置接口
-     * @param array $data
+     * 设置消息跳转路径
+     * @param array $data 路径参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -91,8 +90,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 查询小程序是否已开通发货信息管理服务
-     * @param array $data
+     * 查询是否开通发货管理
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -104,8 +103,8 @@ class Shipping extends BasicWeChat
     }
 
     /**
-     * 查询小程序是否已完成交易结算管理确认
-     * @param array $data
+     * 查询交易结算确认状态
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

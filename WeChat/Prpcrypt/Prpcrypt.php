@@ -16,7 +16,6 @@ namespace WeChat\Prpcrypt;
 
 /**
  * 公众号消息 - 加解密
- * Class Prpcrypt
  */
 class Prpcrypt
 {
@@ -53,6 +52,21 @@ class Prpcrypt
     }
 
     /**
+     * 随机生成16位字符串
+     * @param string $str
+     * @return string 生成的字符串
+     */
+    function getRandomStr($str = "")
+    {
+        $str_pol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        $max = strlen($str_pol) - 1;
+        for ($i = 0; $i < 16; $i++) {
+            $str .= $str_pol[mt_rand(0, $max)];
+        }
+        return $str;
+    }
+
+    /**
      * 对密文进行解密
      * @param string $encrypted 需要解密的密文
      * @return array
@@ -78,21 +92,6 @@ class Prpcrypt
         } catch (\Exception $e) {
             return [ErrorCode::$IllegalBuffer, null];
         }
-    }
-
-    /**
-     * 随机生成16位字符串
-     * @param string $str
-     * @return string 生成的字符串
-     */
-    function getRandomStr($str = "")
-    {
-        $str_pol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-        $max = strlen($str_pol) - 1;
-        for ($i = 0; $i < 16; $i++) {
-            $str .= $str_pol[mt_rand(0, $max)];
-        }
-        return $str;
     }
 
 }

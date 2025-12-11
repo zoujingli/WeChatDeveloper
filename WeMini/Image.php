@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,16 +20,15 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序图像处理
- * Class Image
  * @package WeMini
  */
 class Image extends BasicWeChat
 {
 
     /**
-     * 本接口提供基于小程序的图片智能裁剪能力
-     * @param string $img_url 要检测的图片 url，传这个则不用传 img 参数。
-     * @param string $img form-data 中媒体文件标识，有filename、filelength、content-type等信息，传这个则不用穿 img_url
+     * 图片智能裁剪
+     * @param string $img_url 图片 URL（与 img 二选一）
+     * @param string $img form-data 媒体文件（与 img_url 二选一）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -41,9 +40,9 @@ class Image extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的条码/二维码识别的API
-     * @param string $img_url 要检测的图片 url，传这个则不用传 img 参数。
-     * @param string $img form-data 中媒体文件标识，有filename、filelength、content-type等信息，传这个则不用穿 img_url
+     * 条码/二维码识别
+     * @param string $img_url 图片 URL（与 img 二选一）
+     * @param string $img form-data 媒体文件（与 img_url 二选一）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -55,9 +54,9 @@ class Image extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的图片高清化能力
-     * @param string $img_url 要检测的图片 url，传这个则不用传 img 参数
-     * @param string $img form-data 中媒体文件标识，有filename、filelength、content-type等信息，传这个则不用穿 img_url
+     * 图片高清化
+     * @param string $img_url 图片 URL（与 img 二选一）
+     * @param string $img form-data 媒体文件（与 img_url 二选一）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

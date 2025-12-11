@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序物流助手
- * Class Logistics
  * @package WeMini
  */
 class Logistics extends BasicWeChat
 {
     /**
      * 生成运单
-     * @param array $data
+     * @param array $data 运单参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,7 +39,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 取消运单
-     * @param array $data
+     * @param array $data 取消参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -52,7 +51,7 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 获取支持的快递公司列表
+     * 获取快递公司列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -65,7 +64,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 获取运单数据
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -78,7 +77,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 查询运单轨迹
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -90,7 +89,7 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 获取打印员。若需要使用微信打单 PC 软件，才需要调用
+     * 获取打印员列表（需使用微信打单时调用）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -102,8 +101,8 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 获取电子面单余额。仅在使用加盟类快递公司时，才可以调用
-     * @param array $data
+     * 获取电子面单余额（加盟类快递）
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -115,8 +114,8 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 模拟快递公司更新订单状态, 该接口只能用户测试
-     * @param array $data
+     * 模拟更新订单状态（测试用）
+     * @param array $data 模拟参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -128,8 +127,8 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 配置面单打印员，若需要使用微信打单 PC 软件，才需要调用
-     * @param array $data
+     * 配置面单打印员（微信打单）
+     * @param array $data 配置参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -142,7 +141,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 获取面单联系人信息
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -154,8 +153,8 @@ class Logistics extends BasicWeChat
     }
 
     /**
-     * 预览面单模板。用于调试面单模板使用
-     * @param array $data
+     * 预览面单模板（调试用）
+     * @param array $data 模板参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -168,7 +167,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 更新商户审核结果
-     * @param array $data
+     * @param array $data 审核结果
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -181,7 +180,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 更新运单轨迹
-     * @param array $data
+     * @param array $data 轨迹参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -195,7 +194,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 绑定/解绑物流账号
-     * @param array $data
+     * @param array $data 账号参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -208,8 +207,8 @@ class Logistics extends BasicWeChat
 
 
     /**
-     * 获取所有绑定的物流账号
-     * @param array $data
+     * 获取已绑定的物流账号列表
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -222,7 +221,7 @@ class Logistics extends BasicWeChat
 
     /**
      * 批量获取运单数据
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

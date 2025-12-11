@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,17 +21,20 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信支付基础类
- * Class BasicPay
  * @package WeChat\Contracts
  */
 class BasicWePay
 {
     /**
+     * 静态缓存
+     * @var static
+     */
+    protected static $cache;
+    /**
      * 商户配置
      * @var DataArray
      */
     protected $config;
-
     /**
      * 当前请求数据
      * @var DataArray
@@ -39,14 +42,8 @@ class BasicWePay
     protected $params;
 
     /**
-     * 静态缓存
-     * @var static
-     */
-    protected static $cache;
-
-    /**
-     * WeChat constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 必填：appid、mch_id、mch_key，可选：sub_appid、sub_mch_id、cache_path
      */
     public function __construct(array $options)
     {
@@ -80,7 +77,7 @@ class BasicWePay
 
     /**
      * 静态创建对象
-     * @param array $config
+     * @param array $config 商户配置
      * @return static
      */
     public static function instance(array $config)
@@ -91,9 +88,9 @@ class BasicWePay
     }
 
     /**
-     * 获取微信支付通知
-     * @param string|array $xml
-     * @return array
+     * 获取微信支付异步通知并验签
+     * @param string|array $xml 可选，默认读取原始输入
+     * @return array 验签通过的通知数据
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function getNotify($xml = '')
@@ -106,20 +103,11 @@ class BasicWePay
     }
 
     /**
-     * 获取微信支付通知回复内容
-     * @return string
-     */
-    public function getNotifySuccessReply()
-    {
-        return Tools::arr2xml(['return_code' => 'SUCCESS', 'return_msg' => 'OK']);
-    }
-
-    /**
      * 生成支付签名
-     * @param array $data 参与签名的数据
-     * @param string $signType 参与签名的类型
-     * @param string $buff 参与签名字符串前缀
-     * @return string
+     * @param array $data 待签名数据
+     * @param string $signType MD5|HMAC-SHA256
+     * @param string $buff 签名前缀（内部使用）
+     * @return string 大写签名
      */
     public function getPaySign(array $data, $signType = 'MD5', $buff = '')
     {
@@ -137,8 +125,17 @@ class BasicWePay
     }
 
     /**
-     * 转换短链接
-     * @param string $longUrl 需要转换的URL，签名用原串，传输需URLencode
+     * 获取微信支付通知成功回复 XML
+     * @return string
+     */
+    public function getNotifySuccessReply()
+    {
+        return Tools::arr2xml(['return_code' => 'SUCCESS', 'return_msg' => 'OK']);
+    }
+
+    /**
+     * 转换短链接（tools/shorturl）
+     * @param string $longUrl 需转换的URL，签名用原串，传输需URLencode
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -150,27 +147,14 @@ class BasicWePay
     }
 
     /**
-     * 数组直接转xml数据输出
-     * @param array $data
-     * @param bool $isReturn
-     * @return string|void
-     */
-    public function toXml(array $data, $isReturn = false)
-    {
-        $xml = Tools::arr2xml($data);
-        if ($isReturn) return $xml;
-        echo $xml;
-    }
-
-    /**
-     * 以 Post 请求接口
-     * @param string $url 请求
+     * 基础 POST 调用（自动签名，可选双向证书）
+     * @param string $url 请求地址
      * @param array $data 接口参数
-     * @param bool $isCert 是否需要使用双向证书
-     * @param string $signType 数据签名类型 MD5|SHA256
-     * @param bool $needSignType 是否需要传签名类型参数
-     * @param bool $needNonceStr
-     * @return array
+     * @param bool $isCert 是否需要双向证书（退款等场景）
+     * @param string $signType MD5|HMAC-SHA256
+     * @param bool $needSignType 是否追加 sign_type 字段
+     * @param bool $needNonceStr 是否自动附加 nonce_str
+     * @return array XML 解析结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -201,6 +185,94 @@ class BasicWePay
         $params['sign'] = $this->getPaySign($params, $signType);
         $result = Tools::xml2arr(Tools::post($url, Tools::arr2xml($params), $option));
         if ($result['return_code'] !== 'SUCCESS') {
+            throw new InvalidResponseException($result['return_msg'], '0');
+        }
+        return $result;
+    }
+
+    /**
+     * 数组转 XML 输出
+     * @param array $data 待转换数据
+     * @param bool $isReturn true 返回字符串，false 直接输出
+     * @return string|void
+     */
+    public function toXml(array $data, $isReturn = false)
+    {
+        $xml = Tools::arr2xml($data);
+        if ($isReturn) return $xml;
+        echo $xml;
+    }
+
+    /**
+     * 通用接口（V2）调用
+     * @param string $url 完整 URL
+     * @param array|string $data 请求参数，数组自动补全商户参数并签名；字符串原样发送
+     * @param string $method GET|POST|PUT|DELETE|PATCH，默认 POST（GET/HEAD/OPTIONS 不带签名）
+     * @param bool $isCert 是否启用双向证书
+     * @param string $signType MD5|HMAC-SHA256，默认 HMAC-SHA256
+     * @return array XML 解析结果
+     * @throws \WeChat\Exceptions\InvalidArgumentException
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function callApi($url, $data = [], $method = 'POST', $isCert = false, $signType = 'HMAC-SHA256')
+    {
+        $method = strtoupper($method);
+
+        // 处理数据格式
+        $requestData = is_array($data) ? $data : (is_string($data) ? $data : []);
+
+        // GET/HEAD/OPTIONS请求（无请求体，不签名）
+        if (in_array($method, ['GET', 'HEAD', 'OPTIONS'])) {
+            if (!empty($requestData) && is_array($requestData)) {
+                $url .= (strpos($url, '?') !== false ? '&' : '?') . http_build_query($requestData);
+            }
+            $response = Tools::get($url);
+            $result = Tools::xml2arr($response);
+            if (isset($result['return_code']) && $result['return_code'] !== 'SUCCESS') {
+                throw new InvalidResponseException($result['return_msg'], '0');
+            }
+            return $result;
+        }
+
+        // POST/PUT/PATCH/DELETE请求（有请求体）
+        $option = [];
+        if ($isCert) {
+            $option['ssl_p12'] = $this->config->get('ssl_p12');
+            $option['ssl_cer'] = $this->config->get('ssl_cer');
+            $option['ssl_key'] = $this->config->get('ssl_key');
+            if (is_string($option['ssl_p12']) && file_exists($option['ssl_p12'])) {
+                $content = file_get_contents($option['ssl_p12']);
+                if (openssl_pkcs12_read($content, $certs, $this->config->get('mch_id'))) {
+                    $option['ssl_key'] = Tools::pushFile(md5($certs['pkey']) . '.pem', $certs['pkey']);
+                    $option['ssl_cer'] = Tools::pushFile(md5($certs['cert']) . '.pem', $certs['cert']);
+                } else {
+                    throw new InvalidArgumentException("P12 certificate does not match MCH_ID --- ssl_p12");
+                }
+            }
+            if (empty($option['ssl_cer']) || !file_exists($option['ssl_cer'])) {
+                throw new InvalidArgumentException("Missing Config -- ssl_cer", '0');
+            }
+            if (empty($option['ssl_key']) || !file_exists($option['ssl_key'])) {
+                throw new InvalidArgumentException("Missing Config -- ssl_key", '0');
+            }
+        }
+
+        // 合并参数并处理签名（默认自动签名）
+        if (is_array($requestData)) {
+            $params = $this->params->merge($requestData);
+            $params['sign_type'] = strtoupper($signType);
+            $params['sign'] = $this->getPaySign($params, $signType);
+            $option['data'] = Tools::arr2xml($params);
+        } else {
+            $option['data'] = $requestData;
+        }
+
+        // 使用doRequest支持PUT/DELETE/PATCH
+        $response = Tools::doRequest($method, $url, $option);
+
+        $result = Tools::xml2arr($response);
+        if (isset($result['return_code']) && $result['return_code'] !== 'SUCCESS') {
             throw new InvalidResponseException($result['return_msg'], '0');
         }
         return $result;

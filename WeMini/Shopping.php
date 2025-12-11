@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序购物订单
- * Class Shopping
  * @package WeMini
  */
 class Shopping extends BasicWeChat
@@ -28,7 +27,7 @@ class Shopping extends BasicWeChat
 
     /**
      * 上传购物详情
-     * @param array $data
+     * @param array $data 订单数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -41,7 +40,7 @@ class Shopping extends BasicWeChat
 
     /**
      * 上传物流信息
-     * @param array $data
+     * @param array $data 物流数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -54,7 +53,7 @@ class Shopping extends BasicWeChat
 
     /**
      * 上传合单购物详情
-     * @param array $data
+     * @param array $data 订单数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -66,8 +65,8 @@ class Shopping extends BasicWeChat
     }
 
     /**
-     * 上传合单物流信息
-     * @param array $data
+     * 上传合单物流
+     * @param array $data 物流数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -79,8 +78,8 @@ class Shopping extends BasicWeChat
     }
 
     /**
-     * 验证购物订单上传结果
-     * @param array $data
+     * 校验购物订单上传结果
+     * @param array $data 校验参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

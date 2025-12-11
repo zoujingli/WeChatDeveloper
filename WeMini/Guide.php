@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序导购助手
- * Class Guide
  * @package WeMini
  */
 class Guide extends BasicWeChat
 {
     /**
-     * 服务号添加导购
-     * @param array $data
+     * 添加导购
+     * @param array $data 导购账号信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,8 +38,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 服务号删除导购
-     * @param array $data
+     * 删除导购
+     * @param array $data 导购账号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -52,8 +51,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 服务号获取导购信息
-     * @param array $data
+     * 获取导购信息
+     * @param array $data 导购账号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -65,7 +64,7 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 获取服务号的敏感词信息与自动回复信息
+     * 获取敏感词与自动回复配置
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -77,9 +76,9 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 服务号拉取导购列表
-     * @param integer $page
-     * @param integer $num
+     * 拉取导购列表
+     * @param int $page 页码
+     * @param int $num 数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -92,7 +91,7 @@ class Guide extends BasicWeChat
 
     /**
      * 获取导购聊天记录
-     * @param array $data
+     * @param array $data 查询条件
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -104,8 +103,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 获取导购快捷回复信息
-     * @param array $data
+     * 获取导购快捷回复
+     * @param array $data 导购信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -118,7 +117,7 @@ class Guide extends BasicWeChat
 
     /**
      * 生成导购二维码
-     * @param array $data
+     * @param array $data 导购信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -130,7 +129,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * @param array $data
+     * 推送小程序路径菜单
+     * @param array $data 请求参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -142,8 +142,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 为服务号设置敏感词与自动回复
-     * @param array $data
+     * 设置敏感词与自动回复
+     * @param array $data 配置数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -155,8 +155,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 设置导购快捷回复信息
-     * @param array $data
+     * 设置导购快捷回复
+     * @param array $data 快捷回复数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -168,8 +168,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 更新导购昵称或者头像
-     * @param array $data
+     * 更新导购昵称或头像
+     * @param array $data 导购信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -181,8 +181,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 添加展示标签信息
-     * @param array $data
+     * 添加展示标签
+     * @param array $data 标签数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -195,7 +195,7 @@ class Guide extends BasicWeChat
 
     /**
      * 为粉丝添加可查询标签
-     * @param array $data
+     * @param array $data 标签数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -208,7 +208,7 @@ class Guide extends BasicWeChat
 
     /**
      * 添加标签可选值
-     * @param array $data
+     * @param array $data 选项数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -221,7 +221,7 @@ class Guide extends BasicWeChat
 
     /**
      * 删除粉丝标签
-     * @param array $data
+     * @param array $data 标签数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -233,8 +233,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 查询展示标签信息
-     * @param array $data
+     * 查询展示标签
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -247,7 +247,7 @@ class Guide extends BasicWeChat
 
     /**
      * 查询粉丝标签
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -259,7 +259,7 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 查询标签可选值信息
+     * 查询标签可选值
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -271,8 +271,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 新建可查询标签类型,支持新建4类可查询标签
-     * @param array $data
+     * 新建可查询标签类型
+     * @param array $data 标签数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -284,8 +284,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 根据标签值筛选粉丝
-     * @param array $data
+     * 标签筛选粉丝
+     * @param array $data 标签查询条件
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -298,8 +298,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 为服务号导购添加粉丝
-     * @param array $data
+     * 导购添加粉丝
+     * @param array $data 绑定数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -312,8 +312,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 删除导购的粉丝
-     * @param array $data
+     * 删除导购粉丝
+     * @param array $data 解绑数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -326,8 +326,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 查询某一个粉丝与导购的绑定关系
-     * @param array $data
+     * 查询粉丝绑定关系
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -340,8 +340,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 通过粉丝信息查询该粉丝与导购的绑定关系
-     * @param string $openid
+     * 通过粉丝查询绑定关系
+     * @param string $openid 粉丝 openid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -354,8 +354,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 拉取导购的粉丝列表
-     * @param array $data
+     * 拉取导购粉丝列表
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -368,8 +368,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 将粉丝从一个导购迁移到另外一个导购下
-     * @param array $data
+     * 粉丝迁移导购
+     * @param array $data 迁移数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -383,7 +383,7 @@ class Guide extends BasicWeChat
 
     /**
      * 更新粉丝昵称
-     * @param array $data
+     * @param array $data 昵称数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -396,8 +396,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 删除小程序卡片素材
-     * @param array $data
+     * 删除卡片素材
+     * @param array $data 素材信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -411,7 +411,7 @@ class Guide extends BasicWeChat
 
     /**
      * 删除图片素材
-     * @param array $data
+     * @param array $data 素材信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -425,7 +425,7 @@ class Guide extends BasicWeChat
 
     /**
      * 删除文字素材
-     * @param array $data
+     * @param array $data 素材信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -438,8 +438,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 获取小程序卡片素材信息
-     * @param integer $type
+     * 获取卡片素材
+     * @param int $type 类型
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -452,10 +452,10 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 获取图片素材信息
-     * @param integer $type 操作类型
-     * @param integer $start 分页查询，起始位置
-     * @param integer $num 分页查询，查询个数
+     * 获取图片素材
+     * @param int $type 类型
+     * @param int $start 起始
+     * @param int $num 数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -468,10 +468,10 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 获取文字素材信息
-     * @param integer $type 操作类型
-     * @param integer $start 分页查询，起始位置
-     * @param integer $num 分页查询，查询个数
+     * 获取文字素材
+     * @param int $type 类型
+     * @param int $start 起始
+     * @param int $num 数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -484,8 +484,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 添加小程序卡片素材
-     * @param array $data
+     * 添加卡片素材
+     * @param array $data 素材数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -499,7 +499,7 @@ class Guide extends BasicWeChat
 
     /**
      * 添加图片素材
-     * @param array $data
+     * @param array $data 素材数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -512,8 +512,8 @@ class Guide extends BasicWeChat
     }
 
     /**
-     * 为服务号添加文字素材
-     * @param array $data
+     * 添加文字素材
+     * @param array $data 素材数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

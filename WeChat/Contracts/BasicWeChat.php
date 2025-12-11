@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,42 +20,37 @@ use WeChat\Exceptions\InvalidArgumentException;
 use WeChat\Exceptions\InvalidResponseException;
 
 /**
- * Class BasicWeChat
+ * 微信基础类
  * @package WeChat\Contracts
  */
 class BasicWeChat
 {
 
     /**
+     * 静态缓存
+     * @var static
+     */
+    protected static $cache;
+    /**
      * 当前微信配置
      * @var DataArray
      */
     public $config;
-
     /**
      * 访问AccessToken
      * @var string
      */
     public $access_token = '';
-
     /**
      * 当前请求方法参数
      * @var array
      */
     protected $currentMethod = [];
-
     /**
      * 当前模式
      * @var bool
      */
     protected $isTry = false;
-
-    /**
-     * 静态缓存
-     * @var static
-     */
-    protected static $cache;
-
     /**
      * 注册代替函数
      * @var string
@@ -85,7 +80,7 @@ class BasicWeChat
 
     /**
      * 静态创建对象
-     * @param array $config
+     * @param array $config 配置（appid、appsecret 等）
      * @return static
      */
     public static function instance(array $config)
@@ -93,6 +88,37 @@ class BasicWeChat
         $key = md5(get_called_class() . serialize($config));
         if (isset(self::$cache[$key])) return self::$cache[$key];
         return self::$cache[$key] = new static($config);
+    }
+
+    /**
+     * 接口通用POST请求方法
+     * @param string $url 接口URL
+     * @param array $data POST提交接口参数
+     * @param bool $toJson 是否转换为JSON参数
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function callPostApi($url, array $data, $toJson = true, array $options = [])
+    {
+        $this->registerApi($url, __FUNCTION__, func_get_args());
+        return $this->httpPostForJson($url, $data, $toJson, $options);
+    }
+
+    /**
+     * 注册当前请求接口
+     * @param string $url 接口地址
+     * @param string $method 当前接口方法
+     * @param array $arguments 请求参数
+     * @return string
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    protected function registerApi(&$url, $method, $arguments = [])
+    {
+        $this->currentMethod = ['method' => $method, 'arguments' => $arguments];
+        if (empty($this->access_token)) $this->access_token = $this->getAccessToken();
+        return $url = str_replace('ACCESS_TOKEN', urlencode($this->access_token), $url);
     }
 
     /**
@@ -148,38 +174,6 @@ class BasicWeChat
     }
 
     /**
-     * 清理删除 AccessToken
-     * @return bool
-     */
-    public function delAccessToken()
-    {
-        $this->access_token = '';
-        return Tools::delCache($this->config->get('appid') . '_access_token');
-    }
-
-    /**
-     * 以GET获取接口数据并转为数组
-     * @param string $url 接口地址
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    protected function httpGetForJson($url)
-    {
-        try {
-            return Tools::json2arr(Tools::get($url));
-        } catch (InvalidResponseException $exception) {
-            if (isset($this->currentMethod['method']) && empty($this->isTry)) {
-                if (in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
-                    [$this->delAccessToken(), $this->isTry = true];
-                    return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
-                }
-            }
-            throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
-        }
-    }
-
-    /**
      * 以POST获取接口数据并转为数组
      * @param string $url 接口地址
      * @param array $data 请求数据
@@ -205,39 +199,18 @@ class BasicWeChat
     }
 
     /**
-     * 注册当前请求接口
-     * @param string $url 接口地址
-     * @param string $method 当前接口方法
-     * @param array $arguments 请求参数
-     * @return string
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
+     * 清理删除 AccessToken
+     * @return bool
      */
-    protected function registerApi(&$url, $method, $arguments = [])
+    public function delAccessToken()
     {
-        $this->currentMethod = ['method' => $method, 'arguments' => $arguments];
-        if (empty($this->access_token)) $this->access_token = $this->getAccessToken();
-        return $url = str_replace('ACCESS_TOKEN', urlencode($this->access_token), $url);
+        $this->access_token = '';
+        return Tools::delCache($this->config->get('appid') . '_access_token');
     }
 
     /**
-     * 接口通用POST请求方法
-     * @param string $url 接口URL
-     * @param array $data POST提交接口参数
-     * @param bool $toJson 是否转换为JSON参数
-     * @return array
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public function callPostApi($url, array $data, $toJson = true, array $options = [])
-    {
-        $this->registerApi($url, __FUNCTION__, func_get_args());
-        return $this->httpPostForJson($url, $data, $toJson, $options);
-    }
-
-    /**
-     * 接口通用GET请求方法
-     * @param string $url 接口URL
+     * 通用 GET 请求（自动处理 ACCESS_TOKEN）
+     * @param string $url 接口 URL
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -246,6 +219,72 @@ class BasicWeChat
     {
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpGetForJson($url);
+    }
+
+    /**
+     * 以GET获取接口数据并转为数组
+     * @param string $url 接口地址
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    protected function httpGetForJson($url)
+    {
+        try {
+            return Tools::json2arr(Tools::get($url));
+        } catch (InvalidResponseException $exception) {
+            if (isset($this->currentMethod['method']) && empty($this->isTry)) {
+                if (in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
+                    [$this->delAccessToken(), $this->isTry = true];
+                    return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+                }
+            }
+            throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    /**
+     * 通用接口调用
+     * @param string $url 完整 URL 或相对路径，支持 ACCESS_TOKEN 占位符自动替换
+     * @param array|string $data GET 参数或请求体，数组自动 JSON；字符串原样发送
+     * @param string $method GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS，默认 GET
+     * @return array 解析后的数组
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function callApi($url, $data = [], $method = 'GET')
+    {
+        $method = strtoupper($method);
+
+        // 自动处理ACCESS_TOKEN
+        if (strpos($url, 'ACCESS_TOKEN') !== false) {
+            if (empty($this->access_token)) {
+                $this->access_token = $this->getAccessToken();
+            }
+            $url = str_replace('ACCESS_TOKEN', urlencode($this->access_token), $url);
+        }
+
+        // GET/HEAD/OPTIONS请求（无请求体）
+        if (in_array($method, ['GET', 'HEAD', 'OPTIONS'])) {
+            if (!empty($data) && is_array($data)) {
+                $url .= (strpos($url, '?') !== false ? '&' : '?') . http_build_query($data);
+            }
+            return $this->httpGetForJson($url);
+        }
+
+        // POST/PUT/PATCH/DELETE请求（有请求体）
+        $postData = is_array($data) ? $data : [];
+        $toJson = is_array($data);
+
+        // POST请求使用原有方法（支持自动重试）
+        if ($method === 'POST') {
+            return $this->httpPostForJson($url, $postData, $toJson, []);
+        }
+
+        // PUT/PATCH/DELETE请求直接调用
+        $requestData = is_string($data) ? $data : Tools::arr2json($postData);
+        $response = Tools::doRequest($method, $url, ['data' => $requestData]);
+        return Tools::json2arr($response);
     }
 
 }

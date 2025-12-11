@@ -4,7 +4,6 @@ namespace WeChat\Prpcrypt;
 
 /**
  * PKCS7算法 - 加解密
- * Class PKCS7Encoder
  */
 class PKCS7Encoder
 {

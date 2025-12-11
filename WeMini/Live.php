@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,15 +19,14 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 小程序直播接口
- * Class Live
+ * 小程序直播
  * @package WeMini
  */
 class Live extends BasicWeChat
 {
     /**
      * 创建直播间
-     * @param array $data
+     * @param array $data 房间信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,8 +39,8 @@ class Live extends BasicWeChat
 
     /**
      * 获取直播房间列表
-     * @param integer $start 起始拉取房间
-     * @param integer $limit 每次拉取的个数上限
+     * @param int $start 起始
+     * @param int $limit 数量
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -53,8 +52,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 获取回放源视频
-     * @param array $data
+     * 获取直播/回放信息
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -67,7 +66,7 @@ class Live extends BasicWeChat
 
     /**
      * 直播间导入商品
-     * @param array $data
+     * @param array $data 商品列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -80,7 +79,7 @@ class Live extends BasicWeChat
 
     /**
      * 商品添加并提审
-     * @param array $data
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -92,8 +91,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 商品撤回审核
-     * @param array $data
+     * 撤回商品审核
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -105,8 +104,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 重新提交审核
-     * @param array $data
+     * 重新提交商品审核
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -119,7 +118,7 @@ class Live extends BasicWeChat
 
     /**
      * 删除商品
-     * @param array $data
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -132,7 +131,7 @@ class Live extends BasicWeChat
 
     /**
      * 更新商品
-     * @param array $data
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -145,7 +144,7 @@ class Live extends BasicWeChat
 
     /**
      * 获取商品状态
-     * @param array $data
+     * @param array $data 商品ID列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -158,9 +157,9 @@ class Live extends BasicWeChat
 
     /**
      * 获取商品列表
-     * @param integer $offset 分页条数起点
-     * @param integer $status 商品状态，0：未审核。1：审核中，2：审核通过，3：审核驳回
-     * @param integer $limit 分页大小，默认30，不超过100
+     * @param int $offset 起始
+     * @param int $status 0 未审 |1 审核中 |2 通过 |3 驳回
+     * @param int $limit 数量(<=100)
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -173,7 +172,7 @@ class Live extends BasicWeChat
 
     /**
      * 删除直播间
-     * @param array $data
+     * @param array $data 房间信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -186,7 +185,7 @@ class Live extends BasicWeChat
 
     /**
      * 编辑直播间
-     * @param array $data
+     * @param array $data 房间信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -198,8 +197,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 获取直播间推流地址
-     * @param string $roomId
+     * 获取推流地址
+     * @param string $roomId 房间ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -211,9 +210,9 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 获取直播间分享二维码
-     * @param string $roomId
-     * @param string $params
+     * 获取直播间分享码
+     * @param string $roomId 房间ID
+     * @param string $params 自定义参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -225,8 +224,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 添加管理直播间小助手
-     * @param array $data
+     * 添加小助手
+     * @param array $data 助手信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -238,8 +237,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 修改管理直播间小助手
-     * @param array $data
+     * 修改小助手
+     * @param array $data 助手信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -251,8 +250,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 删除管理直播间小助手
-     * @param array $data
+     * 删除小助手
+     * @param array $data 助手信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -264,8 +263,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 查询管理直播间小助手
-     * @param string $roomId
+     * 查询小助手列表
+     * @param string $roomId 房间ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -278,7 +277,7 @@ class Live extends BasicWeChat
 
     /**
      * 添加主播副号
-     * @param array $data
+     * @param array $data 副号信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -291,7 +290,7 @@ class Live extends BasicWeChat
 
     /**
      * 修改主播副号
-     * @param array $data
+     * @param array $data 副号信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -303,8 +302,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 修删除主播副号
-     * @param array $data
+     * 删除主播副号
+     * @param array $data 副号信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -316,8 +315,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 查询除主播副号
-     * @param string $roomId
+     * 查询主播副号
+     * @param string $roomId 房间ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -329,8 +328,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 开启/关闭直播间官方收录
-     * @param array $data
+     * 开关官方收录
+     * @param array $data 房间配置
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -342,8 +341,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 开启/关闭回放功能
-     * @param array $data
+     * 开关回放
+     * @param array $data 房间配置
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -355,8 +354,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 开启/关闭客服功能
-     * @param array $data
+     * 开关客服
+     * @param array $data 房间配置
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -368,8 +367,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 开启/关闭直播间全局禁言
-     * @param array $data
+     * 开关全局禁言
+     * @param array $data 房间配置
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -382,7 +381,7 @@ class Live extends BasicWeChat
 
     /**
      * 上下架商品
-     * @param array $data
+     * @param array $data 商品参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -395,7 +394,7 @@ class Live extends BasicWeChat
 
     /**
      * 删除直播间商品
-     * @param array $data
+     * @param array $data 商品参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -408,7 +407,7 @@ class Live extends BasicWeChat
 
     /**
      * 推送商品
-     * @param array $data
+     * @param array $data 商品参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -421,7 +420,7 @@ class Live extends BasicWeChat
 
     /**
      * 商品排序
-     * @param array $data
+     * @param array $data 排序参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -434,7 +433,7 @@ class Live extends BasicWeChat
 
     /**
      * 下载商品讲解视频
-     * @param array $data
+     * @param array $data 商品信息
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -447,7 +446,7 @@ class Live extends BasicWeChat
 
     /**
      * 获取长期订阅用户
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -459,8 +458,8 @@ class Live extends BasicWeChat
     }
 
     /**
-     * 长期订阅群发接口
-     * @param array $data
+     * 长订阅群发
+     * @param array $data 消息参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -474,7 +473,7 @@ class Live extends BasicWeChat
 
     /**
      * 设置成员角色
-     * @param array $data
+     * @param array $data 角色参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -488,7 +487,7 @@ class Live extends BasicWeChat
 
     /**
      * 解除成员角色
-     * @param array $data
+     * @param array $data 角色参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -502,10 +501,10 @@ class Live extends BasicWeChat
 
     /**
      * 查询成员角色
-     * @param int $role
-     * @param int $offset
-     * @param int $limit
-     * @param string $keyword
+     * @param int $role 角色过滤，-1 全部
+     * @param int $offset 起始
+     * @param int $limit 数量
+     * @param string $keyword 关键词
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

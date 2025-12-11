@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,14 +21,13 @@ use WeChat\Contracts\Tools;
 
 /**
  * 客服消息处理
- * Class Custom
  * @package WeChat
  */
 class Custom extends BasicWeChat
 {
     /**
      * 添加客服帐号
-     * @param string $kf_account 客服账号
+     * @param string $kf_account 客服账号，格式 账号前缀@公众号微信号
      * @param string $nickname 客服昵称
      * @return array
      * @throws Exceptions\InvalidResponseException
@@ -69,7 +68,7 @@ class Custom extends BasicWeChat
 
     /**
      * 邀请绑定客服帐号
-     * @param string $kfAccount 完整客服帐号，格式为：帐号前缀@公众号微信号
+     * @param string $kfAccount 客服账号，格式 账号前缀@公众号微信号
      * @param string $invite_wx 接收绑定邀请的客服微信号
      * @return array
      * @throws Exceptions\InvalidResponseException
@@ -82,7 +81,7 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 获取所有客服账号
+     * 获取客服账号列表
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -94,9 +93,9 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 设置客服帐号的头像
-     * @param string $kf_account 客户账号
-     * @param string $image 头像文件位置
+     * 设置客服头像
+     * @param string $kf_account 客服账号
+     * @param string $image 本地图片路径
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -108,8 +107,8 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 客服接口-发消息
-     * @param array $data
+     * 发送客服消息
+     * @param array $data 消息体（touser, msgtype, content 等）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -121,9 +120,9 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 客服输入状态
-     * @param string $openid 普通用户（openid）
-     * @param string $command Typing:正在输入,CancelTyping:取消正在输入
+     * 设置客服输入状态
+     * @param string $openid 用户 openid
+     * @param string $command Typing|CancelTyping
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -135,8 +134,8 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 根据标签进行群发【订阅号与服务号认证后均可用】
-     * @param array $data
+     * 根据标签群发
+     * @param array $data 群发参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -148,8 +147,8 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 根据OpenID列表群发【订阅号不可用，服务号认证后可用】
-     * @param array $data
+     * 根据 OpenID 列表群发
+     * @param array $data 群发参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -161,9 +160,9 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 删除群发【订阅号与服务号认证后均可用】
-     * @param integer $msg_id 发送出去的消息ID
-     * @param null|integer $article_idx 要删除的文章在图文消息中的位置，第一篇编号为1，该字段不填或填0会删除全部文章
+     * 删除群发
+     * @param int $msg_id 群发消息ID
+     * @param null|int $article_idx 图文位置，0 删除全部
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -177,8 +176,8 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 预览接口【订阅号与服务号认证后均可用】
-     * @param array $data
+     * 群发预览
+     * @param array $data 预览参数
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -190,8 +189,8 @@ class Custom extends BasicWeChat
     }
 
     /**
-     * 查询群发消息发送状态【订阅号与服务号认证后均可用】
-     * @param integer $msgId 群发消息后返回的消息id
+     * 查询群发状态
+     * @param int $msgId 群发消息ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -216,7 +215,7 @@ class Custom extends BasicWeChat
 
     /**
      * 设置群发速度
-     * @param integer $speed 群发速度的级别
+     * @param int $speed 速度级别
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,18 +20,17 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信网页授权
- * Class Oauth
  * @package WeChat
  */
 class Oauth extends BasicWeChat
 {
 
     /**
-     * Oauth 授权跳转接口
-     * @param string $redirect_url 授权回跳地址
-     * @param string $state 为重定向后会带上state参数（填写a-zA-Z0-9的参数值，最多128字节）
-     * @param string $scope 授权类类型(可选值snsapi_base|snsapi_userinfo)
-     * @return string
+     * 构造网页授权跳转链接
+     * @param string $redirect_url 回调地址
+     * @param string $state 自定义状态（<=128 字节）
+     * @param string $scope snsapi_base|snsapi_userinfo
+     * @return string 跳转 URL
      */
     public function getOauthRedirect($redirect_url, $state = '', $scope = 'snsapi_base')
     {
@@ -41,8 +40,8 @@ class Oauth extends BasicWeChat
     }
 
     /**
-     * 通过 code 获取 AccessToken 和 openid
-     * @param string $code 授权Code值，不传则取GET参数
+     * 通过 code 换取 access_token/refresh_token/openid
+     * @param string $code 授权 code，不传则取 GET 参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -57,8 +56,8 @@ class Oauth extends BasicWeChat
     }
 
     /**
-     * 刷新AccessToken并续期
-     * @param string $refresh_token
+     * 刷新网页授权 access_token
+     * @param string $refresh_token 刷新 token
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -71,9 +70,9 @@ class Oauth extends BasicWeChat
     }
 
     /**
-     * 检验授权凭证（access_token）是否有效
-     * @param string $accessToken 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
-     * @param string $openid 用户的唯一标识
+     * 校验网页授权 access_token 是否有效
+     * @param string $accessToken 网页授权 access_token
+     * @param string $openid 用户 openid
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -85,10 +84,10 @@ class Oauth extends BasicWeChat
     }
 
     /**
-     * 拉取用户信息(需scope为 snsapi_userinfo)
-     * @param string $accessToken 网页授权接口调用凭证,注意：此access_token与基础支持的access_token不同
-     * @param string $openid 用户的唯一标识
-     * @param string $lang 返回国家地区语言版本，zh_CN 简体，zh_TW 繁体，en 英语
+     * 拉取用户信息（snsapi_userinfo）
+     * @param string $accessToken 网页授权 access_token
+     * @param string $openid 用户 openid
+     * @param string $lang zh_CN|zh_TW|en
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

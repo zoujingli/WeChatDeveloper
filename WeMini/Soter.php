@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序生物认证
- * Class Soter
  * @package WeMini
  */
 class Soter extends BasicWeChat
 {
     /**
-     * SOTER 生物认证秘钥签名验证
-     * @param array $data
+     * SOTER 签名验证
+     * @param array $data 签名数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

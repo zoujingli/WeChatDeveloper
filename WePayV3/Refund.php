@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -28,9 +28,9 @@ use WePayV3\Contracts\BasicWePay;
 class Refund extends BasicWePay
 {
     /**
-     * 创建退款订单
-     * @param array $data 退款参数
-     * @return array
+     * 创建退款订单（兼容入口，转调 Order::createRefund）
+     * @param array $data 退款参数（out_trade_no 或 transaction_id，out_refund_no，amount 等）
+     * @return array 退款结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -41,9 +41,9 @@ class Refund extends BasicWePay
     }
 
     /**
-     * 退款订单查询
-     * @param string $refundNo 退款单号
-     * @return array
+     * 退款订单查询（兼容入口）
+     * @param string $refundNo 商户退款单号 out_refund_no
+     * @return array 退款详情
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -55,9 +55,9 @@ class Refund extends BasicWePay
     }
 
     /**
-     * 获取退款通知
-     * @param mixed $xml
-     * @return array
+     * 获取退款通知（兼容入口，转调 Order::notify）
+     * @param mixed $xml 通知原文
+     * @return array 解密后的通知数据
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

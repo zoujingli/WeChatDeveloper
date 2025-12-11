@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,15 +20,14 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 模板消息
- * Class Template
  * @package WeChat
  */
 class Template extends BasicWeChat
 {
     /**
-     * 设置所属行业
-     * @param string $industryId1 公众号模板消息所属行业编号
-     * @param string $industryId2 公众号模板消息所属行业编号
+     * 设置模板消息所属行业
+     * @param string $industryId1 行业编号
+     * @param string $industryId2 行业编号
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -40,7 +39,7 @@ class Template extends BasicWeChat
     }
 
     /**
-     * 获取设置的行业信息
+     * 获取已设置的行业信息
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -52,9 +51,9 @@ class Template extends BasicWeChat
     }
 
     /**
-     * 获得模板ID
-     * @param string $templateIdShort 板库中模板的编号，有“TM**”和“OPENTMTM**”等形式
-     * @param array $keywordNameList 选用的类目模板的关键词
+     * 领取模板 ID
+     * @param string $templateIdShort 模板编号（如 TM** 或 OPENTMTM**）
+     * @param array $keywordNameList 选用关键词
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -66,7 +65,7 @@ class Template extends BasicWeChat
     }
 
     /**
-     * 获取模板列表
+     * 获取私有模板列表
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -78,8 +77,8 @@ class Template extends BasicWeChat
     }
 
     /**
-     * 删除模板ID
-     * @param string $tplId 公众帐号下模板消息ID
+     * 删除模板
+     * @param string $tplId 模板 ID
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException
@@ -92,7 +91,7 @@ class Template extends BasicWeChat
 
     /**
      * 发送模板消息
-     * @param array $data
+     * @param array $data 消息内容（touser, template_id, data 等）
      * @return array
      * @throws Exceptions\InvalidResponseException
      * @throws Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -18,8 +18,7 @@ namespace WeChat\Exceptions;
 
 /**
  * 加密解密异常
- * Class InvalidResponseException
- * @package WeChat
+ * @package WeChat\Exceptions
  */
 class InvalidDecryptException extends \Exception
 {

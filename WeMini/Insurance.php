@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序运费险
- * Class Insurance
  * @package WeMini
  */
 class Insurance extends BasicWeChat
 {
 
     /**
-     * 开通无忧退货接口
+     * 开通无忧退货
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,7 +38,7 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 查询开通状态接口
+     * 查询开通状态
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -51,8 +50,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 投保接口(发货时投保)
-     * @param array $data
+     * 发货投保
+     * @param array $data 投保数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -64,8 +63,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 理赔接口 (收到用户退货后再触发)
-     * @param array $data
+     * 退货理赔
+     * @param array $data 理赔数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -77,8 +76,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 申请充值订单号接口 (支持自定义金额)
-     * @param array $data
+     * 申请充值订单号
+     * @param array $data 充值请求
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -90,8 +89,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 申请支付接口
-     * @param array $data
+     * 申请支付
+     * @param array $data 支付数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -103,8 +102,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 拉取充值订单信息接口
-     * @param array $data
+     * 拉取充值订单
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -117,8 +116,8 @@ class Insurance extends BasicWeChat
 
 
     /**
-     * 退款接口
-     * @param array $data
+     * 保险退款
+     * @param array $data 退款参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -130,8 +129,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 拉取摘要接口 (查询当前保费、投保单量、理赔单量、账号余额等信息)
-     * @param array $data
+     * 获取保费摘要
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -143,8 +142,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 拉取保单信息接口
-     * @param array $data
+     * 拉取保单信息
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -156,8 +155,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 设置告警余额接口
-     * @param array $data
+     * 设置告警余额
+     * @param array $data 配置参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -170,7 +169,7 @@ class Insurance extends BasicWeChat
 
     /**
      * 创建退货 ID
-     * @param array $data
+     * @param array $data 退货参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -183,7 +182,7 @@ class Insurance extends BasicWeChat
 
     /**
      * 查询退货 ID 状态
-     * @param array $data
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -195,8 +194,8 @@ class Insurance extends BasicWeChat
     }
 
     /**
-     * 查解绑退货 ID
-     * @param array $data
+     * 解绑退货 ID
+     * @param array $data 解绑参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

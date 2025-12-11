@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 扫一扫接入管理
- * Class Scan
  * @package WeChat
  */
 class Scan extends BasicWeChat
@@ -39,7 +38,7 @@ class Scan extends BasicWeChat
 
     /**
      * 创建商品
-     * @param array $data
+     * @param array $data 商品数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -51,10 +50,10 @@ class Scan extends BasicWeChat
     }
 
     /**
-     * 商品发布
+     * 商品发布/取消
      * @param string $keystandard 商品编码标准
      * @param string $keystr 商品编码内容
-     * @param string $status 设置发布状态。on为提交审核，off为取消发布
+     * @param string $status on 提交审核 | off 取消
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -68,8 +67,8 @@ class Scan extends BasicWeChat
 
     /**
      * 设置测试人员白名单
-     * @param array $openids 测试人员的openid列表
-     * @param array $usernames 测试人员的微信号列表
+     * @param array $openids openid 列表
+     * @param array $usernames 微信号列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -82,10 +81,10 @@ class Scan extends BasicWeChat
 
     /**
      * 获取商品二维码
-     * @param string $keystandard
-     * @param string $keystr
-     * @param null|string $extinfo
-     * @param integer $qrcode_size
+     * @param string $keystandard 编码标准
+     * @param string $keystr 编码内容
+     * @param null|string $extinfo 自定义标识
+     * @param int $qrcode_size 边长像素
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -114,10 +113,10 @@ class Scan extends BasicWeChat
 
     /**
      * 批量查询商品信息
-     * @param integer $offset 批量查询的起始位置，从0开始，包含该起始位置。
-     * @param integer $limit 批量查询的数量。
-     * @param string $status 支持按状态拉取。on为发布状态，off为未发布状态，check为审核中状态，reject为审核未通过状态，all为所有状态。
-     * @param string $keystr 支持按部分编码内容拉取。填写该参数后，可将编码内容中包含所传参数的商品信息拉出。类似关键词搜索。
+     * @param int $offset 起始位置
+     * @param int $limit 数量
+     * @param string $status on|off|check|reject|all
+     * @param string $keystr 关键词过滤
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -133,7 +132,7 @@ class Scan extends BasicWeChat
 
     /**
      * 更新商品信息
-     * @param array $data
+     * @param array $data 商品数据
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -159,7 +158,7 @@ class Scan extends BasicWeChat
     }
 
     /**
-     * 检查wxticket参数
+     * 检查 wxticket 参数
      * @param string $ticket
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -175,7 +174,7 @@ class Scan extends BasicWeChat
      * 清除扫码记录
      * @param string $keystandard 商品编码标准
      * @param string $keystr 商品编码内容
-     * @param string $extinfo 调用“获取商品二维码接口”时传入的extinfo，为标识参数
+     * @param string $extinfo 二维码接口时的 extinfo
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -48,7 +48,6 @@ use WeChat\Exceptions\LocalCacheException;
 
 /**
  * 网络请求支持
- * Class Tools
  * @package WeChat\Contracts
  */
 class Tools
@@ -115,61 +114,6 @@ class Tools
     }
 
     /**
-     * 根据文件后缀获取文件类型
-     * @param string|array $ext 文件后缀
-     * @param array $mine 文件后缀MINE信息
-     * @return string
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public static function getExtMine($ext, $mine = [])
-    {
-        $mines = self::getMines();
-        foreach (is_string($ext) ? explode(',', $ext) : $ext as $e) {
-            $mine[] = isset($mines[strtolower($e)]) ? $mines[strtolower($e)] : 'application/octet-stream';
-        }
-        return join(',', array_unique($mine));
-    }
-
-    /**
-     * 获取所有文件扩展的类型
-     * @return array
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    private static function getMines()
-    {
-        $mines = self::getCache('all_ext_mine');
-        if (empty($mines)) {
-            $content = file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types');
-            preg_match_all('#^([^\s]{2,}?)\s+(.+?)$#ism', $content, $matches, PREG_SET_ORDER);
-            foreach ($matches as $match) foreach (explode(" ", $match[2]) as $ext) $mines[$ext] = $match[1];
-            self::setCache('all_ext_mine', $mines);
-        }
-        return $mines;
-    }
-
-    /**
-     * 创建CURL文件对象
-     * @param mixed $filename
-     * @param string $mimetype
-     * @param string $postname
-     * @return \CURLFile|string
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public static function createCurlFile($filename, $mimetype = null, $postname = null)
-    {
-        if (is_string($filename) && file_exists($filename)) {
-            if (is_null($postname)) $postname = basename($filename);
-            if (is_null($mimetype)) $mimetype = self::getExtMine(pathinfo($filename, 4));
-            if (class_exists('CURLFile')) {
-                return new \CURLFile($filename, $mimetype, $postname);
-            } else {
-                return "@{$filename};filename={$postname};type={$mimetype}";
-            }
-        }
-        return $filename;
-    }
-
-    /**
      * 数组转XML内容
      * @param array $data
      * @return string
@@ -203,6 +147,17 @@ class Tools
     }
 
     /**
+     * 解析XML文本内容
+     * @param string $xml
+     * @return array|false
+     */
+    public static function xml3arr($xml)
+    {
+        $state = xml_parse($parser = xml_parser_create(), $xml, true);
+        return xml_parser_free($parser) && $state ? self::xml2arr($xml) : false;
+    }
+
+    /**
      * 解析XML内容到数组
      * @param string $xml
      * @return array
@@ -217,17 +172,6 @@ class Tools
             $data = (array)simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         }
         return json_decode(json_encode($data), true);
-    }
-
-    /**
-     * 解析XML文本内容
-     * @param string $xml
-     * @return array|false
-     */
-    public static function xml3arr($xml)
-    {
-        $state = xml_parse($parser = xml_parser_create(), $xml, true);
-        return xml_parser_free($parser) && $state ? self::xml2arr($xml) : false;
     }
 
     /**
@@ -261,6 +205,18 @@ class Tools
     }
 
     /**
+     * Emoji原形转换为String
+     * @param string $content
+     * @return string
+     */
+    public static function emojiEncode($content)
+    {
+        return json_decode(preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($string) {
+            return addslashes($string[0]);
+        }, json_encode($content)));
+    }
+
+    /**
      * 数组对象Emoji反解析处理
      * @param array $data
      * @return array
@@ -277,18 +233,6 @@ class Tools
             }
         }
         return $data;
-    }
-
-    /**
-     * Emoji原形转换为String
-     * @param string $content
-     * @return string
-     */
-    public static function emojiEncode($content)
-    {
-        return json_decode(preg_replace_callback("/(\\\u[ed][0-9a-f]{3})/i", function ($string) {
-            return addslashes($string[0]);
-        }, json_encode($content)));
     }
 
     /**
@@ -336,20 +280,6 @@ class Tools
     }
 
     /**
-     * 以post访问模拟访问
-     * @param string $url 访问URL
-     * @param array $data POST数据
-     * @param array $options
-     * @return boolean|string
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public static function post($url, $data = [], $options = [])
-    {
-        $options['data'] = $data;
-        return self::doRequest('post', $url, $options);
-    }
-
-    /**
      * CURL模拟网络请求
      * @param string $method 请求方法
      * @param string $url 请求方法
@@ -368,9 +298,14 @@ class Tools
         if (!empty($options['headers'])) {
             curl_setopt($curl, CURLOPT_HTTPHEADER, $options['headers']);
         }
-        // POST数据设置
-        if (strtolower($method) === 'post') {
-            curl_setopt($curl, CURLOPT_POST, true);
+        // POST/PUT/PATCH/DELETE数据设置
+        $methodLower = strtolower($method);
+        if (in_array($methodLower, ['post', 'put', 'patch', 'delete'])) {
+            if ($methodLower === 'post') {
+                curl_setopt($curl, CURLOPT_POST, true);
+            } else {
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+            }
             curl_setopt($curl, CURLOPT_POSTFIELDS, self::_buildHttpData($options['data']));
         }
         // 证书文件设置
@@ -384,7 +319,7 @@ class Tools
             curl_setopt($curl, CURLOPT_SSLKEY, $options['ssl_key']);
         } else throw new InvalidArgumentException("Certificate files that do not exist. --- [ssl_key]");
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+        curl_setopt($curl, CURLOPT_TIMEOUT, isset($options['timeout']) ? intval($options['timeout']) : 60);
         curl_setopt($curl, CURLOPT_HEADER, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -431,43 +366,58 @@ class Tools
     }
 
     /**
-     * 写入文件
-     * @param string $name 文件名称
-     * @param string $content 文件内容
-     * @return string
+     * 创建CURL文件对象
+     * @param mixed $filename
+     * @param string $mimetype
+     * @param string $postname
+     * @return \CURLFile|string
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public static function pushFile($name, $content)
+    public static function createCurlFile($filename, $mimetype = null, $postname = null)
     {
-        if (is_callable(self::$cache_callable['put'])) {
-            return call_user_func_array(self::$cache_callable['put'], func_get_args());
+        if (is_string($filename) && file_exists($filename)) {
+            if (is_null($postname)) $postname = basename($filename);
+            if (is_null($mimetype)) $mimetype = self::getExtMine(pathinfo($filename, 4));
+            if (class_exists('CURLFile')) {
+                return new \CURLFile($filename, $mimetype, $postname);
+            } else {
+                return "@{$filename};filename={$postname};type={$mimetype}";
+            }
         }
-        $file = self::_getCacheName($name);
-        if (!file_put_contents($file, $content)) {
-            throw new LocalCacheException('local file write error.', '0');
-        }
-        return $file;
+        return $filename;
     }
 
     /**
-     * 缓存配置与存储
-     * @param string $name 缓存名称
-     * @param string $value 缓存内容
-     * @param int $expired 缓存时间(0表示永久缓存)
+     * 根据文件后缀获取文件类型
+     * @param string|array $ext 文件后缀
+     * @param array $mine 文件后缀MINE信息
      * @return string
      * @throws \WeChat\Exceptions\LocalCacheException
      */
-    public static function setCache($name, $value = '', $expired = 3600)
+    public static function getExtMine($ext, $mine = [])
     {
-        if (is_callable(self::$cache_callable['set'])) {
-            return call_user_func_array(self::$cache_callable['set'], func_get_args());
+        $mines = self::getMines();
+        foreach (is_string($ext) ? explode(',', $ext) : $ext as $e) {
+            $mine[] = isset($mines[strtolower($e)]) ? $mines[strtolower($e)] : 'application/octet-stream';
         }
-        $file = self::_getCacheName($name);
-        $data = ['name' => $name, 'value' => $value, 'expired' => time() + intval($expired)];
-        if (!file_put_contents($file, serialize($data))) {
-            throw new LocalCacheException('local cache error.', '0');
+        return join(',', array_unique($mine));
+    }
+
+    /**
+     * 获取所有文件扩展的类型
+     * @return array
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    private static function getMines()
+    {
+        $mines = self::getCache('all_ext_mine');
+        if (empty($mines)) {
+            $content = file_get_contents('http://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types');
+            preg_match_all('#^([^\s]{2,}?)\s+(.+?)$#ism', $content, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) foreach (explode(" ", $match[2]) as $ext) $mines[$ext] = $match[1];
+            self::setCache('all_ext_mine', $mines);
         }
-        return $file;
+        return $mines;
     }
 
     /**
@@ -492,6 +442,23 @@ class Tools
     }
 
     /**
+     * 应用缓存目录
+     * @param string $name
+     * @return string
+     */
+    private static function _getCacheName($name)
+    {
+        if (empty(self::$cache_path)) {
+            self::$cache_path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR;
+        }
+        $cachePath = rtrim((string)self::$cache_path, '/\\') . DIRECTORY_SEPARATOR;
+        if (!file_exists($cachePath)) {
+            mkdir($cachePath, 0755, true);
+        }
+        return $cachePath . $name;
+    }
+
+    /**
      * 移除缓存文件
      * @param string $name 缓存名称
      * @return boolean
@@ -506,17 +473,56 @@ class Tools
     }
 
     /**
-     * 应用缓存目录
-     * @param string $name
+     * 缓存配置与存储
+     * @param string $name 缓存名称
+     * @param string $value 缓存内容
+     * @param int $expired 缓存时间(0表示永久缓存)
      * @return string
+     * @throws \WeChat\Exceptions\LocalCacheException
      */
-    private static function _getCacheName($name)
+    public static function setCache($name, $value = '', $expired = 3600)
     {
-        if (empty(self::$cache_path)) {
-            self::$cache_path = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR;
+        if (is_callable(self::$cache_callable['set'])) {
+            return call_user_func_array(self::$cache_callable['set'], func_get_args());
         }
-        self::$cache_path = rtrim(self::$cache_path, '/\\') . DIRECTORY_SEPARATOR;
-        file_exists(self::$cache_path) || mkdir(self::$cache_path, 0755, true);
-        return self::$cache_path . $name;
+        $file = self::_getCacheName($name);
+        $data = ['name' => $name, 'value' => $value, 'expired' => time() + intval($expired)];
+        if (!file_put_contents($file, serialize($data))) {
+            throw new LocalCacheException('local cache error.', '0');
+        }
+        return $file;
+    }
+
+    /**
+     * 以post访问模拟访问
+     * @param string $url 访问URL
+     * @param array $data POST数据
+     * @param array $options
+     * @return boolean|string
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public static function post($url, $data = [], $options = [])
+    {
+        $options['data'] = $data;
+        return self::doRequest('post', $url, $options);
+    }
+
+    /**
+     * 写入文件
+     * @param string $name 文件名称
+     * @param string $content 文件内容
+     * @return string
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public static function pushFile($name, $content)
+    {
+        if (is_callable(self::$cache_callable['put'])) {
+            return call_user_func_array(self::$cache_callable['put'], func_get_args());
+        }
+        $file = self::_getCacheName($name);
+        if (!file_put_contents($file, $content)) {
+            throw new LocalCacheException('local file write error.', '0');
+        }
+        return $file;
     }
 }

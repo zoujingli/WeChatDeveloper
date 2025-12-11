@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -22,7 +22,6 @@ use WeChat\Exceptions\InvalidResponseException;
 
 /**
  * 微信前端支持
- * Class Script
  * @package WeChat
  */
 class Script extends BasicWeChat
@@ -42,37 +41,11 @@ class Script extends BasicWeChat
     }
 
     /**
-     * 获取JSAPI_TICKET接口
-     * @param string $type TICKET类型(wx_card|jsapi)
-     * @param string $appid 强制指定有效APPID
-     * @return string
-     * @throws \WeChat\Exceptions\InvalidResponseException
-     * @throws \WeChat\Exceptions\LocalCacheException
-     */
-    public function getTicket($type = 'jsapi', $appid = null)
-    {
-        is_null($appid) && $appid = $this->config->get('appid');
-        $cache_name = "{$appid}_ticket_{$type}";
-        $ticket = Tools::getCache($cache_name);
-        if (empty($ticket)) {
-            $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type={$type}";
-            $this->registerApi($url, __FUNCTION__, func_get_args());
-            $result = $this->httpGetForJson($url);
-            if (empty($result['ticket'])) {
-                throw new InvalidResponseException('Invalid Resoponse Ticket.', '0');
-            }
-            $ticket = $result['ticket'];
-            Tools::setCache($cache_name, $ticket, 7000);
-        }
-        return $ticket;
-    }
-
-    /**
-     * 获取JsApi使用签名
-     * @param string $url 网页的URL
-     * @param string $appid 用于多个appid时使用(可空)
-     * @param string $ticket 强制指定ticket
-     * @param array $jsApiList 需初始化的 jsApiList
+     * 获取 JSAPI 签名
+     * @param string $url 当前页面 URL（不含 #）
+     * @param string $appid 可选指定 appid
+     * @param string $ticket 可选指定 ticket
+     * @param array $jsApiList 需注入的 API 列表
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -101,11 +74,37 @@ class Script extends BasicWeChat
     }
 
     /**
+     * 获取 JSAPI_TICKET
+     * @param string $type jsapi|wx_card
+     * @param string $appid 可选指定 appid
+     * @return string ticket
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function getTicket($type = 'jsapi', $appid = null)
+    {
+        is_null($appid) && $appid = $this->config->get('appid');
+        $cache_name = "{$appid}_ticket_{$type}";
+        $ticket = Tools::getCache($cache_name);
+        if (empty($ticket)) {
+            $url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type={$type}";
+            $this->registerApi($url, __FUNCTION__, func_get_args());
+            $result = $this->httpGetForJson($url);
+            if (empty($result['ticket'])) {
+                throw new InvalidResponseException('Invalid Resoponse Ticket.', '0');
+            }
+            $ticket = $result['ticket'];
+            Tools::setCache($cache_name, $ticket, 7000);
+        }
+        return $ticket;
+    }
+
+    /**
      * 数据生成签名
-     * @param array $data 签名数组
+     * @param array $data 待签名数据
      * @param string $method 签名方法
-     * @param array $params 签名参数
-     * @return bool|string 签名值
+     * @param array $params 额外参数
+     * @return bool|string
      */
     protected function getSignature($data, $method = "sha1", $params = [])
     {

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,16 +19,15 @@ namespace WeMini;
 use WeChat\Contracts\BasicWeChat;
 
 /**
- * 微信小程序数据接口
- * Class Total
+ * 小程序数据统计
  * @package WeMini
  */
 class Total extends BasicWeChat
 {
     /**
-     * 数据分析接口
+     * 概况趋势（日）
      * @param string $beginDate 开始日期
-     * @param string $endDate 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $endDate 结束日期，需同一天
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,9 +39,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 访问分析
+     * 访问趋势（日）
      * @param string $beginDate 开始日期
-     * @param string $endDate 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $endDate 结束日期，需同一天
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -54,9 +53,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 周趋势
-     * @param string $begin_date 开始日期，为周一日期
-     * @param string $end_date 结束日期，为周日日期，限定查询一周数据
+     * 访问趋势（周）
+     * @param string $begin_date 周一
+     * @param string $end_date 周日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -68,9 +67,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 月趋势
-     * @param string $begin_date 开始日期，为自然月第一天
-     * @param string $end_date 结束日期，为自然月最后一天，限定查询一个月数据
+     * 访问趋势（月）
+     * @param string $begin_date 月首日
+     * @param string $end_date 月末日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -84,7 +83,7 @@ class Total extends BasicWeChat
     /**
      * 访问分布
      * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $end_date 结束日期，需同一天
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -96,9 +95,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 日留存
+     * 留存（日）
      * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $end_date 结束日期，需同一天
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -110,9 +109,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 周留存
-     * @param string $begin_date 开始日期，为周一日期
-     * @param string $end_date 结束日期，为周日日期，限定查询一周数据
+     * 留存（周）
+     * @param string $begin_date 周一
+     * @param string $end_date 周日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -124,9 +123,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 月留存
-     * @param string $begin_date 开始日期，为自然月第一天
-     * @param string $end_date 结束日期，为自然月最后一天，限定查询一个月数据
+     * 留存（月）
+     * @param string $begin_date 月首日
+     * @param string $end_date 月末日
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -138,9 +137,9 @@ class Total extends BasicWeChat
     }
 
     /**
-     * 访问页面
+     * 访问页面数据
      * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，限定查询1天数据，end_date允许设置的最大值为昨日
+     * @param string $end_date 结束日期，需同一天
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -154,7 +153,7 @@ class Total extends BasicWeChat
     /**
      * 用户画像
      * @param string $begin_date 开始日期
-     * @param string $end_date 结束日期，开始日期与结束日期相差的天数限定为0/6/29，分别表示查询最近1/7/30天数据，end_date允许设置的最大值为昨日
+     * @param string $end_date 结束日期，间隔为0/6/29
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

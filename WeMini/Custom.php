@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序客服服务
- * Class Custom
  * @package WeMini
  */
 class Custom extends BasicWeChat
@@ -28,7 +27,7 @@ class Custom extends BasicWeChat
 
     /**
      * 创建商户
-     * @param array $data
+     * @param array $data 商户资料
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -41,7 +40,7 @@ class Custom extends BasicWeChat
 
     /**
      * 更新商户信息
-     * @param array $data
+     * @param array $data 商户资料
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -54,8 +53,8 @@ class Custom extends BasicWeChat
 
 
     /**
-     * 拉取单个商户信息
-     * @param array $data
+     * 查询单个商户
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -68,8 +67,8 @@ class Custom extends BasicWeChat
 
 
     /**
-     * 拉取多个商户信息
-     * @param array $data
+     * 查询商户列表
+     * @param array $data 查询参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -82,7 +81,7 @@ class Custom extends BasicWeChat
 
     /**
      * 发送客服消息
-     * @param array $data
+     * @param array $data 消息体（touser, msgtype, content 等）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -95,7 +94,7 @@ class Custom extends BasicWeChat
 
     /**
      * 客服输入状态
-     * @param array $data
+     * @param array $data 输入状态参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -108,8 +107,8 @@ class Custom extends BasicWeChat
 
 
     /**
-     * 获取客服基本信息
-     * @param string $business_id 客服子商户的business_id，对于普通小程序客服不需要填business_id
+     * 获取客服列表
+     * @param string $business_id 子商户 business_id，普通小程序可为空
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -126,7 +125,7 @@ class Custom extends BasicWeChat
 
     /**
      * 获取在线客服列表
-     * @param string $business_id 客服子商户的business_id，对于普通小程序客服不需要填business_id
+     * @param string $business_id 子商户 business_id，普通小程序可为空
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -142,8 +141,8 @@ class Custom extends BasicWeChat
 
 
     /**
-     * 客服输入状态
-     * @param array $data
+     * 新增客服账号
+     * @param array $data 账号参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -157,8 +156,8 @@ class Custom extends BasicWeChat
 
     /**
      * 删除客服账号
-     * @param string $kf_openid 客服openid
-     * @param string $business_id 客服子商户的business_id，对于普通小程序客服不需要填business_id
+     * @param string $kf_openid 客服 openid
+     * @param string $business_id 子商户 business_id，可为空
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -174,8 +173,8 @@ class Custom extends BasicWeChat
 
     /**
      * 设置客服管理员
-     * @param string $kf_openid 客服openid
-     * @param string $business_id 客服子商户的business_id，对于普通小程序客服不需要填business_id
+     * @param string $kf_openid 客服 openid
+     * @param string $business_id 子商户 business_id，可为空
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -192,8 +191,8 @@ class Custom extends BasicWeChat
 
     /**
      * 取消客服管理员
-     * @param string $kf_openid 客服openid
-     * @param string $business_id 客服子商户的business_id，对于普通小程序客服不需要填business_id
+     * @param string $kf_openid 客服 openid
+     * @param string $business_id 子商户 business_id，可为空
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

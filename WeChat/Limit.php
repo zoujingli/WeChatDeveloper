@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 接口调用频次限制
- * Class Limit
  * @package WeChat
  */
 class Limit extends BasicWeChat
 {
 
     /**
-     * 公众号调用或第三方平台帮公众号调用对公众号的所有api调用（包括第三方帮其调用）次数进行清零
+     * 清空公众号 API 调用次数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -40,8 +39,8 @@ class Limit extends BasicWeChat
 
     /**
      * 网络检测
-     * @param string $action 执行的检测动作
-     * @param string $operator 指定平台从某个运营商进行检测
+     * @param string $action ping|dns|all
+     * @param string $operator DEFAULT|CT|CU|CM
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -53,7 +52,7 @@ class Limit extends BasicWeChat
     }
 
     /**
-     * 获取微信服务器IP地址
+     * 获取微信服务器 IP
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -23,7 +23,6 @@ use WeChat\Prpcrypt\Prpcrypt;
 
 /**
  * 微信通知处理基本类
- * Class BasicPushEvent
  * @package WeChat\Contracts
  */
 class BasicPushEvent
@@ -119,6 +118,30 @@ class BasicPushEvent
     }
 
     /**
+     * 消息是否需要加密
+     * @return boolean
+     */
+    public function isEncrypt()
+    {
+        return $this->encryptType === 'aes';
+    }
+
+    /**
+     * 验证来自微信服务器
+     * @return bool
+     */
+    private function checkSignature()
+    {
+        $nonce = $this->input->get('nonce');
+        $timestamp = $this->input->get('timestamp');
+        $msg_signature = $this->input->get('msg_signature');
+        $signature = empty($msg_signature) ? $this->input->get('signature') : $msg_signature;
+        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, ''];
+        sort($tmpArr, SORT_STRING);
+        return sha1(implode($tmpArr)) === $signature;
+    }
+
+    /**
      * 获取回显字串
      * @return string
      */
@@ -129,15 +152,6 @@ class BasicPushEvent
         } else {
             return '';
         }
-    }
-
-    /**
-     * 消息是否需要加密
-     * @return boolean
-     */
-    public function isEncrypt()
-    {
-        return $this->encryptType === 'aes';
     }
 
     /**
@@ -169,21 +183,6 @@ class BasicPushEvent
         if ($return) return $xml;
         @ob_clean();
         echo $xml;
-    }
-
-    /**
-     * 验证来自微信服务器
-     * @return bool
-     */
-    private function checkSignature()
-    {
-        $nonce = $this->input->get('nonce');
-        $timestamp = $this->input->get('timestamp');
-        $msg_signature = $this->input->get('msg_signature');
-        $signature = empty($msg_signature) ? $this->input->get('signature') : $msg_signature;
-        $tmpArr = [$this->config->get('token'), $timestamp, $nonce, ''];
-        sort($tmpArr, SORT_STRING);
-        return sha1(implode($tmpArr)) === $signature;
     }
 
     /**

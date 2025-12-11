@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,17 +20,16 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 二维码管理
- * Class Qrcode
  * @package WeChat
  */
 class Qrcode extends BasicWeChat
 {
 
     /**
-     * 创建二维码ticket
-     * @param string|integer $scene 场景
-     * @param int $expire_seconds 有效时间
-     * @return array
+     * 创建二维码 ticket
+     * @param string|int $scene 场景值（字符串或数字）
+     * @param int $expire_seconds 过期时间，0 表示永久
+     * @return array 含 ticket、url
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -52,9 +51,9 @@ class Qrcode extends BasicWeChat
     }
 
     /**
-     * 通过ticket换取二维码
-     * @param string $ticket 获取的二维码ticket，凭借此ticket可以在有效时间内换取二维码。
-     * @return string
+     * 通过 ticket 换取二维码 URL
+     * @param string $ticket 二维码 ticket
+     * @return string 图片 URL
      */
     public function url($ticket)
     {
@@ -62,8 +61,8 @@ class Qrcode extends BasicWeChat
     }
 
     /**
-     * 长链接转短链接接口
-     * @param string $longUrl 需要转换的长链接
+     * 长链接转短链接
+     * @param string $longUrl 长链接
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

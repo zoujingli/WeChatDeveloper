@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -21,7 +21,6 @@ use WeChat\Contracts\Tools;
 
 /**
  * 小程序素材操作
- * Class Media
  * @package WeMini
  */
 class Media extends BasicWeChat
@@ -29,7 +28,7 @@ class Media extends BasicWeChat
 
     /**
      * 获取客服消息内的临时素材
-     * @param array $data
+     * @param string $media_id 媒体 ID
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -42,7 +41,7 @@ class Media extends BasicWeChat
 
     /**
      * 新增图片素材
-     * @param array $data
+     * @param string $filename 本地文件
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

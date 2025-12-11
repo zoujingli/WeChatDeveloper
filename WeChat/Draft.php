@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信草稿箱管理
- * Class Draft
  * @author taoxin
  * @package WeChat
  */
@@ -28,8 +27,8 @@ class Draft extends BasicWeChat
 {
     /**
      * 新建草稿
-     * @param $articles
-     * @return array
+     * @param array $articles 图文数组 articles
+     * @return array 草稿 media_id
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -41,9 +40,9 @@ class Draft extends BasicWeChat
 
     /**
      * 获取草稿
-     * @param string $mediaId
-     * @param string $outType 返回处理函数
-     * @return array
+     * @param string $mediaId 草稿 media_id
+     * @param string $outType 可选回调处理
+     * @return array 草稿内容
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -55,7 +54,7 @@ class Draft extends BasicWeChat
 
     /**
      * 删除草稿
-     * @param string $mediaId
+     * @param string $mediaId 草稿 media_id
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -68,7 +67,7 @@ class Draft extends BasicWeChat
 
     /**
      * 新增图文素材
-     * @param array $data 文件名称
+     * @param array $data 图文 articles
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -81,9 +80,9 @@ class Draft extends BasicWeChat
 
     /**
      * 修改草稿
-     * @param string $media_id 要修改的图文消息的id
-     * @param int $index 要更新的文章在图文消息中的位置（多图文消息时，此字段才有意义），第一篇为0
-     * @param $articles
+     * @param string $media_id 草稿 media_id
+     * @param int $index 文章序号（0 开始）
+     * @param array $articles 文章内容
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -109,9 +108,9 @@ class Draft extends BasicWeChat
 
     /**
      * 获取草稿列表
-     * @param int $offset 从全部素材的该偏移位置开始返回，0表示从第一个素材返回
-     * @param int $count 返回素材的数量，取值在1到20之间
-     * @param int $noContent 1 表示不返回 content 字段，0 表示正常返回，默认为 0
+     * @param int $offset 起始位置
+     * @param int $count 拉取数量 1-20
+     * @param int $noContent 1 不返回 content，0 返回
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

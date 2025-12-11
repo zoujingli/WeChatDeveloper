@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,14 +20,13 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 小程序ORC服务
- * Class Ocr
  * @package WeMini
  */
 class Ocr extends BasicWeChat
 {
     /**
-     * 本接口提供基于小程序的银行卡 OCR 识别
-     * @param array $data
+     * 银行卡 OCR
+     * @param array $data 图片参数（img_url 或 img）
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -39,8 +38,8 @@ class Ocr extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的营业执照 OCR 识别
-     * @param array $data
+     * 营业执照 OCR
+     * @param array $data 图片参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -52,8 +51,8 @@ class Ocr extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的驾驶证 OCR 识别
-     * @param array $data
+     * 驾驶证 OCR
+     * @param array $data 图片参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -65,8 +64,8 @@ class Ocr extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的身份证 OCR 识别
-     * @param array $data
+     * 身份证 OCR
+     * @param array $data 图片参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -78,8 +77,8 @@ class Ocr extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的通用印刷体 OCR 识别
-     * @param array $data
+     * 通用印刷体 OCR
+     * @param array $data 图片参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
@@ -91,8 +90,8 @@ class Ocr extends BasicWeChat
     }
 
     /**
-     * 本接口提供基于小程序的行驶证 OCR 识别
-     * @param array $data
+     * 行驶证 OCR
+     * @param array $data 图片参数
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException

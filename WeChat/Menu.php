@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,15 +20,14 @@ use WeChat\Contracts\BasicWeChat;
 
 /**
  * 微信菜单管理
- * Class Menu
  * @package WeChat
  */
 class Menu extends BasicWeChat
 {
 
     /**
-     * 自定义菜单查询接口
-     * @return array
+     * 查询自定义菜单接口
+     * @return array 菜单配置信息
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -39,8 +38,8 @@ class Menu extends BasicWeChat
     }
 
     /**
-     * 自定义菜单删除接口
-     * @return array
+     * 删除自定义菜单接口
+     * @return array 操作结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -51,9 +50,9 @@ class Menu extends BasicWeChat
     }
 
     /**
-     * 自定义菜单创建
-     * @param array $data
-     * @return array
+     * 创建自定义菜单接口
+     * @param array $data 菜单配置（button数组，最多3个一级菜单，每个一级菜单最多5个二级菜单）
+     * @return array 操作结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -64,9 +63,9 @@ class Menu extends BasicWeChat
     }
 
     /**
-     * 创建个性化菜单
-     * @param array $data
-     * @return array
+     * 创建个性化菜单接口
+     * @param array $data 菜单配置（button数组和matchrule匹配规则）
+     * @return array 返回menuid
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -77,9 +76,9 @@ class Menu extends BasicWeChat
     }
 
     /**
-     * 删除个性化菜单
-     * @param string $menuid
-     * @return array
+     * 删除个性化菜单接口
+     * @param string $menuid 菜单ID
+     * @return array 操作结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -90,9 +89,9 @@ class Menu extends BasicWeChat
     }
 
     /**
-     * 测试个性化菜单匹配结果
-     * @param string $openid
-     * @return array
+     * 测试个性化菜单匹配结果接口
+     * @param string $openid 用户openid
+     * @return array 该用户匹配的菜单配置
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

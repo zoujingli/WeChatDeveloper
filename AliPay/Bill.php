@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -20,7 +20,6 @@ use WeChat\Contracts\BasicAliPay;
 
 /**
  * 支付宝电子面单下载
- * Class Bill
  * @package AliPay
  */
 class Bill extends BasicAliPay
@@ -36,9 +35,9 @@ class Bill extends BasicAliPay
     }
 
     /**
-     * 创建数据操作
-     * @param array $options
-     * @return array|bool
+     * 获取账单下载地址
+     * @param array $options 账单参数（bill_type, bill_date 等）
+     * @return array|bool 包含 bill_download_url
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

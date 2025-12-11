@@ -3,7 +3,7 @@
 // +----------------------------------------------------------------------
 // | WeChatDeveloper
 // +----------------------------------------------------------------------
-// | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
+// | 版权所有 2014~2026 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
 // | 官方网站: https://thinkadmin.top
 // +----------------------------------------------------------------------
@@ -19,16 +19,15 @@ namespace WePayV3;
 use WePayV3\Contracts\BasicWePay;
 
 /**
- * 普通商户商家转账到零钱
- * @class Transfers
+ * 商家转账到零钱 (V3)
  * @package WePayV3
  */
 class Transfers extends BasicWePay
 {
 
     /**
-     * 新版商家转换到零钱
-     * @param $body
+     * 商家转账到零钱（单笔）
+     * @param array $body 转账参数（out_bill_no, transfer_amount, openid/user_name 等，敏感字段需 RSA）
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -47,8 +46,8 @@ class Transfers extends BasicWePay
 
     /**
      * 查询转账结果
-     * @param $out_bill_no
-     * @return array|string
+     * @param string $out_bill_no 商户转账单号
+     * @return array|string 转账状态
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
     public function billsQuery($out_bill_no)
@@ -58,7 +57,7 @@ class Transfers extends BasicWePay
 
     /**
      * 发起商家批量转账
-     * @param array $body
+     * @param array $body 批量参数（out_batch_no, transfer_detail_list 等，姓名需 RSA）
      * @return array
      * @throws \WeChat\Exceptions\InvalidDecryptException
      * @throws \WeChat\Exceptions\InvalidResponseException
@@ -84,13 +83,13 @@ class Transfers extends BasicWePay
     }
 
     /**
-     * 通过微信批次单号查询批次单
-     * @param string $batchId 微信批次单号(二选一)
-     * @param string $outBatchNo 商家批次单号(二选一)
-     * @param boolean $needQueryDetail 查询指定状态
-     * @param integer $offset 请求资源的起始位置
-     * @param integer $limit 最大明细条数
-     * @param string $detailStatus 查询指定状态
+     * 查询批量转账批次
+     * @param string $batchId 微信批次单号（二选一）
+     * @param string $outBatchNo 商户批次单号（二选一）
+     * @param bool $needQueryDetail 是否拉取明细
+     * @param int $offset 明细起始位置
+     * @param int $limit 最大明细条数
+     * @param string $detailStatus 明细状态 ALL|SUCCESS|FAIL
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -111,9 +110,9 @@ class Transfers extends BasicWePay
     }
 
     /**
-     * 通过微信明细单号查询明细单
+     * 通过微信明细单号查询明细
      * @param string $batchId 微信批次单号
-     * @param string $detailId 微信支付系统内部区分转账批次单下不同转账明细单的唯一标识
+     * @param string $detailId 微信明细单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
@@ -124,9 +123,9 @@ class Transfers extends BasicWePay
     }
 
     /**
-     * 通过商家明细单号查询明细单
-     * @param string $outBatchNo 商户系统内部的商家批次单号，在商户系统内部唯一
-     * @param string $outDetailNo 商户系统内部区分转账批次单下不同转账明细单的唯一标识
+     * 通过商家明细单号查询明细
+     * @param string $outBatchNo 商户批次单号
+     * @param string $outDetailNo 商户明细单号
      * @return array
      * @throws \WeChat\Exceptions\InvalidResponseException
      */
