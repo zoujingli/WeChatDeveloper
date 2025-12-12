@@ -333,7 +333,15 @@ abstract class BasicWePay
     protected function signBuild($data)
     {
         $pkeyid = openssl_pkey_get_private($this->config['cert_private']);
-        openssl_sign($data, $signature, $pkeyid, 'sha256WithRSAEncryption');
+        if ($pkeyid === false) {
+            throw new InvalidArgumentException("Invalid private key -- [cert_private]");
+        }
+        $signature = '';
+        if (!openssl_sign($data, $signature, $pkeyid, 'sha256WithRSAEncryption')) {
+            openssl_free_key($pkeyid);
+            throw new InvalidArgumentException("Failed to sign data with private key");
+        }
+        openssl_free_key($pkeyid);
         return base64_encode($signature);
     }
 

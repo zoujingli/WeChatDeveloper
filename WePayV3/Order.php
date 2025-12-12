@@ -52,6 +52,13 @@ class Order extends BasicWePay
         if (empty($types[$type])) {
             throw new InvalidArgumentException("Payment {$type} not defined.");
         } else {
+            // 自动填充 mchid 和 appid（如果未提供）
+            if (empty($data['mchid']) && !empty($this->config['mch_id'])) {
+                $data['mchid'] = $this->config['mch_id'];
+            }
+            if (empty($data['appid']) && !empty($this->config['appid'])) {
+                $data['appid'] = $this->config['appid'];
+            }
             // 创建预支付码
             $result = $this->doRequest('POST', $types[$type], json_encode($data, JSON_UNESCAPED_UNICODE), true);
             if (empty($result['h5_url']) && empty($result['code_url']) && empty($result['prepay_id'])) {
