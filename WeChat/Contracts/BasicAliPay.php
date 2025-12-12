@@ -284,7 +284,8 @@ abstract class BasicAliPay
      */
     private function getSignContent(array $data, $needSignType = false)
     {
-        list($attrs,) = [[], ksort($data)];
+        ksort($data);
+        $attrs = array();
         if (isset($data['sign'])) unset($data['sign']);
         if (empty($needSignType)) unset($data['sign_type']);
         foreach ($data as $key => $value) {

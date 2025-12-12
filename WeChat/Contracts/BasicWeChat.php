@@ -191,7 +191,8 @@ class BasicWeChat
             return Tools::json2arr(Tools::post($url, $toJson ? Tools::arr2json($data) : $data, $options));
         } catch (InvalidResponseException $exception) {
             if (!$this->isTry && in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
-                [$this->delAccessToken(), $this->isTry = true];
+                $this->delAccessToken();
+                $this->isTry = true;
                 return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
             }
             throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
@@ -235,7 +236,8 @@ class BasicWeChat
         } catch (InvalidResponseException $exception) {
             if (isset($this->currentMethod['method']) && empty($this->isTry)) {
                 if (in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
-                    [$this->delAccessToken(), $this->isTry = true];
+                    $this->delAccessToken();
+                    $this->isTry = true;
                     return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
                 }
             }
