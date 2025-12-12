@@ -28,7 +28,7 @@ class Transfer extends BasicAliPay
     /**
      * 旧版：向支付宝账户转账（toaccount.transfer）
      * @param array $options 转账参数（out_biz_no, payee_type, payee_account, amount, remark 等）
-     * @return array|bool 转账结果
+     * @return array 转账结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -41,7 +41,7 @@ class Transfer extends BasicAliPay
     /**
      * 新版：统一转账接口（uni.transfer）
      * @param array $options 转账参数（out_biz_no, trans_amount, product_code, payee_info 等）
-     * @return array|bool 转账结果
+     * @return array 转账结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -54,7 +54,7 @@ class Transfer extends BasicAliPay
     /**
      * 新版：转账业务单据查询
      * @param array $options 查询参数（out_biz_no 或 order_id）
-     * @return array|bool 查询结果
+     * @return array 查询结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -67,7 +67,7 @@ class Transfer extends BasicAliPay
     /**
      * 新版：资金账户余额查询
      * @param array $options 查询参数（alipay_user_id 或 user_id，可选 account_type）
-     * @return array|bool 账户余额等信息
+     * @return array 账户余额等信息
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

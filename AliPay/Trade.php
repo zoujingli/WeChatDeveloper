@@ -70,7 +70,7 @@ class Trade extends BasicAliPay
     /**
      * 执行当前设置的交易接口
      * @param array $options 业务参数（写入 biz_content）
-     * @return array|boolean 接口返回结果
+     * @return array 接口返回结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

@@ -25,8 +25,8 @@ use WeChat\Contracts\BasicAliPay;
 class Web extends BasicAliPay
 {
     /**
-     * Web constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 支付宝配置参数
      */
     public function __construct(array $options)
     {

@@ -26,8 +26,8 @@ class App extends BasicAliPay
 {
 
     /**
-     * App constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 支付宝配置参数
      */
     public function __construct(array $options)
     {

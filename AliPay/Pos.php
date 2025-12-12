@@ -25,8 +25,8 @@ use WeChat\Contracts\BasicAliPay;
 class Pos extends BasicAliPay
 {
     /**
-     * Pos constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 支付宝配置参数
      */
     public function __construct(array $options)
     {
@@ -38,7 +38,7 @@ class Pos extends BasicAliPay
     /**
      * 刷卡支付（条码/声波）下单
      * @param array $options 订单参数（out_trade_no, auth_code, subject, total_amount 等）
-     * @return array|bool 支付结果
+     * @return array 支付结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

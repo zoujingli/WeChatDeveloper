@@ -53,8 +53,8 @@ abstract class BasicAliPay
     protected $gateway = 'https://openapi.alipay.com/gateway.do?charset=utf-8';
 
     /**
-     * AliPay constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 必填：appid、public_key、private_key，可选：app_cert、root_cert、cache_path
      */
     public function __construct($options)
     {
@@ -121,8 +121,8 @@ abstract class BasicAliPay
 
     /**
      * 查询支付宝订单状态
-     * @param string $outTradeNo
-     * @return array|boolean
+     * @param string $outTradeNo 商户订单号
+     * @return array 订单查询结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -134,8 +134,8 @@ abstract class BasicAliPay
 
     /**
      * 请求接口并验证访问数据
-     * @param array $options
-     * @return array|boolean
+     * @param array $options 请求参数
+     * @return array 接口响应数据
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -318,8 +318,8 @@ abstract class BasicAliPay
     /**
      * 支付宝订单退款操作
      * @param array|string $options 退款参数或退款商户订单号
-     * @param null $refundAmount 退款金额
-     * @return array|boolean
+     * @param string|null $refundAmount 退款金额
+     * @return array 退款结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -334,7 +334,7 @@ abstract class BasicAliPay
      * 支付宝订单退款查询
      * @param array|string $options 退款参数或退款商户订单号
      * @param array|null $queryOptions 查询选项
-     * @return array|bool
+     * @return array 退款查询结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
@@ -348,8 +348,8 @@ abstract class BasicAliPay
 
     /**
      * 关闭支付宝进行中的订单
-     * @param array|string $options
-     * @return array|boolean
+     * @param array|string $options 订单参数或商户订单号
+     * @return array 关闭结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

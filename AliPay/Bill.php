@@ -25,8 +25,8 @@ use WeChat\Contracts\BasicAliPay;
 class Bill extends BasicAliPay
 {
     /**
-     * Bill constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 支付宝配置参数
      */
     public function __construct(array $options)
     {
@@ -37,7 +37,7 @@ class Bill extends BasicAliPay
     /**
      * 获取账单下载地址
      * @param array $options 账单参数（bill_type, bill_date 等）
-     * @return array|bool 包含 bill_download_url
+     * @return array 包含 bill_download_url 的响应数据
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

@@ -58,8 +58,8 @@ class BasicWeChat
     protected $GetAccessTokenCallback;
 
     /**
-     * BasicWeChat constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 必填：appid、appsecret，可选：GetAccessTokenCallback、cache_path
      */
     public function __construct(array $options)
     {
@@ -106,11 +106,11 @@ class BasicWeChat
     }
 
     /**
-     * 注册当前请求接口
-     * @param string $url 接口地址
-     * @param string $method 当前接口方法
+     * 注册当前请求接口（自动处理 ACCESS_TOKEN）
+     * @param string $url 接口地址（引用传递，会被修改）
+     * @param string $method 当前接口方法名
      * @param array $arguments 请求参数
-     * @return string
+     * @return string 替换 ACCESS_TOKEN 后的 URL
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */

@@ -25,8 +25,8 @@ use WeChat\Contracts\BasicAliPay;
 class Scan extends BasicAliPay
 {
     /**
-     * Scan constructor.
-     * @param array $options
+     * 构造函数
+     * @param array $options 支付宝配置参数
      */
     public function __construct(array $options)
     {
@@ -37,7 +37,7 @@ class Scan extends BasicAliPay
     /**
      * 预创建扫码支付订单（返回二维码地址）
      * @param array $options 订单参数（out_trade_no, subject, total_amount 等）
-     * @return array|bool 包含 qr_code 的预下单结果
+     * @return array 包含 qr_code 的预下单结果
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
