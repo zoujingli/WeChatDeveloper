@@ -183,7 +183,7 @@ class Wifi extends BasicWeChat
     public function setHomePage($shop_id, $template_id, $url = null)
     {
         $data = ['shop_id' => $shop_id, 'template_id' => $template_id];
-        is_null($url) && $data['struct'] = ['url' => $url];
+        !is_null($url) && $data['struct'] = ['url' => $url];
         $url = 'https://api.weixin.qq.com/bizwifi/homepage/set?access_token=ACCESS_TOKEN';
         $this->registerApi($url, __FUNCTION__, func_get_args());
         return $this->httpPostForJson($url, $data);
