@@ -16,7 +16,7 @@ WeChatDeveloper 是一个面向 **微信** 与 **支付宝** 的轻量 PHP SDK�
 
 ## 环境要求
 
-- PHP `>= 8.4`
+- PHP `>= 8.1`
 - `ext-json`
 - `ext-openssl`
 - `ext-simplexml`
