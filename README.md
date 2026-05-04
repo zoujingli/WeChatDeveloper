@@ -105,6 +105,7 @@ $result = $official->call('cgi-bin/menu/get', [], 'GET');
 
 | 场景 | 写法 |
 |------|------|
+| 接口 path | 只传相对路径，如 `cgi-bin/user/get`；SDK 会拒绝 `https://...` 或 `//...`。 |
 | 微信普通接口需要 `access_token` | 默认自动附加。 |
 | 微信授权、登录等不需要 `access_token` 的接口 | 传 `['with_token' => false]`。 |
 | POST JSON | 默认行为，直接传 `$params`。 |
@@ -441,8 +442,13 @@ $refund = $payment->post('v3/refund/domestic/refunds', [
 回调验签与解密：
 
 ```php
+$rawBody = file_get_contents('php://input') ?: '';
+$body = json_decode($rawBody, true) ?: [];
+
 $data = $payment->post('decrypt_notification', [], [
     'headers' => $headers,
+    // 微信支付 APIv3 验签必须使用原始 JSON body，不要先 json_decode 后重新编码。
+    'raw_body' => $rawBody,
     'body' => $body,
 ]);
 ```
@@ -586,6 +592,16 @@ $refund = $pay->post('refund', [
     'refund_amount' => '0.01',
     'refund_reason' => '用户退款',
 ]);
+```
+
+支付宝异步通知验签：
+
+```php
+if (!$pay->verifyNotify($_POST)) {
+    throw new RuntimeException('支付宝通知验签失败');
+}
+
+// 验签通过后再处理 trade_status、out_trade_no、trade_no 等业务字段。
 ```
 
 ## 框架集成建议

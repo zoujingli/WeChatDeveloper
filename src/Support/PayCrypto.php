@@ -14,6 +14,11 @@ final class PayCrypto
      */
     public static function decryptResource(string $apiV3Key, array $resource): array
     {
+        foreach (['ciphertext', 'nonce'] as $field) {
+            if (!isset($resource[$field]) || !is_string($resource[$field]) || $resource[$field] === '') {
+                throw new WechatException('微信支付回调资源字段缺失: ' . $field);
+            }
+        }
         $ciphertext = base64_decode($resource['ciphertext'], true);
         if ($ciphertext === false || strlen($ciphertext) <= 16) {
             throw new WechatException('微信支付回调密文无效');

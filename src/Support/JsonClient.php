@@ -43,10 +43,20 @@ final class JsonClient
      */
     public function send(string $method, string $uri, array $options = []): ResponseInterface
     {
+        $this->assertRelativeUri($uri);
         try {
             return $this->http->request($method, $uri, $options);
         } catch (GuzzleException $exception) {
             throw new ApiException($exception->getMessage(), (int)$exception->getCode(), $exception);
+        }
+    }
+
+    private function assertRelativeUri(string $uri): void
+    {
+        $uri = trim($uri);
+        // SDK 的微信类客户端都绑定了官方 base_uri，禁止传入绝对 URL，避免网关代调用场景被放大成 SSRF。
+        if (str_starts_with($uri, '//') || preg_match('#^[a-z][a-z0-9+.-]*:#i', $uri) === 1) {
+            throw new ApiException('接口路径必须是相对路径');
         }
     }
 }

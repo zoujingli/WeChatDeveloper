@@ -7,6 +7,7 @@ namespace We\Platform\Wechat;
 use GuzzleHttp\ClientInterface;
 use We\Config\WechatPaymentConfig;
 use We\Exception\SignatureException;
+use We\Exception\WechatException;
 use We\Support\JsonClient;
 use We\Support\PayCrypto;
 use We\Support\Signature;
@@ -50,14 +51,20 @@ final class PaymentClient
 
     /**
      * @param array<string,string> $headers
-     * @param array<string,mixed> $body
+     * @param array<string,mixed>|string $body 原始 JSON 字符串优先；传数组仅用于兼容旧调用，验签会退化为本地重编码。
      * @return array<string,mixed>
      */
-    public function decryptNotification(array $headers, array $body): array
+    public function decryptNotification(array $headers, array|string $body): array
     {
-        $this->assertNotificationSignature($headers, json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}');
+        // 微信支付 APIv3 签名串要求使用 HTTP 原始 body；不能先 json_decode 再重新编码，否则字段顺序或转义差异会导致验签失败。
+        $rawBody = is_string($body) ? $body : (json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}');
+        $this->assertNotificationSignature($headers, $rawBody);
+        $payload = is_string($body) ? json_decode($body, true) : $body;
+        if (!is_array($payload)) {
+            throw new WechatException('微信支付回调 JSON 无效');
+        }
         /** @var array{ciphertext:string,nonce:string,associated_data?:string} $resource */
-        $resource = $body['resource'] ?? [];
+        $resource = $payload['resource'] ?? [];
 
         return PayCrypto::decryptResource($this->config->apiV3Key, $resource);
     }
@@ -75,9 +82,10 @@ final class PaymentClient
             return $this->refund($params);
         }
         if ($uri === 'decrypt_notification') {
+            $body = $options['raw_body'] ?? $options['body'] ?? $params;
             return $this->decryptNotification(
                 is_array($options['headers'] ?? null) ? $options['headers'] : [],
-                is_array($options['body'] ?? null) ? $options['body'] : $params,
+                is_string($body) || is_array($body) ? $body : $params,
             );
         }
 
@@ -127,9 +135,13 @@ final class PaymentClient
 
     private function assertNotificationSignature(array $headers, string $body): void
     {
-        $timestamp = (string)($headers['Wechatpay-Timestamp'] ?? $headers['wechatpay-timestamp'] ?? '');
-        $nonce = (string)($headers['Wechatpay-Nonce'] ?? $headers['wechatpay-nonce'] ?? '');
-        $signature = (string)($headers['Wechatpay-Signature'] ?? $headers['wechatpay-signature'] ?? '');
+        $timestamp = $this->headerValue($headers, 'Wechatpay-Timestamp');
+        $nonce = $this->headerValue($headers, 'Wechatpay-Nonce');
+        $signature = $this->headerValue($headers, 'Wechatpay-Signature');
+        $serial = $this->headerValue($headers, 'Wechatpay-Serial');
+        if ($this->config->platformSerial !== '' && !hash_equals($this->config->platformSerial, $serial)) {
+            throw new SignatureException('微信支付平台序列号不匹配');
+        }
         $message = "{$timestamp}\n{$nonce}\n{$body}\n";
         $publicKey = $this->config->platformPublicKey !== '' ? $this->config->platformPublicKey : $this->config->platformCertificate;
         if ($publicKey === '') {
@@ -138,5 +150,19 @@ final class PaymentClient
         if (!Signature::verifyPayV3($publicKey, $message, $signature)) {
             throw new SignatureException('微信支付回调验签失败');
         }
+    }
+
+    /**
+     * @param array<string,mixed> $headers
+     */
+    private function headerValue(array $headers, string $name): string
+    {
+        foreach ($headers as $key => $value) {
+            if (strcasecmp((string)$key, $name) === 0) {
+                return is_array($value) ? implode(',', array_map('strval', $value)) : (string)$value;
+            }
+        }
+
+        return '';
     }
 }
