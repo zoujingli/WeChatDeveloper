@@ -81,6 +81,75 @@ $menu = $official->post('cgi-bin/menu/create', [
 ]);
 ```
 
+
+## 调用约定
+
+SDK 不把官方接口包装成大量固定方法，核心约定是“官方文档 path + 参数数组”：
+
+```php
+// GET：第二个参数会作为 query string。
+$result = $official->get('cgi-bin/user/get', ['next_openid' => '']);
+
+// POST：第二个参数默认作为 JSON body。
+$result = $official->post('cgi-bin/message/custom/send', [
+    'touser' => 'openid',
+    'msgtype' => 'text',
+    'text' => ['content' => 'hello'],
+]);
+
+// call：显式指定 HTTP 方法，并可透传 Guzzle options。
+$result = $official->call('cgi-bin/menu/get', [], 'GET');
+```
+
+调用时需要注意：
+
+| 场景 | 写法 |
+|------|------|
+| 微信普通接口需要 `access_token` | 默认自动附加。 |
+| 微信授权、登录等不需要 `access_token` 的接口 | 传 `['with_token' => false]`。 |
+| POST JSON | 默认行为，直接传 `$params`。 |
+| GET query | 用 `get($path, $query)`。 |
+| 自定义 query + JSON body | `post($path, $body, ['query' => [...], 'json' => $body])`。 |
+| 表单提交或原始 body | 透传 Guzzle 的 `form_params` 或 `body`。 |
+
+示例：小程序登录接口不需要 access token，应该关闭自动 token：
+
+```php
+$session = $wxapp->get('sns/jscode2session', [
+    'appid' => 'wx_appid',
+    'secret' => 'app_secret',
+    'js_code' => 'login_code',
+    'grant_type' => 'authorization_code',
+], ['with_token' => false]);
+```
+
+## 配置来源示例
+
+生产项目通常从数据库或配置中心读取账号配置，再使用 `fromArray()` 构造配置对象：
+
+```php
+use We\Client;
+use We\Config\WechatPlatformConfig;
+use We\Support\FileCacheStore;
+
+$row = [
+    'appid' => 'wx_appid',
+    'appsecret' => 'app_secret',
+    'token' => 'message_token',
+    'encoding_aes_key' => 'encoding_aes_key',
+    'storage_scope' => 'tenant:10001:account:20002',
+];
+
+$client = new Client(
+    cache: new FileCacheStore(__DIR__ . '/runtime/wechat-cache'),
+    cacheKeyPrefix: 'my_project_prod',
+);
+
+$official = $client->wechatPlatform(WechatPlatformConfig::fromArray($row));
+```
+
+`cacheKeyPrefix` 建议按项目和环境区分，例如 `mall_prod`、`mall_test`。`storage_scope` 建议按租户、账号或业务线区分，避免同一 appid 在不同业务上下文中复用缓存。
+
 ## 入口 Client
 
 ```php
@@ -289,6 +358,8 @@ $plain = $official->post('decrypt_message', [
 
 ## 微信小程序
 
+登录换取 `openid` 与 `session_key`：
+
 ```php
 use We\Config\WechatWxappConfig;
 
@@ -297,11 +368,23 @@ $wxapp = $client->wechatWxapp(new WechatWxappConfig(
     appSecret: 'app_secret',
 ));
 
-$result = $wxapp->get('sns/jscode2session', [
+$session = $wxapp->get('sns/jscode2session', [
+    'appid' => 'wx_appid',
+    'secret' => 'app_secret',
     'js_code' => 'login_code',
     'grant_type' => 'authorization_code',
+], ['with_token' => false]);
+```
+
+获取手机号：
+
+```php
+$phone = $wxapp->post('wxa/business/getuserphonenumber', [
+    'code' => 'phone_code_from_client',
 ]);
 ```
+
+如果官方接口返回图片、文件等二进制内容，默认 `post()` 会按 JSON 响应解析，不适合直接处理；建议注入自定义 Guzzle 客户端或在业务侧扩展专用下载方法。
 
 ## 微信开放平台
 
@@ -404,6 +487,113 @@ $page = $pay->post('page', [
     'product_code' => 'FAST_INSTANT_TRADE_PAY',
 ]);
 ```
+
+
+## 常见业务案例
+
+### 公众号：创建菜单并发送客服消息
+
+```php
+$official->post('cgi-bin/menu/create', [
+    'button' => [
+        [
+            'name' => '服务',
+            'sub_button' => [
+                ['type' => 'view', 'name' => '官网', 'url' => 'https://example.com'],
+                ['type' => 'click', 'name' => '帮助', 'key' => 'HELP'],
+            ],
+        ],
+    ],
+]);
+
+$official->post('cgi-bin/message/custom/send', [
+    'touser' => 'openid',
+    'msgtype' => 'text',
+    'text' => ['content' => '您好，客服消息已发送。'],
+]);
+```
+
+### 公众号：网页授权 URL 与用户资料
+
+```php
+$redirectUri = 'https://example.com/oauth/callback';
+$url = 'https://open.weixin.qq.com/connect/oauth2/authorize?' . http_build_query([
+    'appid' => 'wx_appid',
+    'redirect_uri' => $redirectUri,
+    'response_type' => 'code',
+    'scope' => 'snsapi_userinfo',
+    'state' => 'state-value',
+]) . '#wechat_redirect';
+
+$oauth = $official->get('sns/oauth2/access_token', [
+    'appid' => 'wx_appid',
+    'secret' => 'app_secret',
+    'code' => $code,
+    'grant_type' => 'authorization_code',
+], ['with_token' => false]);
+
+$user = $official->get('sns/userinfo', [
+    'access_token' => $oauth['access_token'],
+    'openid' => $oauth['openid'],
+    'lang' => 'zh_CN',
+], ['with_token' => false]);
+```
+
+### 开放平台：授权回调后保存授权方 Token
+
+```php
+$componentToken = $service->componentAccessToken($componentVerifyTicket);
+$auth = $service->queryAuth($componentToken, $authorizationCode);
+
+$authorization = $auth['authorization_info'] ?? [];
+$authorizerAppid = (string)($authorization['authorizer_appid'] ?? '');
+
+// 业务系统应把 authorizer_refresh_token 保存到数据库，后续 StoreTokenInterface 会读取它。
+$repository->saveAuthorizerToken($authorizerAppid, $authorization);
+```
+
+### 微信支付：创建 JSAPI 订单
+
+```php
+$order = $payment->post('v3/pay/transactions/jsapi', [
+    'appid' => 'wx_appid',
+    'mchid' => 'mch_id',
+    'description' => '测试订单',
+    'out_trade_no' => 'T202605020001',
+    'notify_url' => 'https://example.com/wechat-pay/notify',
+    'amount' => ['total' => 1, 'currency' => 'CNY'],
+    'payer' => ['openid' => 'openid'],
+]);
+```
+
+前端调起支付需要的 `paySign` 可由业务系统使用返回的 `prepay_id` 再按微信支付文档签名生成。SDK 只负责 APIv3 请求签名、回调验签与资源解密。
+
+### 支付宝：电脑网站支付与退款
+
+```php
+$page = $pay->post('page', [
+    'out_trade_no' => 'P202605020001',
+    'total_amount' => '0.01',
+    'subject' => '测试订单',
+    'product_code' => 'FAST_INSTANT_TRADE_PAY',
+], [
+    'return_url' => 'https://example.com/alipay/return',
+    'notify_url' => 'https://example.com/alipay/notify',
+]);
+
+$refund = $pay->post('refund', [
+    'out_trade_no' => 'P202605020001',
+    'refund_amount' => '0.01',
+    'refund_reason' => '用户退款',
+]);
+```
+
+## 框架集成建议
+
+- 在 Laravel、Hyperf、Symfony 等框架中，建议把 `Client` 注册为容器服务，缓存实现接入框架 Redis 或 Cache 组件。
+- 多租户系统应把租户 ID、账号 ID 放入 `storage_scope` 或 `cacheKeyPrefix`，保证 token 缓存隔离。
+- 密钥、证书、APIv3 Key、支付宝私钥应由业务系统加密保存，运行时解密后传入配置对象。
+- 日志中不要记录 app secret、access token、refresh token、私钥、证书、回调密文和支付签名。
 
 ## 异常处理
 
