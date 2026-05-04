@@ -1,47 +1,46 @@
 {
-  "type": "library",
   "name": "zoujingli/wechat-developer",
-  "homepage": "https://thinkadmin.top",
-  "description": "WeChat and Alipay Platform Development",
+  "description": "Multi-platform developer SDK for WeChat and Alipay.",
+  "type": "library",
   "license": "MIT",
+  "homepage": "https://github.com/zoujingli/WeChatDeveloper",
+  "keywords": [
+    "wechat",
+    "wechat-pay",
+    "alipay",
+    "sdk",
+    "php"
+  ],
   "authors": [
     {
       "name": "Anyon",
-      "email": "zoujingli@qq.com",
-      "homepage": "https://thinkadmin.top"
+      "email": "zoujingli@qq.com"
     }
-  ],
-  "keywords": [
-    "AliPay",
-    "WeMini",
-    "WeChat",
-    "WeChatPay",
-    "WeChatDeveloper"
   ],
   "require": {
-    "php": ">=5.4",
-    "ext-xml": "*",
+    "php": ">=8.4",
     "ext-json": "*",
-    "ext-curl": "*",
-    "ext-bcmath": "*",
-    "ext-libxml": "*",
     "ext-openssl": "*",
-    "ext-mbstring": "*",
-    "ext-simplexml": "*"
+    "ext-simplexml": "*",
+    "guzzlehttp/guzzle": "^7.0",
+    "psr/simple-cache": "^3.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
   },
   "autoload": {
-    "files": [
-      "helper.php"
-    ],
-    "classmap": [
-      "We.php"
-    ],
     "psr-4": {
-      "WePay\\": "WePay",
-      "WeChat\\": "WeChat",
-      "WeMini\\": "WeMini",
-      "AliPay\\": "AliPay",
-      "WePayV3\\": "WePayV3"
+      "We\\": "src/"
     }
-  }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "We\\Tests\\": "src/Tests/"
+    }
+  },
+  "scripts": {
+    "test": "@php vendor/bin/phpunit -c phpunit.xml"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

@@ -1,0 +1,132 @@
+<?php
+
+declare(strict_types=1);
+
+namespace We\Support;
+
+use We\Contract\StoreCacheInterface;
+use We\Exception\WechatException;
+
+/**
+ * 单机文件缓存：缓存值以 JSON 保存，使用 flock 提供单机多进程刷新锁。
+ */
+final class FileCacheStore implements StoreCacheInterface
+{
+    public function __construct(private readonly string $directory)
+    {
+        if ($this->directory === '') {
+            throw new WechatException('FileCacheStore 目录不能为空');
+        }
+        if (!is_dir($this->directory) && @mkdir($this->directory, 0775, true) !== true) {
+            throw new WechatException('FileCacheStore 无法创建目录: ' . $this->directory);
+        }
+        if (!is_writable($this->directory)) {
+            throw new WechatException('FileCacheStore 目录不可写: ' . $this->directory);
+        }
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        $path = $this->pathFor($key);
+        if (!is_file($path)) {
+            return $default;
+        }
+        $handle = @fopen($path, 'rb');
+        if ($handle === false) {
+            return $default;
+        }
+
+        try {
+            if (!flock($handle, LOCK_SH)) {
+                return $default;
+            }
+            $raw = stream_get_contents($handle);
+            flock($handle, LOCK_UN);
+        } finally {
+            fclose($handle);
+        }
+
+        if (!is_string($raw) || $raw === '') {
+            return $default;
+        }
+
+        /** @var array{expires_at?:int,value?:mixed}|null $payload */
+        $payload = json_decode($raw, true);
+        if (!is_array($payload) || !array_key_exists('expires_at', $payload) || !array_key_exists('value', $payload)) {
+            return $default;
+        }
+        if ((int)$payload['expires_at'] < time()) {
+            $this->del($key);
+
+            return $default;
+        }
+
+        return $payload['value'];
+    }
+
+    public function set(string $key, mixed $value, int $ttl): void
+    {
+        $path = $this->pathFor($key);
+        $dir = dirname($path);
+        if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
+            throw new WechatException('FileCacheStore 无法创建子目录: ' . $dir);
+        }
+
+        $body = json_encode(
+            ['expires_at' => time() + max(1, $ttl), 'value' => $value],
+            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        );
+        $tmp = $path . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($tmp, $body, LOCK_EX) === false) {
+            @unlink($tmp);
+            throw new WechatException('FileCacheStore 写入失败: ' . $tmp);
+        }
+        if (!@rename($tmp, $path)) {
+            @unlink($path);
+            if (!@rename($tmp, $path)) {
+                @unlink($tmp);
+                throw new WechatException('FileCacheStore 提交失败: ' . $path);
+            }
+        }
+    }
+
+    public function del(string $key): void
+    {
+        $path = $this->pathFor($key);
+        if (is_file($path)) {
+            @unlink($path);
+        }
+    }
+
+    public function lock(string $key, int $ttl, callable $callback): mixed
+    {
+        $path = $this->pathFor('lock:' . $key) . '.lock';
+        $dir = dirname($path);
+        if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
+            throw new WechatException('FileCacheStore 无法创建锁目录: ' . $dir);
+        }
+
+        $handle = @fopen($path, 'c');
+        if ($handle === false) {
+            throw new WechatException('FileCacheStore 无法创建锁文件: ' . $path);
+        }
+
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                throw new WechatException('FileCacheStore 获取锁失败: ' . $key);
+            }
+
+            return $callback();
+        } finally {
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
+    }
+
+    private function pathFor(string $key): string
+    {
+        $hash = hash('sha256', $key);
+
+        return $this->directory . DIRECTORY_SEPARATOR . substr($hash, 0, 2) . DIRECTORY_SEPARATOR . $hash . '.json';
+    }
+}

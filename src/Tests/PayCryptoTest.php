@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace We\Tests;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use We\Support\PayCrypto;
+
+#[CoversClass(PayCrypto::class)]
+final class PayCryptoTest extends TestCase
+{
+    public function testDecryptResource(): void
+    {
+        $key = str_repeat('k', 32);
+        $nonce = '123456789012';
+        $aad = 'transaction';
+        $plain = '{"out_trade_no":"T202605010001","trade_state":"SUCCESS"}';
+        $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag, $aad);
+
+        $data = PayCrypto::decryptResource($key, [
+            'ciphertext' => base64_encode($cipher . $tag),
+            'nonce' => $nonce,
+            'associated_data' => $aad,
+        ]);
+
+        $this->assertSame('T202605010001', $data['out_trade_no']);
+        $this->assertSame('SUCCESS', $data['trade_state']);
+    }
+}

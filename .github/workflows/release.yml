@@ -1,11 +1,12 @@
+name: Create Release
+
 on:
   push:
-    # Sequence of patterns matched against refs/tags
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
 
-name: Create Release
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -16,50 +17,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install -g gen-git-log
-
-      - name: Find Last Tag
-        id: last_tag
+      - name: Resolve previous tag
+        id: tags
+        shell: bash
         run: |
-          
-          # 获取所有标签，按版本排序（降序）  
-          Tags=$(git tag --list --sort=-version:refname)  
-          
-          # 获取最新的标签（即列表中的第一个）  
-          LATEST_TAG=$(echo "$Tags" | awk 'NR==1 {print $1; exit}')  
-          
-          # 获取倒数第二个标签（如果存在）  
-          if [[ -n "$Tags" ]]; then  
-            # 使用 tail 获取除了最后一个标签之外的所有标签，然后用 head 获取第一个  
-            SECOND_LATEST_TAG=$(echo "$Tags" | tail -n +2 | head -n 1)  
-          else  
-            SECOND_LATEST_TAG=""  
+          current="${GITHUB_REF_NAME}"
+          previous="$(git tag --list 'v*' --sort=-version:refname | grep -v "^${current}$" | head -n 1 || true)"
+          echo "current=${current}" >> "$GITHUB_OUTPUT"
+          echo "previous=${previous}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        shell: bash
+        run: |
+          current="${{ steps.tags.outputs.current }}"
+          previous="${{ steps.tags.outputs.previous }}"
+          if [ -n "$previous" ]; then
+            git log --pretty='- %s (%h)' "${previous}..${current}" > RELEASE_NOTES.md
+          else
+            git log --pretty='- %s (%h)' "${current}" > RELEASE_NOTES.md
           fi
-          
-          # 设置输出变量  
-          echo "::set-output name=tag_last::${LATEST_TAG:-v1.0.0}"
-          echo "::set-output name=tag_second::${SECOND_LATEST_TAG:-v1.0.0}"
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "- Release ${current}" > RELEASE_NOTES.md
+          fi
 
-      - name: Generate Release Notes
-        run: |
-          rm -rf log
-          newTag=${{ steps.last_tag.outputs.tag_last }}
-          git-log -m tag -f -S ${{ steps.last_tag.outputs.tag_second }} -v ${newTag#v}
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.last_tag.outputs.tag_last }}
-          release_name: Release ${{ steps.last_tag.outputs.tag_last }}
-          body_path: log/${{steps.last_tag.outputs.tag_last}}.md
+          tag_name: ${{ steps.tags.outputs.current }}
+          name: Release ${{ steps.tags.outputs.current }}
+          body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
