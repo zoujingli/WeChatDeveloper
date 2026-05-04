@@ -31,7 +31,7 @@ final class Signature
         }
     }
 
-    public static function payV3Sign(string $privateKey, string $message): string
+    public static function paymentV3Sign(string $privateKey, string $message): string
     {
         $key = openssl_pkey_get_private($privateKey);
         if ($key === false) {
@@ -44,7 +44,7 @@ final class Signature
         return base64_encode($signature);
     }
 
-    public static function verifyPayV3(string $publicKey, string $message, string $signature): bool
+    public static function verifyPaymentV3(string $publicKey, string $message, string $signature): bool
     {
         $key = openssl_pkey_get_public($publicKey);
         if ($key === false) {

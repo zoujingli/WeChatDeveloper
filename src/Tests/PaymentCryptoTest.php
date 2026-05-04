@@ -6,10 +6,10 @@ namespace We\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use We\Support\PayCrypto;
+use We\Support\PaymentCrypto;
 
-#[CoversClass(PayCrypto::class)]
-final class PayCryptoTest extends TestCase
+#[CoversClass(PaymentCrypto::class)]
+final class PaymentCryptoTest extends TestCase
 {
     public function testDecryptResource(): void
     {
@@ -19,7 +19,7 @@ final class PayCryptoTest extends TestCase
         $plain = '{"out_trade_no":"T202605010001","trade_state":"SUCCESS"}';
         $cipher = openssl_encrypt($plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $nonce, $tag, $aad);
 
-        $data = PayCrypto::decryptResource($key, [
+        $data = PaymentCrypto::decryptResource($key, [
             'ciphertext' => base64_encode($cipher . $tag),
             'nonce' => $nonce,
             'associated_data' => $aad,

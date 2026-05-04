@@ -480,13 +480,13 @@ $response = $alipay->post('alipay.user.info.share', [], [
 ```php
 use We\Config\AlipayPaymentConfig;
 
-$pay = $client->alipayPayment(AlipayPaymentConfig::fromArray([
+$payment = $client->alipayPayment(AlipayPaymentConfig::fromArray([
     'appid' => 'app_id',
     'private_key' => file_get_contents(__DIR__ . '/merchant_private_key.pem'),
     'alipay_public_key' => file_get_contents(__DIR__ . '/alipay_public_key.pem'),
 ]));
 
-$page = $pay->post('page', [
+$page = $payment->post('page', [
     'out_trade_no' => 'P202605020001',
     'total_amount' => '0.01',
     'subject' => 'Test Order',
@@ -566,7 +566,7 @@ $order = $payment->post('v3/pay/transactions/jsapi', [
     'mchid' => 'mch_id',
     'description' => '测试订单',
     'out_trade_no' => 'T202605020001',
-    'notify_url' => 'https://example.com/wechat-pay/notify',
+    'notify_url' => 'https://example.com/wechat-payment/notify',
     'amount' => ['total' => 1, 'currency' => 'CNY'],
     'payer' => ['openid' => 'openid'],
 ]);
@@ -577,7 +577,7 @@ $order = $payment->post('v3/pay/transactions/jsapi', [
 ### 支付宝：电脑网站支付与退款
 
 ```php
-$page = $pay->post('page', [
+$page = $payment->post('page', [
     'out_trade_no' => 'P202605020001',
     'total_amount' => '0.01',
     'subject' => '测试订单',
@@ -587,7 +587,7 @@ $page = $pay->post('page', [
     'notify_url' => 'https://example.com/alipay/notify',
 ]);
 
-$refund = $pay->post('refund', [
+$refund = $payment->post('refund', [
     'out_trade_no' => 'P202605020001',
     'refund_amount' => '0.01',
     'refund_reason' => '用户退款',
@@ -597,7 +597,7 @@ $refund = $pay->post('refund', [
 支付宝异步通知验签：
 
 ```php
-if (!$pay->verifyNotify($_POST)) {
+if (!$payment->verifyNotify($_POST)) {
     throw new RuntimeException('支付宝通知验签失败');
 }
 

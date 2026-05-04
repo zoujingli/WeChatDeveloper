@@ -9,7 +9,7 @@ use We\Config\WechatPaymentConfig;
 use We\Exception\SignatureException;
 use We\Exception\WechatException;
 use We\Support\JsonClient;
-use We\Support\PayCrypto;
+use We\Support\PaymentCrypto;
 use We\Support\Signature;
 
 final class PaymentClient
@@ -66,7 +66,7 @@ final class PaymentClient
         /** @var array{ciphertext:string,nonce:string,associated_data?:string} $resource */
         $resource = $payload['resource'] ?? [];
 
-        return PayCrypto::decryptResource($this->config->apiV3Key, $resource);
+        return PaymentCrypto::decryptResource($this->config->apiV3Key, $resource);
     }
 
     /**
@@ -120,7 +120,7 @@ final class PaymentClient
     private function authorization(string $method, string $uri, string $timestamp, string $nonce, string $body): string
     {
         $message = strtoupper($method) . "\n{$uri}\n{$timestamp}\n{$nonce}\n{$body}\n";
-        $signature = Signature::payV3Sign($this->config->merchantPrivateKey, $message);
+        $signature = Signature::paymentV3Sign($this->config->merchantPrivateKey, $message);
         $schema = 'WECHATPAY2-SHA256-RSA2048';
         $fields = [
             'mchid' => $this->config->mchId,
@@ -147,7 +147,7 @@ final class PaymentClient
         if ($publicKey === '') {
             throw new SignatureException('微信支付平台公钥或证书不能为空');
         }
-        if (!Signature::verifyPayV3($publicKey, $message, $signature)) {
+        if (!Signature::verifyPaymentV3($publicKey, $message, $signature)) {
             throw new SignatureException('微信支付回调验签失败');
         }
     }

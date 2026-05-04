@@ -31,7 +31,7 @@ final class PaymentClientTest extends TestCase
             'Wechatpay-Timestamp' => $timestamp,
             'Wechatpay-Nonce' => $notifyNonce,
             'Wechatpay-Serial' => 'platform-serial',
-            'Wechatpay-Signature' => Signature::payV3Sign($platformPrivateKey, "{$timestamp}\n{$notifyNonce}\n{$rawBody}\n"),
+            'Wechatpay-Signature' => Signature::paymentV3Sign($platformPrivateKey, "{$timestamp}\n{$notifyNonce}\n{$rawBody}\n"),
         ];
         $client = new PaymentClient(new WechatPaymentConfig(
             'wx_app',
@@ -60,7 +60,7 @@ final class PaymentClientTest extends TestCase
             'Wechatpay-Timestamp' => $timestamp,
             'Wechatpay-Nonce' => $notifyNonce,
             'Wechatpay-Serial' => 'other-serial',
-            'Wechatpay-Signature' => Signature::payV3Sign($platformPrivateKey, "{$timestamp}\n{$notifyNonce}\n{$rawBody}\n"),
+            'Wechatpay-Signature' => Signature::paymentV3Sign($platformPrivateKey, "{$timestamp}\n{$notifyNonce}\n{$rawBody}\n"),
         ];
         $client = new PaymentClient(new WechatPaymentConfig(
             'wx_app',

@@ -6,7 +6,7 @@ namespace We\Support;
 
 use We\Exception\WechatException;
 
-final class PayCrypto
+final class PaymentCrypto
 {
     /**
      * @param array{ciphertext:string,nonce:string,associated_data?:string} $resource
