@@ -6,12 +6,13 @@ WeChatDeveloper 是一个面向 **微信** 与 **支付宝** 的轻量 PHP SDK�
 
 ## 特性
 
-- 支持微信公众号、小程序、微信开放平台、微信支付 APIv3。
+- 支持微信公众平台、小程序、微信服务平台、微信支付 APIv3。
 - 支持支付宝开放平台与支付网关调用。
 - 统一入口 `We\Client`，按通道创建客户端。
 - 配置对象实现 `ConfigInterface`，构造时完成基础校验。
 - 缓存只依赖 `StoreCacheInterface`，可用于单机文件缓存或集群 Redis 适配。
-- 开放平台授权方 refresh token 通过 `StoreTokenInterface` 由业务系统存取。
+- 微信服务平台授权方 refresh token 通过 `StoreTokenInterface` 由业务系统存取。
+- 支持 JSON、原始响应、二进制下载和 multipart 上传等协议层通用能力。
 - 返回值默认是数组，失败时抛出 `WechatException` 或其子类。
 
 ## 环境要求
@@ -42,8 +43,28 @@ composer require zoujingli/wechat-developer:2.0.x-dev
 ```bash
 cd WeChatDeveloper
 composer install
+composer validate --strict
 composer test
 ```
+
+## 项目结构
+
+```text
+src/
+├── Client.php              # SDK 根入口与通道客户端工厂
+├── Config/                 # 微信、支付宝平台配置对象
+├── Contract/               # 配置、缓存、授权方 Token 存储契约
+├── Exception/              # SDK 异常类型
+├── Platform/
+│   ├── Wechat/             # 微信公众平台、小程序、微信服务平台、微信支付 APIv3 客户端
+│   │   └── Concerns/       # 微信 JSON、raw/download/upload、Token 注入等协议层复用能力
+│   └── Alipay/             # 支付宝开放平台与支付客户端
+└── Support/                # 缓存、HTTP、签名、XML、消息/支付解密工具
+
+tests/                      # PHPUnit 测试用例，命名空间 We\Tests
+```
+
+测试入口为根目录 `tests/`，`phpunit.xml` 使用 `tests/bootstrap.php` 引导 Composer autoload。
 
 ## 快速开始
 
@@ -57,12 +78,12 @@ use We\Config\WechatPlatformConfig;
 
 $client = new Client();
 
-$official = $client->wechatPlatform(new WechatPlatformConfig(
+$platform = $client->wechatPlatform(new WechatPlatformConfig(
     appid: 'wx_appid',
     appSecret: 'app_secret',
 ));
 
-$users = $official->get('cgi-bin/user/get', [
+$users = $platform->get('cgi-bin/user/get', [
     'next_openid' => '',
 ]);
 ```
@@ -70,7 +91,7 @@ $users = $official->get('cgi-bin/user/get', [
 `post()`、`get()`、`call()` 的 path 与官方文档保持一致，通常不需要前导 `/`。
 
 ```php
-$menu = $official->post('cgi-bin/menu/create', [
+$menu = $platform->post('cgi-bin/menu/create', [
     'button' => [
         [
             'type' => 'click',
@@ -88,17 +109,17 @@ SDK 不把官方接口包装成大量固定方法，核心约定是“官方文�
 
 ```php
 // GET：第二个参数会作为 query string。
-$result = $official->get('cgi-bin/user/get', ['next_openid' => '']);
+$result = $platform->get('cgi-bin/user/get', ['next_openid' => '']);
 
 // POST：第二个参数默认作为 JSON body。
-$result = $official->post('cgi-bin/message/custom/send', [
+$result = $platform->post('cgi-bin/message/custom/send', [
     'touser' => 'openid',
     'msgtype' => 'text',
     'text' => ['content' => 'hello'],
 ]);
 
 // call：显式指定 HTTP 方法，并可透传 Guzzle options。
-$result = $official->call('cgi-bin/menu/get', [], 'GET');
+$result = $platform->call('cgi-bin/menu/get', [], 'GET');
 ```
 
 调用时需要注意：
@@ -112,6 +133,8 @@ $result = $official->call('cgi-bin/menu/get', [], 'GET');
 | GET query | 用 `get($path, $query)`。 |
 | 自定义 query + JSON body | `post($path, $body, ['query' => [...], 'json' => $body])`。 |
 | 表单提交或原始 body | 透传 Guzzle 的 `form_params` 或 `body`。 |
+| 二进制/非 JSON 响应 | 用 `raw()` 或 `download()` 返回 PSR-7 Response。 |
+| multipart 上传 | 用 `upload($path, $multipart, $query)`，SDK 会按通道规则附加 token。 |
 
 示例：小程序登录接口不需要 access token，应该关闭自动 token：
 
@@ -123,6 +146,43 @@ $session = $wxapp->get('sns/jscode2session', [
     'grant_type' => 'authorization_code',
 ], ['with_token' => false]);
 ```
+
+图片、媒体、文件等非 JSON 响应可直接获取原始响应：
+
+```php
+$response = $platform->download('cgi-bin/media/get', [
+    'media_id' => 'MEDIA_ID',
+]);
+
+$binary = (string) $response->getBody();
+```
+
+上传媒体或文件时传入 Guzzle multipart 结构：
+
+```php
+$media = $platform->upload('cgi-bin/media/upload', [
+    [
+        'name' => 'media',
+        'contents' => fopen(__DIR__ . '/demo.jpg', 'rb'),
+        'filename' => 'demo.jpg',
+    ],
+], [
+    'type' => 'image',
+]);
+```
+
+### 协议层能力说明
+
+微信公众平台、小程序、微信服务平台共用 `InteractsProtocol` 协议层能力：
+
+| 方法 | 说明 |
+|------|------|
+| `request()` | 发送 JSON 风格接口请求并解析为数组。 |
+| `raw()` | 返回 PSR-7 Response，不解析 JSON，适合图片、媒体、二维码等原始响应。 |
+| `download()` | 以 GET 方式获取二进制资源，并按通道规则附加 token 或签名。 |
+| `upload()` | 透传 Guzzle `multipart` 上传结构，并解析平台 JSON 响应。 |
+
+微信支付 APIv3 的 `raw()` 与 `download()` 会先按官方规则生成 `Authorization` 签名，再返回原始响应。支付宝网关请求统一复用公共参数构造、签名和验签逻辑，电脑网站支付跳转地址也使用同一套签名参数。
 
 ## 配置来源示例
 
@@ -146,7 +206,7 @@ $client = new Client(
     cacheKeyPrefix: 'my_project_prod',
 );
 
-$official = $client->wechatPlatform(WechatPlatformConfig::fromArray($row));
+$platform = $client->wechatPlatform(WechatPlatformConfig::fromArray($row));
 ```
 
 `cacheKeyPrefix` 建议按项目和环境区分，例如 `mall_prod`、`mall_test`。`storage_scope` 建议按租户、账号或业务线区分，避免同一 appid 在不同业务上下文中复用缓存。
@@ -172,14 +232,14 @@ new Client(
 | 参数 | 说明 |
 |------|------|
 | `$cache` | SDK 运行态缓存，主要保存 access token；不传时默认使用 `FileCacheStore`。 |
-| `$authorizers` | 微信开放平台代调用时，读取和回写授权方 refresh token。 |
+| `$authorizers` | 微信服务平台代调用时，读取和回写授权方 refresh token。 |
 | `$http` | 可注入自定义 Guzzle HTTP 客户端，便于统一超时、代理或单元测试。 |
 | `$cacheKeyPrefix` | 缓存键前缀，默认 `wechat_developer`；生产环境建议按项目设置。 |
 
 也可以用字符串通道创建客户端：
 
 ```php
-$official = $client->get('wechat.platform', WechatPlatformConfig::fromArray($config));
+$platform = $client->get('wechat.platform', WechatPlatformConfig::fromArray($config));
 ```
 
 支持的通道：
@@ -289,14 +349,14 @@ $client = new Client(
 例如：
 
 ```text
-my_app:wechat.platform:wechat:app:wx123:official:access_token
+my_app:wechat.platform:wechat:app:wx123:platform:access_token
 ```
 
 完整键由 `CacheKey` 生成，微信 token 逻辑键由 `TokenCacheKey` 生成。
 
-## 微信开放平台授权方 Token
+## 微信服务平台授权方 Token
 
-开放平台代调用授权方接口时，SDK 需要读取授权方 refresh token，并在刷新后把新 token 回写业务存储。业务系统实现 `StoreTokenInterface` 即可：
+微信服务平台代调用授权方接口时，SDK 需要读取授权方 refresh token，并在刷新后把新 token 回写业务存储。业务系统实现 `StoreTokenInterface` 即可：
 
 ```php
 use We\Contract\StoreTokenInterface;
@@ -325,21 +385,21 @@ $client = new Client(
 );
 ```
 
-## 微信公众号
+## 微信公众平台
 
 ```php
 use We\Config\WechatPlatformConfig;
 
-$official = $client->wechatPlatform(new WechatPlatformConfig(
+$platform = $client->wechatPlatform(new WechatPlatformConfig(
     appid: 'wx_appid',
     appSecret: 'app_secret',
     token: 'message_token',
     encodingAesKey: 'encoding_aes_key',
 ));
 
-$accessToken = $official->accessToken();
+$accessToken = $platform->accessToken();
 
-$result = $official->post('cgi-bin/message/custom/send', [
+$result = $platform->post('cgi-bin/message/custom/send', [
     'touser' => 'openid',
     'msgtype' => 'text',
     'text' => ['content' => 'hello'],
@@ -349,7 +409,7 @@ $result = $official->post('cgi-bin/message/custom/send', [
 安全模式消息解密：
 
 ```php
-$plain = $official->post('decrypt_message', [
+$plain = $platform->post('decrypt_message', [
     'body' => $rawBody,
     'msg_signature' => $signature,
     'timestamp' => $timestamp,
@@ -385,15 +445,16 @@ $phone = $wxapp->post('wxa/business/getuserphonenumber', [
 ]);
 ```
 
-如果官方接口返回图片、文件等二进制内容，默认 `post()` 会按 JSON 响应解析，不适合直接处理；建议注入自定义 Guzzle 客户端或在业务侧扩展专用下载方法。
+如果官方接口返回图片、文件等二进制内容，使用 `download()` 或 `raw()` 获取原始 PSR-7 Response；默认 `post()` 仍按 JSON 响应解析。
 
-## 微信开放平台
+## 微信服务平台
 
 ```php
 use We\Config\WechatServiceConfig;
 
+$componentAppid = 'component_appid';
 $service = $client->wechatService(new WechatServiceConfig(
-    componentAppid: 'component_appid',
+    componentAppid: $componentAppid,
     componentAppSecret: 'component_secret',
     componentToken: 'component_token',
     componentEncodingAesKey: 'component_encoding_aes_key',
@@ -436,6 +497,14 @@ $refund = $payment->post('v3/refund/domestic/refunds', [
         'total' => 1,
         'currency' => 'CNY',
     ],
+]);
+```
+
+下载账单等非 JSON 响应时使用已签名的 `download()`：
+
+```php
+$bill = $payment->download('v3/bill/tradebill', [
+    'bill_date' => '2026-05-08',
 ]);
 ```
 
@@ -497,10 +566,10 @@ $page = $payment->post('page', [
 
 ## 常见业务案例
 
-### 公众号：创建菜单并发送客服消息
+### 微信公众平台：创建菜单并发送客服消息
 
 ```php
-$official->post('cgi-bin/menu/create', [
+$platform->post('cgi-bin/menu/create', [
     'button' => [
         [
             'name' => '服务',
@@ -512,40 +581,39 @@ $official->post('cgi-bin/menu/create', [
     ],
 ]);
 
-$official->post('cgi-bin/message/custom/send', [
+$platform->post('cgi-bin/message/custom/send', [
     'touser' => 'openid',
     'msgtype' => 'text',
     'text' => ['content' => '您好，客服消息已发送。'],
 ]);
 ```
 
-### 公众号：网页授权 URL 与用户资料
+### 微信公众平台：网页授权 URL 与用户资料
 
 ```php
 $redirectUri = 'https://example.com/oauth/callback';
-$url = 'https://open.weixin.qq.com/connect/oauth2/authorize?' . http_build_query([
-    'appid' => 'wx_appid',
+$authUrl = $platform->get('connect/oauth2/authorize', [
     'redirect_uri' => $redirectUri,
-    'response_type' => 'code',
     'scope' => 'snsapi_userinfo',
     'state' => 'state-value',
-]) . '#wechat_redirect';
+]);
+$url = $authUrl['url'];
 
-$oauth = $official->get('sns/oauth2/access_token', [
+$oauth = $platform->get('sns/oauth2/access_token', [
     'appid' => 'wx_appid',
     'secret' => 'app_secret',
     'code' => $code,
     'grant_type' => 'authorization_code',
 ], ['with_token' => false]);
 
-$user = $official->get('sns/userinfo', [
+$user = $platform->get('sns/userinfo', [
     'access_token' => $oauth['access_token'],
     'openid' => $oauth['openid'],
     'lang' => 'zh_CN',
 ], ['with_token' => false]);
 ```
 
-### 开放平台：授权回调后保存授权方 Token
+### 微信服务平台：授权回调后保存授权方 Token
 
 ```php
 $componentToken = $service->componentAccessToken($componentVerifyTicket);
@@ -647,7 +715,7 @@ WeChatDeveloper 只处理协议层和 HTTP 编排：
 - 不提供账号、租户、菜单草稿、订单、授权记录等业务表。
 - 不托管密钥加密存储。
 - 不绑定 Hyperf、Laravel、Symfony 等框架。
-- 不保证覆盖每一个官方接口别名，通用接口通过官方 path 调用。
+- 不保证覆盖每一个官方接口别名；SDK 通过官方 path、JSON、raw/download、multipart upload 等协议层能力支持接口调用。
 
 这种边界使 SDK 更适合作为开源底层包，被后台系统、SaaS 平台或命令行工具组合使用。
 
