@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * 支付宝开放平台客户端。
+ */
+
 namespace We\Platform\Alipay;
 
 use GuzzleHttp\Client as GuzzleClient;
@@ -9,10 +13,18 @@ use GuzzleHttp\ClientInterface;
 use We\Config\AlipayPlatformConfig;
 use We\Exception\WechatException;
 
+/**
+ * 支付宝开放平台客户端。
+ *
+ * 负责组装支付宝开放平台网关公共参数、生成 RSA/RSA2 签名、验证同步响应和异步通知签名。
+ */
 class PlatformClient
 {
     protected ClientInterface $http;
 
+    /**
+     * 创建支付宝开放平台客户端并初始化网关 HTTP 客户端。
+     */
     public function __construct(
         protected readonly AlipayPlatformConfig $config,
         ?ClientInterface $http = null,
@@ -20,23 +32,16 @@ class PlatformClient
         $this->http = $http ?? new GuzzleClient(['timeout' => 20.0]);
     }
 
-    /** @param array<string,mixed> $bizContent @param array<string,mixed> $extra @return array<string,mixed> */
+    /**
+     * 调用支付宝开放平台网关接口。
+     *
+     * @param array<string,mixed> $bizContent
+     * @param array<string,mixed> $extra
+     * @return array<string,mixed>
+     */
     public function request(string $apiMethod, array $bizContent = [], array $extra = []): array
     {
-        $params = [
-            'app_id' => $this->config->appid,
-            'method' => $apiMethod,
-            'format' => $this->config->format,
-            'charset' => $this->config->charset,
-            'sign_type' => $this->config->signType,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => $this->config->version,
-            'biz_content' => json_encode($bizContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-        ];
-        foreach ($extra as $key => $value) {
-            $params[(string)$key] = is_scalar($value) ? (string)$value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-        $params['sign'] = $this->sign($params);
+        $params = $this->buildGatewayParams($apiMethod, $bizContent, $extra);
         $response = $this->http->request('POST', $this->config->gateway, [
             'form_params' => $params,
             'headers' => ['Accept' => 'application/json'],
@@ -60,7 +65,7 @@ class PlatformClient
     }
 
     /**
-     * 验证支付宝异步通知签名；业务处理回调前应先调用该方法。
+     * 验证支付宝异步通知签名；业务处理通知前应先完成验签。
      *
      * @param array<string,mixed> $params 支付宝通知完整参数，包含 sign/sign_type。
      */
@@ -70,7 +75,7 @@ class PlatformClient
     }
 
     /**
-     * 验证支付宝参数签名；通知验签会排除 sign 与 sign_type，其他参数按字典序拼接。
+     * 验证支付宝参数签名；按开放平台规则排除 sign/sign_type 后排序拼接待验签内容。
      *
      * @param array<string,mixed> $params
      */
@@ -87,6 +92,9 @@ class PlatformClient
         return $this->verifySignature($this->buildSignContent($params, true), $sign);
     }
 
+    /**
+     * 生成支付宝开放平台网页授权地址。
+     */
     public function auth(string $redirectUri, string $scope = 'auth_user', string $state = ''): string
     {
         return 'https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?' . http_build_query([
@@ -97,7 +105,11 @@ class PlatformClient
         ]);
     }
 
-    /** @return array<string,mixed> */
+    /**
+     * 解密支付宝小程序等场景返回的 AES 加密数据。
+     *
+     * @return array<string,mixed>
+     */
     public function decrypt(string $encryptedData, string $sessionKey, string $iv): array
     {
         $plain = openssl_decrypt(
@@ -119,6 +131,8 @@ class PlatformClient
     }
 
     /**
+     * 通用网关调用入口；特殊操作名用于授权地址生成和数据解密。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
@@ -145,6 +159,8 @@ class PlatformClient
     }
 
     /**
+     * 按 POST 语义调用支付宝开放平台接口。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
@@ -155,6 +171,8 @@ class PlatformClient
     }
 
     /**
+     * 按 GET 语义调用支付宝开放平台接口。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
@@ -164,7 +182,11 @@ class PlatformClient
         return $this->call($uriOrPath, $params, 'GET', $options);
     }
 
-    /** @param array<string,mixed> $params */
+    /**
+     * 使用应用私钥对支付宝网关请求参数生成签名。
+     *
+     * @param array<string,mixed> $params
+     */
     protected function sign(array $params): string
     {
         $data = $this->buildSignContent($params);
@@ -182,6 +204,36 @@ class PlatformClient
         return base64_encode($signature);
     }
 
+    /**
+     * 组装支付宝开放平台网关公共参数并附加签名。
+     *
+     * @param array<string,mixed> $bizContent
+     * @param array<string,mixed> $extra
+     * @return array<string,string>
+     */
+    protected function buildGatewayParams(string $apiMethod, array $bizContent = [], array $extra = []): array
+    {
+        $params = [
+            'app_id' => $this->config->appid,
+            'method' => $apiMethod,
+            'format' => $this->config->format,
+            'charset' => $this->config->charset,
+            'sign_type' => $this->config->signType,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'version' => $this->config->version,
+            'biz_content' => json_encode($bizContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+        ];
+        foreach ($extra as $key => $value) {
+            $params[(string)$key] = $this->gatewayValue($value);
+        }
+        $params['sign'] = $this->sign($params);
+
+        return $params;
+    }
+
+    /**
+     * 使用支付宝公钥校验网关同步响应签名。
+     */
     private function assertResponseSignature(string $body, string $node, string $sign): void
     {
         if ($sign === '') {
@@ -195,6 +247,8 @@ class PlatformClient
     }
 
     /**
+     * 按支付宝开放平台规则排序并拼接待签名字符串。
+     *
      * @param array<string,mixed> $params
      */
     private function buildSignContent(array $params, bool $skipSignType = false): string
@@ -205,12 +259,23 @@ class PlatformClient
             if ($key === 'sign' || ($skipSignType && $key === 'sign_type') || $value === null || $value === '') {
                 continue;
             }
-            $pairs[] = $key . '=' . (is_scalar($value) ? (string)$value : (json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: ''));
+            $pairs[] = $key . '=' . $this->gatewayValue($value);
         }
 
         return implode('&', $pairs);
     }
 
+    /**
+     * 将网关扩展参数规范化为支付宝表单字符串。
+     */
+    private function gatewayValue(mixed $value): string
+    {
+        return is_scalar($value) ? (string)$value : (json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '');
+    }
+
+    /**
+     * 使用支付宝公钥验证 RSA/RSA2 签名。
+     */
     private function verifySignature(string $source, string $signature): bool
     {
         $publicKey = $this->normalizePublicKey($this->config->alipayPublicKey);
@@ -227,16 +292,25 @@ class PlatformClient
         return openssl_verify($source, $decoded, $resource, $algo) === 1;
     }
 
+    /**
+     * 将应用私钥内容规范化为 PEM 格式。
+     */
     private function normalizePrivateKey(string $privateKey): string
     {
         return str_contains($privateKey, 'BEGIN') ? $privateKey : "-----BEGIN PRIVATE KEY-----\n" . chunk_split($privateKey, 64, "\n") . "-----END PRIVATE KEY-----";
     }
 
+    /**
+     * 将支付宝公钥内容规范化为 PEM 格式。
+     */
     private function normalizePublicKey(string $publicKey): string
     {
         return str_contains($publicKey, 'BEGIN') ? $publicKey : "-----BEGIN PUBLIC KEY-----\n" . chunk_split($publicKey, 64, "\n") . "-----END PUBLIC KEY-----";
     }
 
+    /**
+     * 从支付宝网关原始 JSON 响应中提取用于验签的响应节点。
+     */
     private function extractJsonValue(string $json, string $key): string
     {
         if (preg_match('/"' . preg_quote($key, '/') . '"\s*:\s*/', $json, $match, PREG_OFFSET_CAPTURE) !== 1) {

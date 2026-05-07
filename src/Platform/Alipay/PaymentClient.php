@@ -2,19 +2,33 @@
 
 declare(strict_types=1);
 
+/**
+ * 支付宝支付客户端。
+ */
+
 namespace We\Platform\Alipay;
 
 use GuzzleHttp\ClientInterface;
 use We\Config\AlipayPaymentConfig;
 
+/**
+ * 支付宝支付客户端。
+ *
+ * 在支付宝开放平台网关能力之上提供电脑网站支付与交易退款快捷方法。
+ */
 final class PaymentClient extends PlatformClient
 {
+    /**
+     * 创建支付宝支付客户端。
+     */
     public function __construct(AlipayPaymentConfig $config, ?ClientInterface $http = null)
     {
         parent::__construct($config, $http);
     }
 
     /**
+     * 调用支付宝交易退款接口 `alipay.trade.refund`。
+     *
      * @param array<string,mixed> $bizContent
      * @param array<string,mixed> $extra
      * @return array<string,mixed>
@@ -25,29 +39,20 @@ final class PaymentClient extends PlatformClient
     }
 
     /**
+     * 生成电脑网站支付接口 `alipay.trade.page.pay` 跳转地址。
+     *
      * @param array<string,mixed> $bizContent
      */
     public function page(array $bizContent, array $extra = []): string
     {
-        $params = [
-            'app_id' => $this->config->appid,
-            'method' => 'alipay.trade.page.pay',
-            'format' => $this->config->format,
-            'charset' => $this->config->charset,
-            'sign_type' => $this->config->signType,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'version' => $this->config->version,
-            'biz_content' => json_encode($bizContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-        ];
-        foreach ($extra as $key => $value) {
-            $params[(string)$key] = is_scalar($value) ? (string)$value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-        $params['sign'] = $this->sign($params);
+        $params = $this->buildGatewayParams('alipay.trade.page.pay', $bizContent, $extra);
 
         return $this->config->gateway . '?' . http_build_query($params);
     }
 
     /**
+     * 通用支付调用入口；特殊操作名用于电脑网站支付和退款快捷调用。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
@@ -66,6 +71,8 @@ final class PaymentClient extends PlatformClient
     }
 
     /**
+     * 按 POST 语义调用支付宝支付接口。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
@@ -76,6 +83,8 @@ final class PaymentClient extends PlatformClient
     }
 
     /**
+     * 按 GET 语义调用支付宝支付接口。
+     *
      * @param array<string,mixed> $params
      * @param array<string,mixed> $options
      * @return array<string,mixed>
