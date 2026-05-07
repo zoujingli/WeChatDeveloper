@@ -2,13 +2,24 @@
 
 declare(strict_types=1);
 
+/**
+ * 微信支付 APIv3 通知资源解密工具。
+ */
+
 namespace We\Support;
 
 use We\Exception\WechatException;
 
+/**
+ * 微信支付 APIv3 通知资源解密工具。
+ *
+ * 使用商户 APIv3 密钥对通知 resource.ciphertext 执行 AES-256-GCM 解密，并解析明文 JSON。
+ */
 final class PaymentCrypto
 {
     /**
+     * 解密微信支付 APIv3 通知中的 resource 字段。
+     *
      * @param array{ciphertext:string,nonce:string,associated_data?:string} $resource
      * @return array<string,mixed>
      */

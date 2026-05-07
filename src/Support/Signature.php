@@ -2,14 +2,23 @@
 
 declare(strict_types=1);
 
+/**
+ * 签名与验签工具。
+ */
+
 namespace We\Support;
 
 use We\Exception\SignatureException;
 
+/**
+ * 签名与验签工具集合。
+ *
+ * 覆盖微信消息 SHA1 签名、微信支付 APIv3 商户 RSA-SHA256 签名和平台证书/公钥验签。
+ */
 final class Signature
 {
     /**
-     * 微信公众号与开放平台回调签名，参数按字典序拼接后 SHA1。
+     * 生成微信服务器消息签名：参数按字典序排序后拼接并计算 SHA1。
      *
      * @param array<int,string> $items
      */
@@ -21,6 +30,8 @@ final class Signature
     }
 
     /**
+     * 校验微信服务器消息签名。
+     *
      * @param array<int,string> $items
      */
     public static function assertSha1(string $expected, array $items): void
@@ -31,6 +42,9 @@ final class Signature
         }
     }
 
+    /**
+     * 使用微信支付商户私钥生成 RSA-SHA256 签名。
+     */
     public static function paymentV3Sign(string $privateKey, string $message): string
     {
         $key = openssl_pkey_get_private($privateKey);
@@ -44,6 +58,9 @@ final class Signature
         return base64_encode($signature);
     }
 
+    /**
+     * 使用微信支付平台证书或平台公钥验证 RSA-SHA256 签名。
+     */
     public static function verifyPaymentV3(string $publicKey, string $message, string $signature): bool
     {
         $key = openssl_pkey_get_public($publicKey);
