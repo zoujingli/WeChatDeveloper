@@ -2,15 +2,25 @@
 
 declare(strict_types=1);
 
+/**
+ * 微信支付 APIv3 通知 resource 解密测试。
+ */
+
 namespace We\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use We\Support\PaymentCrypto;
 
+/**
+ * 微信支付 APIv3 通知 resource 解密测试用例。
+ */
 #[CoversClass(PaymentCrypto::class)]
 final class PaymentCryptoTest extends TestCase
 {
+    /**
+     * 测试微信支付回调资源解密。
+     */
     public function testDecryptResource(): void
     {
         $key = str_repeat('k', 32);

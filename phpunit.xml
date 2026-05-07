@@ -8,15 +8,12 @@
          requireCoverageMetadata="false">
     <testsuites>
         <testsuite name="WeChatDeveloper">
-            <directory suffix="Test.php">src/Tests</directory>
+            <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
             <directory suffix=".php">src</directory>
         </include>
-        <exclude>
-            <directory>src/Tests</directory>
-        </exclude>
     </source>
 </phpunit>

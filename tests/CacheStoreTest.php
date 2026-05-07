@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * SDK 缓存存储实现测试。
+ */
+
 namespace We\Tests;
 
 use DateInterval;
@@ -13,11 +17,17 @@ use We\Support\FileCacheStore;
 use We\Support\NullCacheStore;
 use We\Support\PsrSimpleCacheStore;
 
+/**
+ * SDK 缓存存储实现测试用例。
+ */
 #[CoversClass(FileCacheStore::class)]
 #[CoversClass(NullCacheStore::class)]
 #[CoversClass(PsrSimpleCacheStore::class)]
 final class CacheStoreTest extends TestCase
 {
+    /**
+     * 测试文件缓存的写入、读取、删除与过期行为。
+     */
     public function testFileCacheStoreSetGetDelAndTtl(): void
     {
         $dir = $this->tempDir();
@@ -36,6 +46,9 @@ final class CacheStoreTest extends TestCase
         $this->removeDir($dir);
     }
 
+    /**
+     * 测试文件缓存锁会执行回调。
+     */
     public function testFileCacheStoreLockExecutesCallback(): void
     {
         $dir = $this->tempDir();
@@ -47,6 +60,9 @@ final class CacheStoreTest extends TestCase
         $this->removeDir($dir);
     }
 
+    /**
+     * 测试空缓存锁会直接执行回调。
+     */
     public function testNullCacheStoreLockExecutesCallback(): void
     {
         $store = new NullCacheStore();
@@ -54,6 +70,9 @@ final class CacheStoreTest extends TestCase
         $this->assertSame('ok', $store->lock('k', 10, static fn (): string => 'ok'));
     }
 
+    /**
+     * 测试 PSR 缓存未配置锁能力时抛出异常。
+     */
     public function testPsrSimpleCacheStoreThrowsWhenLockerMissing(): void
     {
         $store = new PsrSimpleCacheStore(new ArraySimpleCache());
@@ -64,6 +83,9 @@ final class CacheStoreTest extends TestCase
         $store->lock('k', 10, static fn (): string => 'never');
     }
 
+    /**
+     * 测试 PSR 缓存会使用注入的锁回调。
+     */
     public function testPsrSimpleCacheStoreUsesInjectedLocker(): void
     {
         $calls = [];
@@ -77,11 +99,17 @@ final class CacheStoreTest extends TestCase
         $this->assertSame([['k', 10]], $calls);
     }
 
+    /**
+     * 创建本次测试使用的临时目录路径。
+     */
     private function tempDir(): string
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wechatdev_cache_' . bin2hex(random_bytes(8));
     }
 
+    /**
+     * 递归删除测试临时目录。
+     */
     private function removeDir(string $dir): void
     {
         if (!is_dir($dir)) {
@@ -99,16 +127,25 @@ final class CacheStoreTest extends TestCase
     }
 }
 
+/**
+ * 测试用 PSR-16 内存缓存实现。
+ */
 final class ArraySimpleCache implements CacheInterface
 {
     /** @var array<string,mixed> */
     private array $values = [];
 
+    /**
+     * 读取测试缓存值。
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         return $this->values[$key] ?? $default;
     }
 
+    /**
+     * 写入缓存值。
+     */
     public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
     {
         $this->values[$key] = $value;
@@ -116,6 +153,9 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
+    /**
+     * 删除测试缓存值。
+     */
     public function delete(string $key): bool
     {
         unset($this->values[$key]);
@@ -123,6 +163,9 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
+    /**
+     * 清空测试缓存。
+     */
     public function clear(): bool
     {
         $this->values = [];
@@ -130,6 +173,9 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
+    /**
+     * 批量读取测试缓存值。
+     */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         foreach ($keys as $key) {
@@ -137,6 +183,9 @@ final class ArraySimpleCache implements CacheInterface
         }
     }
 
+    /**
+     * 批量写入测试缓存值。
+     */
     public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
     {
         foreach ($values as $key => $value) {
@@ -146,6 +195,9 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
+    /**
+     * 批量删除测试缓存值。
+     */
     public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
@@ -155,6 +207,9 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
+    /**
+     * 判断测试缓存键是否存在。
+     */
     public function has(string $key): bool
     {
         return array_key_exists($key, $this->values);

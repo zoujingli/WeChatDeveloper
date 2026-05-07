@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * SDK 根入口通道工厂测试。
+ */
+
 namespace We\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,9 +19,15 @@ use We\Platform\Alipay\PlatformClient as AlipayPlatformClient;
 use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
 use We\Platform\Wechat\ServiceClient as WechatServiceClient;
 
+/**
+ * SDK 根入口通道工厂测试用例。
+ */
 #[CoversClass(Client::class)]
 final class ClientTest extends TestCase
 {
+    /**
+     * 测试根客户端缓存前缀为空时抛出异常。
+     */
     public function testConstructorThrowsWhenCacheKeyPrefixEmpty(): void
     {
         $this->expectException(WechatException::class);
@@ -25,6 +35,9 @@ final class ClientTest extends TestCase
         new Client(cacheKeyPrefix: '   ');
     }
 
+    /**
+     * 测试默认缓存目录位于系统临时目录下。
+     */
     public function testDefaultCacheStoreDirectoryUnderSysTemp(): void
     {
         $dir = Client::defaultCacheStoreDirectory();
@@ -32,6 +45,9 @@ final class ClientTest extends TestCase
         $this->assertStringEndsWith(Client::DEFAULT_CACHE_STORE_DIR_NAME, $dir);
     }
 
+    /**
+     * 测试不支持的通道标识会抛出异常。
+     */
     public function testGetThrowsWhenChannelUnsupported(): void
     {
         $client = new Client();
@@ -41,6 +57,9 @@ final class ClientTest extends TestCase
         $client->get('unknown.channel', new WechatPlatformConfig('wx_x', 'sec'));
     }
 
+    /**
+     * 测试通道配置类型不匹配会抛出异常。
+     */
     public function testGetThrowsWhenConfigMismatch(): void
     {
         $client = new Client();
@@ -50,6 +69,9 @@ final class ClientTest extends TestCase
         $client->get('wechat.platform', new WechatServiceConfig('app', 'sec', 'token', 'encoding'));
     }
 
+    /**
+     * 测试微信公众平台工厂返回正确客户端。
+     */
     public function testWechatPlatformFactoryReturnsTypedClient(): void
     {
         $client = new Client();
@@ -58,7 +80,30 @@ final class ClientTest extends TestCase
         $this->assertInstanceOf(WechatPlatformClient::class, $wechat);
     }
 
-    public function testServiceClientAuthorizationUrlStillAvailable(): void
+    /**
+     * 测试微信公众平台可生成 open.weixin.qq.com 网页授权地址。
+     */
+    public function testWechatPlatformBuildsOpenAuthorizeUrl(): void
+    {
+        $client = new Client();
+        $wechat = $client->wechatPlatform(new WechatPlatformConfig('wx_appid', 'app_secret'));
+        $result = $wechat->get('connect/oauth2/authorize', [
+            'redirect_uri' => 'https://example.com/wechat/callback',
+            'scope' => 'snsapi_userinfo',
+            'state' => 'S1',
+        ]);
+
+        $this->assertArrayHasKey('url', $result);
+        $this->assertStringStartsWith('https://open.weixin.qq.com/connect/oauth2/authorize?', (string)$result['url']);
+        $this->assertStringContainsString('appid=wx_appid', (string)$result['url']);
+        $this->assertStringContainsString('scope=snsapi_userinfo', (string)$result['url']);
+        $this->assertStringEndsWith('#wechat_redirect', (string)$result['url']);
+    }
+
+    /**
+     * 测试微信服务平台工厂返回正确客户端，并保留授权地址生成能力。
+     */
+    public function testWechatServiceFactoryReturnsTypedClientAndBuildsAuthorizationUrl(): void
     {
         $client = new Client();
         $service = $client->wechatService(new WechatServiceConfig(
@@ -67,12 +112,17 @@ final class ClientTest extends TestCase
             'component_token',
             'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG'
         ));
-        $result = $service->authorizationUrl('preauthcode', 'https://example.com/callback', 3, 'STATE_TEST');
+        $url = $service->authorizationUrl('preauthcode', 'https://example.com/callback', 3, 'STATE_TEST');
 
-        $this->assertStringContainsString('componentloginpage', $result);
-        $this->assertStringContainsString('pre_auth_code=preauthcode', $result);
+        $this->assertInstanceOf(WechatServiceClient::class, $service);
+        $this->assertStringContainsString('componentloginpage', $url);
+        $this->assertStringContainsString('pre_auth_code=preauthcode', $url);
+        $this->assertStringContainsString('state=STATE_TEST', $url);
     }
 
+    /**
+     * 测试支付宝授权调用返回跳转地址。
+     */
     public function testAlipayPlatformCallReturnsAuthorizationUrl(): void
     {
         $client = new Client();
@@ -87,6 +137,9 @@ final class ClientTest extends TestCase
         $this->assertStringContainsString('state=S2', (string)$result['url']);
     }
 
+    /**
+     * 测试按通道字符串创建指定客户端。
+     */
     public function testGetCanReturnSpecificChannelClient(): void
     {
         $client = new Client();
