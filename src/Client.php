@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+/**
+ * SDK 根入口与通道客户端工厂。
+ */
+
 namespace We;
 
 use GuzzleHttp\ClientInterface;
@@ -26,10 +30,10 @@ use We\Platform\Wechat\WxappClient as WechatWxappClient;
 use We\Support\FileCacheStore;
 
 /**
- * 根入口：通过 `__call` 以通道工厂方法名创建各平台客户端（内部 `ReflectionClass::newInstanceArgs`），便于集中维护构造参数。
+ * SDK 根入口：按平台与业务域创建微信、支付宝客户端，工厂方法命名与配置对象语义保持一致。
  *
- * 缓存键固定为 `{cacheKeyPrefix}:{platformChannel}:{logicalKey}`，见 {@see \We\Support\CacheKey::compose}；未传 `cacheKeyPrefix` 时使用 {@see self::DEFAULT_CACHE_KEY_PREFIX}，不得传空白字符串。
- * 未传入 `cache` 时默认使用 {@see FileCacheStore}，目录为 {@see self::defaultCacheStoreDirectory()}（位于 PHP `sys_get_temp_dir()` 下）。
+ * access_token 等运行态数据的缓存键固定为 `{cacheKeyPrefix}:{platformChannel}:{logicalKey}`，见 {@see \We\Support\CacheKey::compose}。
+ * 未注入缓存实现时使用 {@see FileCacheStore}，默认目录为 {@see self::defaultCacheStoreDirectory()}。
  *
  * @method WechatPlatformClient wechatPlatform(WechatPlatformConfig $config)
  * @method WechatWxappClient    wechatWxapp(WechatWxappConfig $config)
@@ -54,6 +58,9 @@ final class Client
 
     private readonly string $cacheKeyPrefix;
 
+    /**
+     * 初始化 SDK 根入口，注入运行态缓存、授权方 Token 仓库和 HTTP 客户端。
+     */
     public function __construct(
         ?StoreCacheInterface $cache = null,
         ?StoreTokenInterface $authorizers = null,
@@ -78,27 +85,27 @@ final class Client
     }
 
     /**
-     * 按通道标识取实例：`new Client()->get('wechat.platform', new WechatPlatformConfig(...))`
+     * 按字符串通道创建客户端；通道名称与配置对象一一对应。
      */
     public function get(string $channel, ConfigInterface $config): object
     {
-        $factory = match ($channel) {
-            'wechat.platform' => 'wechatPlatform',
-            'wechat.wxapp' => 'wechatWxapp',
-            'wechat.service' => 'wechatService',
-            'wechat.payment' => 'wechatPayment',
-            'alipay.platform' => 'alipayPlatform',
-            'alipay.payment' => 'alipayPayment',
+        [$factory, $expected] = match ($channel) {
+            'wechat.platform' => ['wechatPlatform', WechatPlatformConfig::class],
+            'wechat.wxapp' => ['wechatWxapp', WechatWxappConfig::class],
+            'wechat.service' => ['wechatService', WechatServiceConfig::class],
+            'wechat.payment' => ['wechatPayment', WechatPaymentConfig::class],
+            'alipay.platform' => ['alipayPlatform', AlipayPlatformConfig::class],
+            'alipay.payment' => ['alipayPayment', AlipayPaymentConfig::class],
             default => throw new WechatException('不支持的通道标识: ' . $channel),
         };
 
-        return $this->__call($factory, [$config]);
+        return $this->__call($factory, [$this->ensureConfig($config, $expected, $factory)]);
     }
 
     /**
-     * 魔术工厂：`$client->wechatPlatform($config)` 等价于反射 `new WechatPlatformClient(...)`。
+     * 魔术工厂：只暴露平台前缀明确的客户端创建方法。
      *
-     * @param array<int, mixed> $arguments
+     * @param array<int,mixed> $arguments
      */
     public function __call(string $name, array $arguments): object
     {
@@ -144,6 +151,8 @@ final class Client
     }
 
     /**
+     * 使用反射创建具体平台客户端实例。
+     *
      * @param class-string $class
      * @param array<int, mixed> $args
      */
@@ -157,6 +166,8 @@ final class Client
     }
 
     /**
+     * 校验工厂方法收到的配置对象类型。
+     *
      * @template T of object
      * @param class-string<T> $expected
      * @return T
@@ -170,7 +181,11 @@ final class Client
         return $config;
     }
 
-    /** @param class-string $fqcn */
+    /**
+     * 获取类短名，用于生成清晰的配置类型错误信息。
+     *
+     * @param class-string $fqcn
+     */
     private function shortClass(string $fqcn): string
     {
         $pos = strrpos($fqcn, '\\');

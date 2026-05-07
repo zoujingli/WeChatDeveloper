@@ -2,16 +2,23 @@
 
 declare(strict_types=1);
 
+/**
+ * 本地文件缓存实现。
+ */
+
 namespace We\Support;
 
 use We\Contract\StoreCacheInterface;
 use We\Exception\WechatException;
 
 /**
- * 单机文件缓存：缓存值以 JSON 保存，使用 flock 提供单机多进程刷新锁。
+ * 本地文件缓存实现：缓存值以 JSON 保存，并使用 flock 提供单机多进程刷新锁。
  */
 final class FileCacheStore implements StoreCacheInterface
 {
+    /**
+     * 创建文件缓存目录并校验可写权限。
+     */
     public function __construct(private readonly string $directory)
     {
         if ($this->directory === '') {
@@ -25,6 +32,9 @@ final class FileCacheStore implements StoreCacheInterface
         }
     }
 
+    /**
+     * 读取文件缓存值；文件不存在、过期或 JSON 无效时返回默认值。
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         $path = $this->pathFor($key);
@@ -55,7 +65,7 @@ final class FileCacheStore implements StoreCacheInterface
         if (!is_array($payload) || !array_key_exists('expires_at', $payload) || !array_key_exists('value', $payload)) {
             return $default;
         }
-        if ((int)$payload['expires_at'] < time()) {
+        if ((int)$payload['expires_at'] <= time()) {
             $this->del($key);
 
             return $default;
@@ -64,6 +74,9 @@ final class FileCacheStore implements StoreCacheInterface
         return $payload['value'];
     }
 
+    /**
+     * 以原子写入方式保存缓存值与过期时间。
+     */
     public function set(string $key, mixed $value, int $ttl): void
     {
         $path = $this->pathFor($key);
@@ -90,6 +103,9 @@ final class FileCacheStore implements StoreCacheInterface
         }
     }
 
+    /**
+     * 删除指定缓存键对应的文件。
+     */
     public function del(string $key): void
     {
         $path = $this->pathFor($key);
@@ -98,6 +114,9 @@ final class FileCacheStore implements StoreCacheInterface
         }
     }
 
+    /**
+     * 基于 flock 在互斥锁内执行回调。
+     */
     public function lock(string $key, int $ttl, callable $callback): mixed
     {
         $path = $this->pathFor('lock:' . $key) . '.lock';
@@ -123,6 +142,9 @@ final class FileCacheStore implements StoreCacheInterface
         }
     }
 
+    /**
+     * 根据缓存键生成哈希分片后的文件路径。
+     */
     private function pathFor(string $key): string
     {
         $hash = hash('sha256', $key);

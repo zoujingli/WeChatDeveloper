@@ -2,26 +2,44 @@
 
 declare(strict_types=1);
 
+/**
+ * 微信支付 APIv3 商户配置对象。
+ */
+
 namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
 
+/**
+ * 微信支付 APIv3 商户配置。
+ *
+ * 商户号、商户 API 证书序列号和商户私钥用于生成 APIv3 请求签名；APIv3 密钥用于回调资源解密；微信支付平台证书或平台公钥用于通知验签。
+ */
 final class WechatPaymentConfig implements ConfigInterface
 {
+    /**
+     * 创建微信支付 APIv3 配置并执行必填项校验。
+     */
     public function __construct(
         public string $appid,
         public string $mchId,
         public string $apiV3Key,
         public string $merchantSerial,
         public string $merchantPrivateKey,
+        /** 微信支付平台证书 PEM；未配置 platformPublicKey 时用于回调验签。 */
         public string $platformCertificate = '',
+        /** 微信支付平台公钥 PEM，优先用于回调验签。 */
         public string $platformPublicKey = '',
+        /** 微信支付平台证书/公钥序列号；非空时会校验回调头 Wechatpay-Serial。 */
         public string $platformSerial = '',
     ) {
         $this->validate();
     }
 
+    /**
+     * 校验微信支付 appid、商户号、APIv3 密钥、商户证书序列号和商户私钥。
+     */
     public function validate(): void
     {
         foreach ([
@@ -38,6 +56,8 @@ final class WechatPaymentConfig implements ConfigInterface
     }
 
     /**
+     * 从数组创建微信支付 APIv3 商户配置。
+     *
      * @param array<string,mixed> $data
      */
     public static function fromArray(array $data): static

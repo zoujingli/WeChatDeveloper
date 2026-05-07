@@ -2,20 +2,24 @@
 
 declare(strict_types=1);
 
+/**
+ * 微信服务平台授权方 Token 存储契约。
+ */
+
 namespace We\Contract;
 
 /**
- * 开放平台授权方 Token 存储契约；SDK 只读取 refresh token 并回写刷新结果。
+ * 微信服务平台授权方 Token 存储契约；SDK 读取 authorizer_refresh_token，并在刷新后回写授权方 Token 数据。
  */
 interface StoreTokenInterface
 {
     /**
-     * 获取授权账号 refresh token。
+     * 获取授权方账号的 authorizer_refresh_token。
      */
     public function refreshToken(string $authorizerAppid): string;
 
     /**
-     * 授权账号 token 刷新后回写业务存储，避免 SDK 持有请求态数据。
+     * 授权方 authorizer_access_token 刷新后回写业务存储。
      *
      * @param array<string,mixed> $payload
      */
