@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信服务平台（第三方平台）配置对象。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\CredentialValidator;
 
 /**
  * 微信服务平台（第三方平台）配置。
@@ -47,6 +50,8 @@ final class WechatServiceConfig implements ConfigInterface
                 throw new WechatException($name . ' 不能为空');
             }
         }
+        CredentialValidator::assertWechatToken($this->componentToken, 'componentToken');
+        CredentialValidator::assertEncodingAesKey($this->componentEncodingAesKey, 'componentEncodingAesKey');
     }
 
     /**
@@ -56,7 +61,7 @@ final class WechatServiceConfig implements ConfigInterface
      */
     public static function fromArray(array $data): static
     {
-        return new static(
+        return new self(
             (string)($data['component_appid'] ?? ''),
             (string)($data['component_appsecret'] ?? $data['component_app_secret'] ?? ''),
             (string)($data['component_token'] ?? ''),

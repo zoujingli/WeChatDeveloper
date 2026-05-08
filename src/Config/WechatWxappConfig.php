@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信小程序配置对象。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Config;
@@ -37,7 +39,7 @@ final class WechatWxappConfig implements ConfigInterface
      */
     public static function fromArray(array $data): static
     {
-        return new static(
+        return new self(
             (string)($data['appid'] ?? ''),
             (string)($data['appsecret'] ?? $data['app_secret'] ?? ''),
             (string)($data['storage_scope'] ?? $data['storageScope'] ?? ''),

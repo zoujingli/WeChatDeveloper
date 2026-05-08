@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信消息安全模式加解密测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -17,6 +19,7 @@ use We\Support\Signature;
 
 /**
  * 微信消息安全模式加解密测试用例。
+ * @internal
  */
 #[CoversClass(MessageCrypto::class)]
 final class MessageCryptoTest extends TestCase

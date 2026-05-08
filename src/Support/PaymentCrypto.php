@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信支付 APIv3 通知资源解密工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -20,17 +22,25 @@ final class PaymentCrypto
     /**
      * 解密微信支付 APIv3 通知中的 resource 字段。
      *
-     * @param array{ciphertext:string,nonce:string,associated_data?:string} $resource
+     * @param array<string,mixed> $resource
      * @return array<string,mixed>
      */
     public static function decryptResource(string $apiV3Key, array $resource): array
     {
-        foreach (['ciphertext', 'nonce'] as $field) {
-            if (!isset($resource[$field]) || !is_string($resource[$field]) || $resource[$field] === '') {
-                throw new WechatException('微信支付回调资源字段缺失: ' . $field);
-            }
+        CredentialValidator::assertApiV3Key($apiV3Key);
+        $ciphertextValue = $resource['ciphertext'] ?? null;
+        $nonce = $resource['nonce'] ?? null;
+        $associatedData = $resource['associated_data'] ?? '';
+        if (!is_string($ciphertextValue) || $ciphertextValue === '') {
+            throw new WechatException('微信支付回调资源字段缺失: ciphertext');
         }
-        $ciphertext = base64_decode($resource['ciphertext'], true);
+        if (!is_string($nonce) || $nonce === '') {
+            throw new WechatException('微信支付回调资源字段缺失: nonce');
+        }
+        if (!is_string($associatedData)) {
+            throw new WechatException('微信支付回调资源字段无效: associated_data');
+        }
+        $ciphertext = base64_decode($ciphertextValue, true);
         if ($ciphertext === false || strlen($ciphertext) <= 16) {
             throw new WechatException('微信支付回调密文无效');
         }
@@ -42,9 +52,9 @@ final class PaymentCrypto
             'aes-256-gcm',
             $apiV3Key,
             OPENSSL_RAW_DATA,
-            $resource['nonce'],
+            $nonce,
             $tag,
-            (string)($resource['associated_data'] ?? '')
+            $associatedData
         );
         if (!is_string($plain) || $plain === '') {
             throw new WechatException('微信支付回调解密失败');

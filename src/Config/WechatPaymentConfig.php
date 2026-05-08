@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信支付 APIv3 商户配置对象。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\CredentialValidator;
 
 /**
  * 微信支付 APIv3 商户配置。
@@ -53,6 +56,14 @@ final class WechatPaymentConfig implements ConfigInterface
                 throw new WechatException($name . ' 不能为空');
             }
         }
+        CredentialValidator::assertApiV3Key($this->apiV3Key);
+        CredentialValidator::assertPrivateKey($this->merchantPrivateKey, 'merchantPrivateKey');
+        if ($this->platformCertificate !== '') {
+            CredentialValidator::assertPublicKey($this->platformCertificate, 'platformCertificate');
+        }
+        if ($this->platformPublicKey !== '') {
+            CredentialValidator::assertPublicKey($this->platformPublicKey, 'platformPublicKey');
+        }
     }
 
     /**
@@ -62,7 +73,7 @@ final class WechatPaymentConfig implements ConfigInterface
      */
     public static function fromArray(array $data): static
     {
-        return new static(
+        return new self(
             (string)($data['appid'] ?? ''),
             (string)($data['mch_id'] ?? $data['mchid'] ?? ''),
             (string)($data['api_v3_key'] ?? $data['mch_v3_key'] ?? ''),

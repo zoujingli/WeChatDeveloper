@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 签名与验签工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -67,7 +69,11 @@ final class Signature
         if ($key === false) {
             throw new SignatureException('微信支付平台公钥或证书无效');
         }
+        $decoded = base64_decode($signature, true);
+        if ($decoded === false) {
+            return false;
+        }
 
-        return openssl_verify($message, base64_decode($signature, true) ?: '', $key, OPENSSL_ALGO_SHA256) === 1;
+        return openssl_verify($message, $decoded, $key, OPENSSL_ALGO_SHA256) === 1;
     }
 }

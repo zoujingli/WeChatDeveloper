@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信消息安全模式加解密工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -28,11 +30,10 @@ final class MessageCrypto
         string $encodingAesKey,
         private string $appid,
     ) {
-        if (strlen($encodingAesKey) !== 43) {
-            throw new WechatException('EncodingAESKey 必须是 43 位有效字符串');
-        }
+        CredentialValidator::assertWechatToken($this->token);
+        CredentialValidator::assertEncodingAesKey($encodingAesKey);
         $key = base64_decode($encodingAesKey . '=', true);
-        if ($key === false || strlen($key) !== 32) {
+        if (!is_string($key)) {
             throw new WechatException('EncodingAESKey 必须是 43 位有效字符串');
         }
         $this->aesKey = $key;

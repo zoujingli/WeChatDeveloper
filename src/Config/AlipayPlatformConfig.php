@@ -1,15 +1,18 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 支付宝开放平台配置对象。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\CredentialValidator;
 
 /**
  * 支付宝开放平台基础配置。
@@ -43,6 +46,16 @@ class AlipayPlatformConfig implements ConfigInterface
     {
         if (trim($this->appid) === '' || trim($this->privateKey) === '') {
             throw new WechatException('支付宝 appid 与 private_key 不能为空');
+        }
+        if (!in_array(strtoupper($this->signType), ['RSA', 'RSA2'], true)) {
+            throw new WechatException('支付宝 sign_type 仅支持 RSA 或 RSA2');
+        }
+        if (!filter_var($this->gateway, FILTER_VALIDATE_URL)) {
+            throw new WechatException('支付宝 gateway 必须是有效 URL');
+        }
+        CredentialValidator::assertPrivateKey($this->privateKey, '支付宝 private_key', true);
+        if ($this->alipayPublicKey !== '') {
+            CredentialValidator::assertPublicKey($this->alipayPublicKey, '支付宝 alipay_public_key', true);
         }
     }
 

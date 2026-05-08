@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信支付 APIv3 通知 resource 解密测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -14,6 +16,7 @@ use We\Support\PaymentCrypto;
 
 /**
  * 微信支付 APIv3 通知 resource 解密测试用例。
+ * @internal
  */
 #[CoversClass(PaymentCrypto::class)]
 final class PaymentCryptoTest extends TestCase
