@@ -1,17 +1,22 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 支付宝开放平台客户端。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Platform\Alipay;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use We\Config\AlipayPlatformConfig;
+use We\Exception\ApiException;
 use We\Exception\WechatException;
+use We\Support\CredentialValidator;
 
 /**
  * 支付宝开放平台客户端。
@@ -42,10 +47,14 @@ class PlatformClient
     public function request(string $apiMethod, array $bizContent = [], array $extra = []): array
     {
         $params = $this->buildGatewayParams($apiMethod, $bizContent, $extra);
-        $response = $this->http->request('POST', $this->config->gateway, [
-            'form_params' => $params,
-            'headers' => ['Accept' => 'application/json'],
-        ]);
+        try {
+            $response = $this->http->request('POST', $this->config->gateway, [
+                'form_params' => $params,
+                'headers' => ['Accept' => 'application/json'],
+            ]);
+        } catch (GuzzleException $e) {
+            throw new ApiException('支付宝网关请求失败: ' . $e->getMessage(), (int)$e->getCode(), $e);
+        }
         $body = (string)$response->getBody();
         $payload = json_decode($body, true);
         if (!is_array($payload)) {
@@ -67,7 +76,7 @@ class PlatformClient
     /**
      * 验证支付宝异步通知签名；业务处理通知前应先完成验签。
      *
-     * @param array<string,mixed> $params 支付宝通知完整参数，包含 sign/sign_type。
+     * @param array<string,mixed> $params 支付宝通知完整参数，包含 sign/sign_type
      */
     public function verifyNotify(array $params): bool
     {
@@ -112,12 +121,18 @@ class PlatformClient
      */
     public function decrypt(string $encryptedData, string $sessionKey, string $iv): array
     {
+        $ciphertext = base64_decode($encryptedData, true);
+        $key = base64_decode($sessionKey, true);
+        $ivValue = base64_decode($iv, true);
+        if ($ciphertext === false || $key === false || $ivValue === false) {
+            throw new WechatException('支付宝数据解密参数 Base64 无效');
+        }
         $plain = openssl_decrypt(
-            base64_decode($encryptedData, true) ?: '',
+            $ciphertext,
             'AES-128-CBC',
-            base64_decode($sessionKey, true) ?: '',
+            $key,
             OPENSSL_RAW_DATA,
-            base64_decode($iv, true) ?: ''
+            $ivValue
         );
         if (!is_string($plain) || $plain === '') {
             throw new WechatException('支付宝数据解密失败');
@@ -221,7 +236,7 @@ class PlatformClient
             'sign_type' => $this->config->signType,
             'timestamp' => date('Y-m-d H:i:s'),
             'version' => $this->config->version,
-            'biz_content' => json_encode($bizContent, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+            'biz_content' => $this->jsonString($bizContent, '{}'),
         ];
         foreach ($extra as $key => $value) {
             $params[(string)$key] = $this->gatewayValue($value);
@@ -270,7 +285,17 @@ class PlatformClient
      */
     private function gatewayValue(mixed $value): string
     {
-        return is_scalar($value) ? (string)$value : (json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '');
+        return is_scalar($value) ? (string)$value : $this->jsonString($value, '');
+    }
+
+    /**
+     * 将支付宝网关数组参数编码为 JSON 字符串。
+     */
+    private function jsonString(mixed $value, string $fallback): string
+    {
+        $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        return is_string($json) ? $json : $fallback;
     }
 
     /**
@@ -297,7 +322,7 @@ class PlatformClient
      */
     private function normalizePrivateKey(string $privateKey): string
     {
-        return str_contains($privateKey, 'BEGIN') ? $privateKey : "-----BEGIN PRIVATE KEY-----\n" . chunk_split($privateKey, 64, "\n") . "-----END PRIVATE KEY-----";
+        return CredentialValidator::normalizePrivateKey($privateKey, true);
     }
 
     /**
@@ -305,7 +330,7 @@ class PlatformClient
      */
     private function normalizePublicKey(string $publicKey): string
     {
-        return str_contains($publicKey, 'BEGIN') ? $publicKey : "-----BEGIN PUBLIC KEY-----\n" . chunk_split($publicKey, 64, "\n") . "-----END PUBLIC KEY-----";
+        return CredentialValidator::normalizePublicKey($publicKey, true);
     }
 
     /**

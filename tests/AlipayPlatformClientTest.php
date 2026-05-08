@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 支付宝开放平台网关调用与验签测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -21,6 +23,7 @@ use We\Platform\Alipay\PlatformClient as AlipayPlatformClient;
 
 /**
  * 支付宝开放平台网关调用与验签测试用例。
+ * @internal
  */
 #[CoversClass(AlipayPlatformClient::class)]
 final class AlipayPlatformClientTest extends TestCase
@@ -118,6 +121,7 @@ final class AlipayFakeHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端请求接口或记录请求。
+     * @param mixed $uri
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
@@ -126,6 +130,7 @@ final class AlipayFakeHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端异步请求接口。
+     * @param mixed $uri
      */
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {

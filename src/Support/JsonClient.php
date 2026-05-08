@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * JSON HTTP 客户端封装。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -38,14 +40,18 @@ final class JsonClient
     public function request(string $method, string $uri, array $query = [], array $options = []): array
     {
         $response = $this->raw($method, $uri, $query, $options);
+        $statusCode = (int)$response->getStatusCode();
         $body = (string)$response->getBody();
         $data = $body === '' ? [] : json_decode($body, true);
         if (!is_array($data)) {
-            throw new ApiException('微信接口响应不是有效 JSON', (int)$response->getStatusCode(), null, ['body' => $body]);
+            throw new ApiException('微信接口响应不是有效 JSON', $statusCode, null, ['body' => $body]);
         }
         $errcode = (int)($data['errcode'] ?? 0);
         if ($errcode !== 0) {
             throw new ApiException((string)($data['errmsg'] ?? '微信接口请求失败'), $errcode, null, $data);
+        }
+        if ($statusCode >= 400) {
+            throw new ApiException((string)($data['message'] ?? '微信接口请求失败'), $statusCode, null, $data);
         }
 
         return $data;
@@ -72,6 +78,7 @@ final class JsonClient
     public function send(string $method, string $uri, array $options = []): ResponseInterface
     {
         $this->assertRelativeUri($uri);
+        $options['http_errors'] = $options['http_errors'] ?? false;
         try {
             return $this->http->request($method, $uri, $options);
         } catch (GuzzleException $exception) {

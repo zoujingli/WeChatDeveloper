@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信支付 APIv3 通知验签与解密测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -12,11 +14,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use We\Config\WechatPaymentConfig;
 use We\Exception\SignatureException;
+use We\Exception\WechatException;
 use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
 use We\Support\Signature;
 
 /**
  * 微信支付 APIv3 通知验签与解密测试用例。
+ * @internal
  */
 #[CoversClass(WechatPaymentClient::class)]
 final class PaymentClientTest extends TestCase
@@ -48,7 +52,7 @@ final class PaymentClientTest extends TestCase
             'mch_id',
             $apiV3Key,
             'merchant-serial',
-            'merchant-private-key',
+            TestKeys::privateKey(),
             '',
             $platformPublicKey,
             'platform-serial',
@@ -83,7 +87,7 @@ final class PaymentClientTest extends TestCase
             'mch_id',
             str_repeat('k', 32),
             'merchant-serial',
-            'merchant-private-key',
+            TestKeys::privateKey(),
             '',
             $platformPublicKey,
             'platform-serial',
@@ -91,6 +95,41 @@ final class PaymentClientTest extends TestCase
 
         $this->expectException(SignatureException::class);
         $this->expectExceptionMessage('序列号');
+
+        $client->post('decrypt_notification', [], [
+            'headers' => $headers,
+            'raw_body' => $rawBody,
+        ]);
+    }
+
+    /**
+     * 测试微信支付回调 resource 结构异常时抛出 SDK 异常而不是 TypeError。
+     */
+    public function testDecryptNotificationRejectsInvalidResourceShape(): void
+    {
+        [$platformPrivateKey, $platformPublicKey] = self::keyPair();
+        $rawBody = '{"resource":"invalid"}';
+        $timestamp = '1777600000';
+        $notifyNonce = 'notify-nonce';
+        $headers = [
+            'Wechatpay-Timestamp' => $timestamp,
+            'Wechatpay-Nonce' => $notifyNonce,
+            'Wechatpay-Serial' => 'platform-serial',
+            'Wechatpay-Signature' => Signature::paymentV3Sign($platformPrivateKey, "{$timestamp}\n{$notifyNonce}\n{$rawBody}\n"),
+        ];
+        $client = new WechatPaymentClient(new WechatPaymentConfig(
+            'wx_app',
+            'mch_id',
+            str_repeat('k', 32),
+            'merchant-serial',
+            TestKeys::privateKey(),
+            '',
+            $platformPublicKey,
+            'platform-serial',
+        ));
+
+        $this->expectException(WechatException::class);
+        $this->expectExceptionMessage('resource');
 
         $client->post('decrypt_notification', [], [
             'headers' => $headers,

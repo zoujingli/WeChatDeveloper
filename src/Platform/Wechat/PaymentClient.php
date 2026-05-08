@@ -1,13 +1,16 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信支付 APIv3 客户端。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Platform\Wechat;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use We\Config\WechatPaymentConfig;
@@ -34,22 +37,28 @@ final class PaymentClient
         private readonly WechatPaymentConfig $config,
         ?ClientInterface $http = null,
     ) {
-        $this->http = new JsonClient($http ?? new \GuzzleHttp\Client(['base_uri' => 'https://api.mch.weixin.qq.com/', 'timeout' => 20.0]));
+        $this->http = new JsonClient($http ?? new Client(['base_uri' => 'https://api.mch.weixin.qq.com/', 'timeout' => 20.0]));
     }
 
     /**
      * 发起微信支付 APIv3 请求并附加商户请求签名。
      *
      * @param array<string,mixed> $payload
+     * @param array<string,mixed> $query
+     * @param array<string,mixed> $options
      * @return array<string,mixed>
      */
-    public function request(string $method, string $uri, array $payload = [], array $query = []): array
+    public function request(string $method, string $uri, array $payload = [], array $query = [], array $options = []): array
     {
-        $response = $this->raw($method, $uri, $payload, $query);
+        $response = $this->raw($method, $uri, $payload, $query, $options);
+        $statusCode = (int)$response->getStatusCode();
         $body = (string)$response->getBody();
         $data = $body === '' ? [] : json_decode($body, true);
         if (!is_array($data)) {
-            throw new ApiException('微信支付接口响应不是有效 JSON', (int)$response->getStatusCode(), null, ['body' => $body]);
+            throw new ApiException('微信支付接口响应不是有效 JSON', $statusCode, null, ['body' => $body]);
+        }
+        if ($statusCode >= 400) {
+            throw new ApiException((string)($data['message'] ?? $data['code'] ?? '微信支付接口请求失败'), $statusCode, null, $data);
         }
 
         return $data;
@@ -66,9 +75,7 @@ final class PaymentClient
     {
         $uri = '/' . ltrim($uri, '/');
         $query = $this->mergeQuery($query, $options);
-        $body = array_key_exists('body', $options)
-            ? (string)$options['body']
-            : ($payload === [] ? '' : (json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}'));
+        $body = $this->resolveRequestBody($payload, $options);
         $nonce = bin2hex(random_bytes(16));
         $timestamp = (string)time();
         $authorization = $this->authorization($method, $uri . $this->queryString($query), $timestamp, $nonce, $body);
@@ -88,28 +95,6 @@ final class PaymentClient
     public function download(string $uri, array $query = [], array $options = []): ResponseInterface
     {
         return $this->raw('GET', $uri, [], $query, $options);
-    }
-
-    /**
-     * 校验微信支付通知签名并解密通知 resource。
-     *
-     * @param array<string,string> $headers
-     * @param array<string,mixed>|string $body 原始 JSON 字符串优先；传数组仅用于兼容旧调用，验签会退化为本地重编码。
-     * @return array<string,mixed>
-     */
-    private function decryptNotification(array $headers, array|string $body): array
-    {
-        // 微信支付 APIv3 签名串要求使用 HTTP 原始 body；不能先 json_decode 再重新编码，否则字段顺序或转义差异会导致验签失败。
-        $rawBody = is_string($body) ? $body : (json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}');
-        $this->assertNotificationSignature($headers, $rawBody);
-        $payload = is_string($body) ? json_decode($body, true) : $body;
-        if (!is_array($payload)) {
-            throw new WechatException('微信支付回调 JSON 无效');
-        }
-        /** @var array{ciphertext:string,nonce:string,associated_data?:string} $resource */
-        $resource = $payload['resource'] ?? [];
-
-        return PaymentCrypto::decryptResource($this->config->apiV3Key, $resource);
     }
 
     /**
@@ -134,8 +119,9 @@ final class PaymentClient
         return $this->request(
             $method,
             $uri,
-            $method === 'GET' ? (is_array($options['payload'] ?? null) ? $options['payload'] : []) : $params,
-            $method === 'GET' ? $params : (is_array($options['query'] ?? null) ? $options['query'] : []),
+            $this->paymentCallPayload($method, $params, $options),
+            $this->paymentCallQuery($method, $params, $options),
+            $this->paymentCallOptions($options),
         );
     }
 
@@ -164,6 +150,30 @@ final class PaymentClient
     }
 
     /**
+     * 校验微信支付通知签名并解密通知 resource。
+     *
+     * @param array<string,string> $headers
+     * @param array<string,mixed>|string $body 原始 JSON 字符串优先；传数组仅用于兼容旧调用，验签会退化为本地重编码
+     * @return array<string,mixed>
+     */
+    private function decryptNotification(array $headers, array|string $body): array
+    {
+        // 微信支付 APIv3 签名串要求使用 HTTP 原始 body；不能先 json_decode 再重新编码，否则字段顺序或转义差异会导致验签失败。
+        $rawBody = is_string($body) ? $body : $this->encodeJsonBody($body);
+        $this->assertNotificationSignature($headers, $rawBody);
+        $payload = is_string($body) ? json_decode($body, true) : $body;
+        if (!is_array($payload)) {
+            throw new WechatException('微信支付回调 JSON 无效');
+        }
+        $resource = $payload['resource'] ?? null;
+        if (!is_array($resource)) {
+            throw new WechatException('微信支付回调 resource 无效');
+        }
+
+        return PaymentCrypto::decryptResource($this->config->apiV3Key, $resource);
+    }
+
+    /**
      * 生成微信支付 APIv3 `WECHATPAY2-SHA256-RSA2048` Authorization 请求头。
      */
     private function authorization(string $method, string $uri, string $timestamp, string $nonce, string $body): string
@@ -184,6 +194,8 @@ final class PaymentClient
 
     /**
      * 校验微信支付通知头中的平台证书/公钥序列号与 RSA-SHA256 签名。
+     *
+     * @param array<string,mixed> $headers
      */
     private function assertNotificationSignature(array $headers, string $body): void
     {
@@ -236,6 +248,83 @@ final class PaymentClient
     }
 
     /**
+     * 解析微信支付 APIv3 请求体，确保参与签名的 body 与实际发送的 body 完全一致。
+     *
+     * @param array<string,mixed> $payload
+     * @param array<string,mixed> $options
+     */
+    private function resolveRequestBody(array $payload, array &$options): string
+    {
+        if (array_key_exists('body', $options)) {
+            unset($options['json']);
+
+            return (string)$options['body'];
+        }
+        if (array_key_exists('json', $options)) {
+            $body = $this->encodeJsonBody($options['json']);
+            unset($options['json']);
+
+            return $body;
+        }
+
+        return $payload === [] ? '' : $this->encodeJsonBody($payload);
+    }
+
+    /**
+     * 编码微信支付 APIv3 JSON 请求体。
+     */
+    private function encodeJsonBody(mixed $payload): string
+    {
+        try {
+            return json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } catch (\JsonException $e) {
+            throw new WechatException('微信支付请求 JSON 编码失败', 0, $e);
+        }
+    }
+
+    /**
+     * 构造通用调用的请求 payload；GET 默认无 body，可通过 options.payload 显式传入。
+     *
+     * @param array<string,mixed> $params
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    private function paymentCallPayload(string $method, array $params, array $options): array
+    {
+        return $method === 'GET' ? (is_array($options['payload'] ?? null) ? $options['payload'] : []) : $params;
+    }
+
+    /**
+     * 构造通用调用的 query，GET 使用 params，其他方法使用 options.query。
+     *
+     * @param array<string,mixed> $params
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    private function paymentCallQuery(string $method, array $params, array $options): array
+    {
+        $query = $method === 'GET' ? $params : [];
+        if (is_array($options['query'] ?? null)) {
+            $query = array_merge($query, $options['query']);
+        }
+
+        return $query;
+    }
+
+    /**
+     * 移除 SDK 内部控制项，其余 Guzzle options 继续透传到底层 HTTP 客户端。
+     *
+     * @param array<string,mixed> $options
+     * @return array<string,mixed>
+     */
+    private function paymentCallOptions(array $options): array
+    {
+        unset($options['payload'], $options['query'], $options['raw_body']);
+
+        return $options;
+    }
+
+    /**
      * 构造签名所需的 query string。
      *
      * @param array<string,mixed> $query
@@ -257,7 +346,6 @@ final class PaymentClient
         $headers['Accept'] = $headers['Accept'] ?? 'application/json';
         $headers['Content-Type'] = $headers['Content-Type'] ?? 'application/json';
         $headers['Authorization'] = $authorization;
-        $headers['Wechatpay-Serial'] = $this->config->merchantSerial;
 
         return $headers;
     }

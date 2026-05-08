@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 协议层原始响应、下载和上传能力测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -22,6 +24,7 @@ use We\Config\WechatPlatformConfig;
 use We\Config\WechatServiceConfig;
 use We\Contract\StoreCacheInterface;
 use We\Contract\StoreTokenInterface;
+use We\Exception\ApiException;
 use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
 use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
 use We\Platform\Wechat\ServiceClient as WechatServiceClient;
@@ -31,6 +34,7 @@ use We\Support\TokenCacheKey;
 
 /**
  * 协议层原始响应、下载和上传能力测试用例。
+ * @internal
  */
 #[CoversClass(JsonClient::class)]
 #[CoversClass(WechatPlatformClient::class)]
@@ -118,8 +122,65 @@ final class ProtocolClientTest extends TestCase
         $this->assertSame('BILL-DATA', (string)$response->getBody());
         $headers = $http->requests[0]['options']['headers'];
         $this->assertStringStartsWith('WECHATPAY2-SHA256-RSA2048 ', (string)$headers['Authorization']);
-        $this->assertSame('merchant-serial', $headers['Wechatpay-Serial']);
+        $this->assertArrayNotHasKey('Wechatpay-Serial', $headers);
         $this->assertSame('2026-05-08', $http->requests[0]['options']['query']['bill_date']);
+    }
+
+    /**
+     * 测试微信支付通用调用会透传 Guzzle options，并用 json option 生成参与签名的请求体。
+     */
+    public function testWechatPaymentCallPassesGuzzleOptions(): void
+    {
+        [$merchantPrivateKey] = self::keyPair();
+        $http = new ProtocolHttpClient([new Response(200, [], '{"ok":true}')]);
+        $payment = new WechatPaymentClient(new WechatPaymentConfig(
+            'wx_app',
+            'mch_id',
+            str_repeat('k', 32),
+            'merchant-serial',
+            $merchantPrivateKey,
+        ), $http);
+
+        $data = $payment->post('v3/custom/request', ['ignored' => 'payload'], [
+            'query' => ['debug' => '1'],
+            'headers' => ['X-Request-Id' => 'RID-20260508', 'Wechatpay-Serial' => 'platform-serial'],
+            'timeout' => 5.0,
+            'json' => ['custom' => 'body'],
+        ]);
+
+        $this->assertTrue($data['ok']);
+        $this->assertSame('1', $http->requests[0]['options']['query']['debug']);
+        $this->assertSame('RID-20260508', $http->requests[0]['options']['headers']['X-Request-Id']);
+        $this->assertSame('platform-serial', $http->requests[0]['options']['headers']['Wechatpay-Serial']);
+        $this->assertSame(5.0, $http->requests[0]['options']['timeout']);
+        $this->assertSame('{"custom":"body"}', $http->requests[0]['options']['body']);
+        $this->assertArrayNotHasKey('json', $http->requests[0]['options']);
+    }
+
+    /**
+     * 测试微信支付非 2xx JSON 错误响应会被解析并转换为 ApiException。
+     */
+    public function testWechatPaymentRequestThrowsOnHttpErrorPayload(): void
+    {
+        [$merchantPrivateKey] = self::keyPair();
+        $http = new ProtocolHttpClient([new Response(400, [], '{"code":"PARAM_ERROR","message":"参数错误"}')]);
+        $payment = new WechatPaymentClient(new WechatPaymentConfig(
+            'wx_app',
+            'mch_id',
+            str_repeat('k', 32),
+            'merchant-serial',
+            $merchantPrivateKey,
+        ), $http);
+
+        try {
+            $payment->post('v3/pay/transactions/jsapi', ['appid' => 'wx_app']);
+            self::fail('Expected ApiException was not thrown.');
+        } catch (ApiException $exception) {
+            self::assertSame(400, $exception->getCode());
+            self::assertSame('参数错误', $exception->getMessage());
+            self::assertSame('PARAM_ERROR', $exception->context()['code']);
+            self::assertSame(false, $http->requests[0]['options']['http_errors']);
+        }
     }
 
     /**
@@ -135,7 +196,7 @@ final class ProtocolClientTest extends TestCase
         ), 'authorizer-token', 3600);
         $http = new ProtocolHttpClient([new Response(200, [], '{"ok":true}')]);
         $service = (new Client(cache: $cache, authorizers: new ProtocolAuthorizerTokenStore(), http: $http))
-            ->wechatService(new WechatServiceConfig('component_app', 'component_secret', 'component_token', 'encoding_key'));
+            ->wechatService(new WechatServiceConfig('component_app', 'component_secret', 'componentToken123', TestKeys::encodingAesKey()));
 
         $data = $service->get('cgi-bin/user/get', ['next_openid' => 'NEXT'], [
             'authorizer_appid' => 'authorizer_app',
@@ -197,6 +258,7 @@ final class ProtocolHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端请求接口并记录请求。
+     * @param mixed $uri
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
@@ -207,6 +269,7 @@ final class ProtocolHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端异步请求接口。
+     * @param mixed $uri
      */
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
