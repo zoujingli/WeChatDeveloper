@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 根入口通道工厂测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -21,6 +23,7 @@ use We\Platform\Wechat\ServiceClient as WechatServiceClient;
 
 /**
  * SDK 根入口通道工厂测试用例。
+ * @internal
  */
 #[CoversClass(Client::class)]
 final class ClientTest extends TestCase
@@ -66,7 +69,7 @@ final class ClientTest extends TestCase
 
         $this->expectException(WechatException::class);
         $this->expectExceptionMessage('WechatPlatformConfig');
-        $client->get('wechat.platform', new WechatServiceConfig('app', 'sec', 'token', 'encoding'));
+        $client->get('wechat.platform', new WechatServiceConfig('app', 'sec', 'token', TestKeys::encodingAesKey()));
     }
 
     /**
@@ -109,8 +112,8 @@ final class ClientTest extends TestCase
         $service = $client->wechatService(new WechatServiceConfig(
             'wx_component',
             'component_secret',
-            'component_token',
-            'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG'
+            'componentToken123',
+            TestKeys::encodingAesKey()
         ));
         $url = $service->authorizationUrl('preauthcode', 'https://example.com/callback', 3, 'STATE_TEST');
 
@@ -126,7 +129,7 @@ final class ClientTest extends TestCase
     public function testAlipayPlatformCallReturnsAuthorizationUrl(): void
     {
         $client = new Client();
-        $alipay = $client->alipayPlatform(new AlipayPlatformConfig('202605010001', str_repeat('a', 64)));
+        $alipay = $client->alipayPlatform(new AlipayPlatformConfig('202605010001', TestKeys::privateKey()));
         $result = $alipay->get('auth', [
             'redirect_uri' => 'https://example.com/alipay/callback',
             'scope' => 'auth_user',
@@ -143,7 +146,7 @@ final class ClientTest extends TestCase
     public function testGetCanReturnSpecificChannelClient(): void
     {
         $client = new Client();
-        $channelClient = $client->get('alipay.platform', new AlipayPlatformConfig('202605010001', str_repeat('a', 64)));
+        $channelClient = $client->get('alipay.platform', new AlipayPlatformConfig('202605010001', TestKeys::privateKey()));
 
         $this->assertInstanceOf(AlipayPlatformClient::class, $channelClient);
         $this->assertNotInstanceOf(WechatServiceClient::class, $channelClient);

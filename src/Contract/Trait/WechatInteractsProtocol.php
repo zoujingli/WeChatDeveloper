@@ -1,21 +1,24 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信协议层客户端通用能力。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
-namespace We\Platform\Wechat\Concerns;
+namespace We\Contract\Trait;
 
 use Psr\Http\Message\ResponseInterface;
+use We\Exception\ApiException;
 
 /**
  * 微信协议层客户端通用能力。
  *
  * 复用 client_credential access_token 缓存、原始响应、下载、上传和 JSON 请求选项构造逻辑。
  */
-trait InteractsProtocol
+trait WechatInteractsProtocol
 {
     /**
      * 获取并缓存 client_credential access_token。
@@ -36,11 +39,41 @@ trait InteractsProtocol
                 'appid' => $appid,
                 'secret' => $appSecret,
             ]);
-            $token = (string)($data['access_token'] ?? '');
-            $this->cache->set($key, $token, max(1, (int)($data['expires_in'] ?? 7200) - 300));
+            $token = $this->wechatTokenValue($data, 'access_token', '微信 access_token');
+            $this->cache->set($key, $token, $this->wechatTokenTtl($data, '微信 access_token'));
 
             return $token;
         });
+    }
+
+    /**
+     * 从微信 Token 响应中提取非空字符串 Token。
+     *
+     * @param array<string,mixed> $data
+     */
+    private function wechatTokenValue(array $data, string $field, string $label): string
+    {
+        $token = $data[$field] ?? null;
+        if (!is_string($token) || trim($token) === '') {
+            throw new ApiException($label . ' 响应缺少 ' . $field, 0, null, $data);
+        }
+
+        return $token;
+    }
+
+    /**
+     * 从微信 Token 响应中计算缓存 TTL。
+     *
+     * @param array<string,mixed> $data
+     */
+    private function wechatTokenTtl(array $data, string $label): int
+    {
+        $expiresIn = $data['expires_in'] ?? 7200;
+        if (!is_numeric($expiresIn) || (int)$expiresIn <= 0) {
+            throw new ApiException($label . ' 响应 expires_in 无效', 0, null, $data);
+        }
+
+        return max(1, (int)$expiresIn - 300);
     }
 
     /**
@@ -52,6 +85,9 @@ trait InteractsProtocol
     private function withAccessToken(array $query, bool $withToken): array
     {
         if ($withToken) {
+            /**
+             * @phpstan-ignore-next-line 宿主为公众平台或小程序客户端时提供 accessToken()。
+             */
             $query['access_token'] = $query['access_token'] ?? $this->accessToken();
         }
 
@@ -118,6 +154,9 @@ trait InteractsProtocol
     private function handleWechatMessageCryptoCall(string $uri, array $params): ?array
     {
         if ($uri === 'decrypt_message') {
+            /**
+             * @phpstan-ignore-next-line 只有提供 messageCrypto() 的宿主会调用消息加解密伪路径。
+             */
             return $this->messageCrypto()->decryptMessage(
                 (string)($params['body'] ?? ''),
                 (string)($params['msg_signature'] ?? ''),
@@ -126,12 +165,17 @@ trait InteractsProtocol
             );
         }
         if ($uri === 'encrypt_message') {
+            /**
+             * @phpstan-ignore-next-line 只有提供 messageCrypto() 的宿主会调用消息加解密伪路径。
+             */
+            $xml = $this->messageCrypto()->encryptMessage(
+                (string)($params['body'] ?? ''),
+                (string)($params['timestamp'] ?? time()),
+                (string)($params['nonce'] ?? ''),
+            );
+
             return [
-                'xml' => $this->messageCrypto()->encryptMessage(
-                    (string)($params['body'] ?? ''),
-                    (string)($params['timestamp'] ?? time()),
-                    (string)($params['nonce'] ?? ''),
-                ),
+                'xml' => $xml,
             ];
         }
 
@@ -161,6 +205,7 @@ trait InteractsProtocol
         $query = $this->wechatCallQuery($method, $params, $options);
         $requestOptions = $this->buildWechatJsonOptions($method, $params, $options, $internalKeys);
         if ($tokenAware) {
+            /** @phpstan-ignore-next-line tokenAware 仅由支持 withToken 参数的公众平台和小程序客户端启用。 */
             return $this->request($method, $uri, $query, $requestOptions, (bool)($options['with_token'] ?? true));
         }
 

@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信服务平台（第三方平台）客户端。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Platform\Wechat;
@@ -14,8 +16,8 @@ use We\Client;
 use We\Config\WechatServiceConfig;
 use We\Contract\StoreCacheInterface;
 use We\Contract\StoreTokenInterface;
+use We\Contract\Trait\WechatInteractsProtocol;
 use We\Exception\WechatException;
-use We\Platform\Wechat\Concerns\InteractsProtocol;
 use We\Support\CacheKey;
 use We\Support\JsonClient;
 use We\Support\MessageCrypto;
@@ -29,11 +31,14 @@ use We\Support\TokenCacheKey;
  */
 final class ServiceClient
 {
-    use InteractsProtocol;
+    use WechatInteractsProtocol;
 
-    /** 与 {@see \We\Client::get} 通道标识一致 */
+    /** 与 {@see Client::get} 通道标识一致 */
     private const TOKEN_PLATFORM_CHANNEL = 'wechat.service';
+
     private JsonClient $http;
+
+    private readonly ?StoreTokenInterface $authorizers;
 
     /**
      * 创建微信服务平台（第三方平台）客户端并初始化官方 API HTTP 客户端。
@@ -48,8 +53,6 @@ final class ServiceClient
         $this->http = new JsonClient($http ?? new \GuzzleHttp\Client(['base_uri' => 'https://api.weixin.qq.com/', 'timeout' => 20.0]));
         $this->authorizers = $authorizers;
     }
-
-    private readonly ?StoreTokenInterface $authorizers;
 
     /**
      * 获取第三方平台接口调用凭据 component_access_token；缓存未命中或强制刷新时调用官方 component_token 接口。
@@ -72,8 +75,8 @@ final class ServiceClient
                     'component_verify_ticket' => $componentVerifyTicket,
                 ],
             ]);
-            $token = (string)$data['component_access_token'];
-            $this->cache->set($key, $token, max(1, (int)($data['expires_in'] ?? 7200) - 300));
+            $token = $this->wechatTokenValue($data, 'component_access_token', '微信 component_access_token');
+            $this->cache->set($key, $token, $this->wechatTokenTtl($data, '微信 component_access_token'));
 
             return $token;
         });
@@ -194,14 +197,6 @@ final class ServiceClient
     }
 
     /**
-     * 创建第三方平台授权事件消息加解密工具。
-     */
-    private function messageCrypto(): MessageCrypto
-    {
-        return new MessageCrypto($this->config->componentToken, $this->config->componentEncodingAesKey, $this->config->componentAppid);
-    }
-
-    /**
      * 通用 API 调用入口：按官方接口 path、授权方上下文和参数发起请求。
      *
      * @param array<string,mixed> $params
@@ -255,11 +250,20 @@ final class ServiceClient
     }
 
     /**
+     * 创建第三方平台授权事件消息加解密工具。
+     */
+    private function messageCrypto(): MessageCrypto
+    {
+        return new MessageCrypto($this->config->componentToken, $this->config->componentEncodingAesKey, $this->config->componentAppid);
+    }
+
+    /**
      * 获取授权方接口调用凭据 authorizer_access_token；缓存未命中时使用 authorizer_refresh_token 刷新。
      */
     private function authorizerAccessToken(string $componentAccessToken, string $authorizerAppid): string
     {
-        if (!$this->authorizers) {
+        $authorizers = $this->authorizers;
+        if (!$authorizers) {
             throw new WechatException('未配置授权账号 Token 仓库');
         }
         $key = $this->cacheKey(TokenCacheKey::wechatServiceAuthorizerAccessToken(
@@ -271,14 +275,18 @@ final class ServiceClient
             return $token;
         }
 
-        return $this->cache->lock('lock:' . $key, 30, function () use ($key, $componentAccessToken, $authorizerAppid): string {
+        return $this->cache->lock('lock:' . $key, 30, function () use ($key, $componentAccessToken, $authorizerAppid, $authorizers): string {
             if (is_string($token = $this->cache->get($key, '')) && $token !== '') {
                 return $token;
             }
-            $data = $this->refreshAuthorizerToken($componentAccessToken, $authorizerAppid, $this->authorizers->refreshToken($authorizerAppid));
-            $this->authorizers->saveAuthorizerToken($authorizerAppid, $data);
-            $token = (string)$data['authorizer_access_token'];
-            $this->cache->set($key, $token, max(1, (int)($data['expires_in'] ?? 7200) - 300));
+            $refreshToken = $authorizers->refreshToken($authorizerAppid);
+            if (trim($refreshToken) === '') {
+                throw new WechatException('授权方 authorizer_refresh_token 不能为空');
+            }
+            $data = $this->refreshAuthorizerToken($componentAccessToken, $authorizerAppid, $refreshToken);
+            $authorizers->saveAuthorizerToken($authorizerAppid, $data);
+            $token = $this->wechatTokenValue($data, 'authorizer_access_token', '微信 authorizer_access_token');
+            $this->cache->set($key, $token, $this->wechatTokenTtl($data, '微信 authorizer_access_token'));
 
             return $token;
         });

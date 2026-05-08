@@ -1,16 +1,16 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 根入口与通道客户端工厂。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We;
 
 use GuzzleHttp\ClientInterface;
-use ReflectionClass;
-use ReflectionException;
 use We\Config\AlipayPaymentConfig;
 use We\Config\AlipayPlatformConfig;
 use We\Config\WechatPaymentConfig;
@@ -27,20 +27,21 @@ use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
 use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
 use We\Platform\Wechat\ServiceClient as WechatServiceClient;
 use We\Platform\Wechat\WxappClient as WechatWxappClient;
+use We\Support\CacheKey;
 use We\Support\FileCacheStore;
 
 /**
  * SDK 根入口：按平台与业务域创建微信、支付宝客户端，工厂方法命名与配置对象语义保持一致。
  *
- * access_token 等运行态数据的缓存键固定为 `{cacheKeyPrefix}:{platformChannel}:{logicalKey}`，见 {@see \We\Support\CacheKey::compose}。
+ * access_token 等运行态数据的缓存键固定为 `{cacheKeyPrefix}:{platformChannel}:{logicalKey}`，见 {@see CacheKey::compose}。
  * 未注入缓存实现时使用 {@see FileCacheStore}，默认目录为 {@see self::defaultCacheStoreDirectory()}。
  *
  * @method WechatPlatformClient wechatPlatform(WechatPlatformConfig $config)
- * @method WechatWxappClient    wechatWxapp(WechatWxappConfig $config)
- * @method WechatServiceClient  wechatService(WechatServiceConfig $config)
- * @method WechatPaymentClient  wechatPayment(WechatPaymentConfig $config)
+ * @method WechatWxappClient wechatWxapp(WechatWxappConfig $config)
+ * @method WechatServiceClient wechatService(WechatServiceConfig $config)
+ * @method WechatPaymentClient wechatPayment(WechatPaymentConfig $config)
  * @method AlipayPlatformClient alipayPlatform(AlipayPlatformConfig $config)
- * @method AlipayPaymentClient  alipayPayment(AlipayPaymentConfig $config)
+ * @method AlipayPaymentClient alipayPayment(AlipayPaymentConfig $config)
  */
 final class Client
 {
@@ -76,30 +77,6 @@ final class Client
         $this->cache = $cache ?? new FileCacheStore(self::defaultCacheStoreDirectory());
         $this->authorizers = $authorizers;
         $this->http = $http;
-    }
-
-    /** 默认缓存落盘目录：`sys_get_temp_dir()` + 包级子目录名，供未显式传入 `cache` 时构造 {@see FileCacheStore}。 */
-    public static function defaultCacheStoreDirectory(): string
-    {
-        return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR . '/') . DIRECTORY_SEPARATOR . self::DEFAULT_CACHE_STORE_DIR_NAME;
-    }
-
-    /**
-     * 按字符串通道创建客户端；通道名称与配置对象一一对应。
-     */
-    public function get(string $channel, ConfigInterface $config): object
-    {
-        [$factory, $expected] = match ($channel) {
-            'wechat.platform' => ['wechatPlatform', WechatPlatformConfig::class],
-            'wechat.wxapp' => ['wechatWxapp', WechatWxappConfig::class],
-            'wechat.service' => ['wechatService', WechatServiceConfig::class],
-            'wechat.payment' => ['wechatPayment', WechatPaymentConfig::class],
-            'alipay.platform' => ['alipayPlatform', AlipayPlatformConfig::class],
-            'alipay.payment' => ['alipayPayment', AlipayPaymentConfig::class],
-            default => throw new WechatException('不支持的通道标识: ' . $channel),
-        };
-
-        return $this->__call($factory, [$this->ensureConfig($config, $expected, $factory)]);
     }
 
     /**
@@ -150,6 +127,30 @@ final class Client
         };
     }
 
+    /** 默认缓存落盘目录：`sys_get_temp_dir()` + 包级子目录名，供未显式传入 `cache` 时构造 {@see FileCacheStore}。 */
+    public static function defaultCacheStoreDirectory(): string
+    {
+        return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR . '/') . DIRECTORY_SEPARATOR . self::DEFAULT_CACHE_STORE_DIR_NAME;
+    }
+
+    /**
+     * 按字符串通道创建客户端；通道名称与配置对象一一对应。
+     */
+    public function get(string $channel, ConfigInterface $config): object
+    {
+        [$factory, $expected] = match ($channel) {
+            'wechat.platform' => ['wechatPlatform', WechatPlatformConfig::class],
+            'wechat.wxapp' => ['wechatWxapp', WechatWxappConfig::class],
+            'wechat.service' => ['wechatService', WechatServiceConfig::class],
+            'wechat.payment' => ['wechatPayment', WechatPaymentConfig::class],
+            'alipay.platform' => ['alipayPlatform', AlipayPlatformConfig::class],
+            'alipay.payment' => ['alipayPayment', AlipayPaymentConfig::class],
+            default => throw new WechatException('不支持的通道标识: ' . $channel),
+        };
+
+        return $this->__call($factory, [$this->ensureConfig($config, $expected, $factory)]);
+    }
+
     /**
      * 使用反射创建具体平台客户端实例。
      *
@@ -159,8 +160,8 @@ final class Client
     private function instantiate(string $class, array $args): object
     {
         try {
-            return (new ReflectionClass($class))->newInstanceArgs($args);
-        } catch (ReflectionException $e) {
+            return (new \ReflectionClass($class))->newInstanceArgs($args);
+        } catch (\ReflectionException $e) {
             throw new WechatException('通道客户端实例化失败: ' . $e->getMessage(), 0, $e);
         }
     }

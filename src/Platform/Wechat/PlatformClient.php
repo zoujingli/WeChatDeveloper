@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信公众平台客户端。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Platform\Wechat;
@@ -13,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use We\Client;
 use We\Config\WechatPlatformConfig;
 use We\Contract\StoreCacheInterface;
-use We\Platform\Wechat\Concerns\InteractsProtocol;
+use We\Contract\Trait\WechatInteractsProtocol;
 use We\Support\CacheKey;
 use We\Support\JsonClient;
 use We\Support\MessageCrypto;
@@ -27,9 +29,9 @@ use We\Support\TokenCacheKey;
  */
 final class PlatformClient
 {
-    use InteractsProtocol;
+    use WechatInteractsProtocol;
 
-    /** 与 {@see \We\Client::get} 通道标识一致，用于 Token 键平台段 */
+    /** 与 {@see Client::get} 通道标识一致，用于 Token 键平台段 */
     private const TOKEN_PLATFORM_CHANNEL = 'wechat.platform';
 
     private const API = 'https://api.weixin.qq.com/';
@@ -111,14 +113,6 @@ final class PlatformClient
     }
 
     /**
-     * 创建微信公众平台消息安全模式加解密工具。
-     */
-    private function messageCrypto(): MessageCrypto
-    {
-        return new MessageCrypto($this->config->token, $this->config->encodingAesKey, $this->config->appid);
-    }
-
-    /**
      * 通用 API 调用入口：按官方接口 path 与参数发起请求。
      *
      * @param array<string,mixed> $params
@@ -164,6 +158,14 @@ final class PlatformClient
     public function get(string $uriOrPath, array $params = [], array $options = []): array
     {
         return $this->call($uriOrPath, $params, 'GET', $options);
+    }
+
+    /**
+     * 创建微信公众平台消息安全模式加解密工具。
+     */
+    private function messageCrypto(): MessageCrypto
+    {
+        return new MessageCrypto($this->config->token, $this->config->encodingAesKey, $this->config->appid);
     }
 
     /**

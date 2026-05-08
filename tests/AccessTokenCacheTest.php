@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信公众平台 access_token 缓存行为测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -25,6 +27,7 @@ use We\Support\TokenCacheKey;
 
 /**
  * 微信公众平台 access_token 缓存行为测试用例。
+ * @internal
  */
 #[CoversClass(WechatPlatformClient::class)]
 final class AccessTokenCacheTest extends TestCase
@@ -75,10 +78,10 @@ final class AccessTokenCacheTest extends TestCase
  */
 final class ArrayCacheStore implements StoreCacheInterface
 {
+    public int $lockCalls = 0;
+
     /** @var array<string,mixed> */
     private array $values = [];
-
-    public int $lockCalls = 0;
 
     /**
      * 读取测试缓存值。
@@ -147,6 +150,7 @@ final class FakeHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端请求接口或记录请求。
+     * @param mixed $uri
      */
     public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
@@ -157,6 +161,7 @@ final class FakeHttpClient implements ClientInterface
 
     /**
      * 实现测试 HTTP 客户端异步请求接口。
+     * @param mixed $uri
      */
     public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {

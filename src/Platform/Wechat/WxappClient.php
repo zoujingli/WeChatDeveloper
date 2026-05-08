@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信小程序客户端。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Platform\Wechat;
@@ -13,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use We\Client;
 use We\Config\WechatWxappConfig;
 use We\Contract\StoreCacheInterface;
-use We\Platform\Wechat\Concerns\InteractsProtocol;
+use We\Contract\Trait\WechatInteractsProtocol;
 use We\Support\CacheKey;
 use We\Support\JsonClient;
 use We\Support\NullCacheStore;
@@ -26,10 +28,11 @@ use We\Support\TokenCacheKey;
  */
 final class WxappClient
 {
-    use InteractsProtocol;
+    use WechatInteractsProtocol;
 
-    /** 与 {@see \We\Client::get} 通道标识一致 */
+    /** 与 {@see Client::get} 通道标识一致 */
     private const TOKEN_PLATFORM_CHANNEL = 'wechat.wxapp';
+
     private JsonClient $http;
 
     /**
