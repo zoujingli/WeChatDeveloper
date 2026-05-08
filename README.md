@@ -15,6 +15,20 @@ WeChatDeveloper 是一个面向 **微信** 与 **支付宝** 的轻量 PHP SDK�
 - 支持 JSON、原始响应、二进制下载和 multipart 上传等协议层通用能力。
 - 返回值默认是数组，失败时抛出 `WechatException` 或其子类。
 
+## 支持边界与域名说明
+
+SDK 支持的是官方协议/API 调用能力，不是对所有网页后台的 100% 自动化封装：
+
+| 域名/平台 | SDK 支持方式 | 边界 |
+|-----------|--------------|------|
+| `api.weixin.qq.com` | 公众平台、小程序、第三方平台接口，按官方 path 调用。 | 不内置每个接口别名；业务按官方文档传 path 与参数。 |
+| `open.weixin.qq.com` | 生成网页授权、扫码登录等跳转 URL。 | 跳转后的用户交互和回调业务由应用处理。 |
+| `mp.weixin.qq.com` | 生成第三方平台授权页 URL。 | 不模拟或爬取公众号后台网页。 |
+| `api.mch.weixin.qq.com` | 微信支付 APIv3 请求签名、下载、通知验签与解密。 | 不操作 `pay.weixin.qq.com` 商户后台页面。 |
+| 支付宝开放平台 | `openapi.alipay.com` 网关签名调用、`openauth.alipay.com` 授权 URL、支付/退款/通知验签。 | 不封装支付宝商家中心网页后台。 |
+
+如果官方新增接口但仍使用这些协议形态（GET/JSON POST/raw/download/multipart/网关表单/签名验签），通常可以直接用 `get()`、`post()`、`call()`、`raw()`、`download()` 或 `upload()` 调用，无需等待 SDK 增加新方法。
+
 ## 环境要求
 
 - PHP `>= 8.1`
@@ -54,10 +68,10 @@ src/
 ├── Client.php              # SDK 根入口与通道客户端工厂
 ├── Config/                 # 微信、支付宝平台配置对象
 ├── Contract/               # 配置、缓存、授权方 Token 存储契约
+│   └── Trait/              # 微信 JSON、raw/download/upload、Token 注入等协议层复用能力
 ├── Exception/              # SDK 异常类型
 ├── Platform/
 │   ├── Wechat/             # 微信公众平台、小程序、微信服务平台、微信支付 APIv3 客户端
-│   │   └── Concerns/       # 微信 JSON、raw/download/upload、Token 注入等协议层复用能力
 │   └── Alipay/             # 支付宝开放平台与支付客户端
 └── Support/                # 缓存、HTTP、签名、XML、消息/支付解密工具
 
@@ -131,10 +145,11 @@ $result = $platform->call('cgi-bin/menu/get', [], 'GET');
 | 微信授权、登录等不需要 `access_token` 的接口 | 传 `['with_token' => false]`。 |
 | POST JSON | 默认行为，直接传 `$params`。 |
 | GET query | 用 `get($path, $query)`。 |
-| 自定义 query + JSON body | `post($path, $body, ['query' => [...], 'json' => $body])`。 |
+| 自定义 query + JSON body | `post($path, $body, ['query' => [...]])`；也可显式传 `json`。 |
 | 表单提交或原始 body | 透传 Guzzle 的 `form_params` 或 `body`。 |
 | 二进制/非 JSON 响应 | 用 `raw()` 或 `download()` 返回 PSR-7 Response。 |
 | multipart 上传 | 用 `upload($path, $multipart, $query)`，SDK 会按通道规则附加 token。 |
+| 微信支付敏感字段加密 | 如需 `Wechatpay-Serial`，手动在 `headers` 传微信支付平台证书/公钥序列号。 |
 
 示例：小程序登录接口不需要 access token，应该关闭自动 token：
 
@@ -173,7 +188,7 @@ $media = $platform->upload('cgi-bin/media/upload', [
 
 ### 协议层能力说明
 
-微信公众平台、小程序、微信服务平台共用 `InteractsProtocol` 协议层能力：
+微信公众平台、小程序、微信服务平台共用 `WechatInteractsProtocol` 协议层能力：
 
 | 方法 | 说明 |
 |------|------|
@@ -183,6 +198,186 @@ $media = $platform->upload('cgi-bin/media/upload', [
 | `upload()` | 透传 Guzzle `multipart` 上传结构，并解析平台 JSON 响应。 |
 
 微信支付 APIv3 的 `raw()` 与 `download()` 会先按官方规则生成 `Authorization` 签名，再返回原始响应。支付宝网关请求统一复用公共参数构造、签名和验签逻辑，电脑网站支付跳转地址也使用同一套签名参数。
+
+### 接口类型示例速查
+
+下面示例展示不同协议形态的写法，接口参数仍以官方文档为准。
+
+**1. 微信 GET query**
+
+```php
+$users = $platform->get('cgi-bin/user/get', [
+    'next_openid' => '',
+]);
+```
+
+**2. 微信 POST JSON**
+
+```php
+$message = $platform->post('cgi-bin/message/custom/send', [
+    'touser' => 'openid',
+    'msgtype' => 'text',
+    'text' => ['content' => 'hello'],
+]);
+```
+
+**3. 微信无 token 接口（登录、网页授权换 token 等）**
+
+```php
+$session = $wxapp->get('sns/jscode2session', [
+    'appid' => 'wx_appid',
+    'secret' => 'app_secret',
+    'js_code' => $code,
+    'grant_type' => 'authorization_code',
+], ['with_token' => false]);
+
+$oauth = $platform->get('sns/oauth2/access_token', [
+    'appid' => 'wx_appid',
+    'secret' => 'app_secret',
+    'code' => $code,
+    'grant_type' => 'authorization_code',
+], ['with_token' => false]);
+```
+
+**4. 自定义 query + JSON body / 表单 / 原始 body**
+
+```php
+// query + JSON body；未显式传 json 时，$body 会作为 JSON 请求体。
+$result = $platform->post('cgi-bin/draft/add', $body, [
+    'query' => ['debug' => '1'],
+]);
+
+// 表单提交。
+$result = $platform->call('cgi-bin/example/form', [], 'POST', [
+    'form_params' => ['name' => 'value'],
+]);
+
+// 原始 body，适合少数非 JSON 协议接口。
+$result = $platform->call('cgi-bin/example/raw', [], 'POST', [
+    'body' => $rawBody,
+    'headers' => ['Content-Type' => 'text/plain'],
+]);
+```
+
+**5. 原始响应、下载、上传**
+
+```php
+$response = $platform->raw('POST', 'cgi-bin/qrcode/create', [], [
+    'json' => ['expire_seconds' => 60, 'action_name' => 'QR_STR_SCENE'],
+]);
+
+$image = $platform->download('cgi-bin/media/get', [
+    'media_id' => 'MEDIA_ID',
+]);
+
+$upload = $platform->upload('cgi-bin/media/upload', [
+    ['name' => 'media', 'contents' => fopen(__DIR__ . '/demo.jpg', 'rb'), 'filename' => 'demo.jpg'],
+], [
+    'type' => 'image',
+]);
+```
+
+**6. 微信消息安全模式解密/加密**
+
+```php
+$plain = $platform->post('decrypt_message', [
+    'body' => $rawXml,
+    'msg_signature' => $_GET['msg_signature'] ?? '',
+    'timestamp' => $_GET['timestamp'] ?? '',
+    'nonce' => $_GET['nonce'] ?? '',
+]);
+
+$encrypted = $platform->post('encrypt_message', [
+    'body' => $replyXml,
+    'timestamp' => (string) time(),
+    'nonce' => $nonce,
+]);
+
+echo $encrypted['xml'];
+```
+
+**7. 微信第三方平台：组件 token、授权 URL、代授权方调用**
+
+```php
+$componentToken = $service->componentAccessToken($componentVerifyTicket);
+$preAuth = $service->createPreAuthCode($componentToken);
+$authUrl = $service->authorizationUrl((string) $preAuth['pre_auth_code'], $redirectUri);
+$auth = $service->queryAuth($componentToken, $authorizationCode);
+
+$menu = $service->get('cgi-bin/menu/get', [], [
+    'authorizer_appid' => 'authorizer_appid',
+    'component_access_token' => $componentToken,
+]);
+```
+
+**8. 微信支付 APIv3：GET/POST/download/通知解密**
+
+```php
+$order = $payment->post('v3/pay/transactions/jsapi', [
+    'appid' => 'wx_appid',
+    'mchid' => '1900000001',
+    'description' => '测试订单',
+    'out_trade_no' => 'T202605080001',
+    'notify_url' => 'https://example.com/wechat-pay/notify',
+    'amount' => ['total' => 1, 'currency' => 'CNY'],
+    'payer' => ['openid' => 'openid'],
+]);
+
+$query = $payment->get('v3/pay/transactions/out-trade-no/T202605080001', [
+    'mchid' => '1900000001',
+]);
+
+$bill = $payment->download('v3/bill/tradebill', [
+    'bill_date' => '2026-05-08',
+]);
+
+// 如果接口涉及敏感信息加密，Wechatpay-Serial 应传微信支付平台证书/公钥序列号，不是商户证书序列号。
+$result = $payment->post('v3/example/with-sensitive-info', $payload, [
+    'headers' => ['Wechatpay-Serial' => 'wechatpay_platform_serial'],
+]);
+
+$decrypted = $payment->post('decrypt_notification', [], [
+    'headers' => $headers,
+    'raw_body' => $rawBody,
+]);
+```
+
+**9. 支付宝：授权 URL、网关调用、支付、退款、通知验签、数据解密**
+
+```php
+$authUrl = $alipay->get('auth', [
+    'redirect_uri' => 'https://example.com/alipay/callback',
+    'scope' => 'auth_user',
+    'state' => 'STATE',
+])['url'];
+
+$user = $alipay->post('alipay.user.info.share', [], [
+    'auth_token' => $authToken,
+]);
+
+$page = $alipayPayment->post('page', [
+    'out_trade_no' => 'P202605080001',
+    'total_amount' => '0.01',
+    'subject' => '测试订单',
+    'product_code' => 'FAST_INSTANT_TRADE_PAY',
+], [
+    'return_url' => 'https://example.com/alipay/return',
+    'notify_url' => 'https://example.com/alipay/notify',
+])['url'];
+
+$refund = $alipayPayment->post('refund', [
+    'out_trade_no' => 'P202605080001',
+    'refund_amount' => '0.01',
+]);
+
+$ok = $alipayPayment->verifyNotify($_POST);
+
+$plain = $alipay->post('decrypt', [
+    'encrypted_data' => $encryptedData,
+    'session_key' => $sessionKey,
+    'iv' => $iv,
+]);
+```
 
 ## 配置来源示例
 
@@ -196,8 +391,8 @@ use We\Support\FileCacheStore;
 $row = [
     'appid' => 'wx_appid',
     'appsecret' => 'app_secret',
-    'token' => 'message_token',
-    'encoding_aes_key' => 'encoding_aes_key',
+    'token' => 'messageToken123',
+    'encoding_aes_key' => 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
     'storage_scope' => 'tenant:10001:account:20002',
 ];
 
@@ -253,6 +448,52 @@ $platform = $client->get('wechat.platform', WechatPlatformConfig::fromArray($con
 | `alipay.platform` | `alipayPlatform()` | `AlipayPlatformConfig` |
 | `alipay.payment` | `alipayPayment()` | `AlipayPaymentConfig` |
 
+### 初始化模式
+
+默认初始化适合单机开发或简单部署：
+
+```php
+use We\Client;
+
+$client = new Client(); // 默认 FileCacheStore + 官方默认 HTTP 客户端
+```
+
+生产环境建议显式配置缓存前缀和共享缓存：
+
+```php
+use We\Client;
+use We\Support\FileCacheStore;
+
+$client = new Client(
+    cache: new FileCacheStore(__DIR__ . '/runtime/wechat-cache'),
+    cacheKeyPrefix: 'mall_prod',
+);
+```
+
+如果要注入自定义 Guzzle 客户端，需注意微信类客户端使用相对 path，请为对应通道配置正确 `base_uri`；多通道使用不同域名时，建议分别创建根 `Client`：
+
+```php
+use GuzzleHttp\Client as GuzzleClient;
+use We\Client;
+
+$wechatClient = new Client(
+    http: new GuzzleClient([
+        'base_uri' => 'https://api.weixin.qq.com/',
+        'timeout' => 10.0,
+        // 需要代理或中间件时可在这里继续配置 Guzzle options。
+    ]),
+);
+
+$paymentClient = new Client(
+    http: new GuzzleClient([
+        'base_uri' => 'https://api.mch.weixin.qq.com/',
+        'timeout' => 10.0,
+    ]),
+);
+```
+
+支付宝网关请求使用配置中的绝对 `gateway`，自定义 HTTP 客户端主要用于统一超时、代理、日志中间件或测试替身。
+
 ## 配置对象
 
 所有配置对象都实现 `ConfigInterface`：
@@ -281,6 +522,77 @@ $config = WechatWxappConfig::fromArray([
 ```
 
 `storage_scope` 是可选的缓存分桶标识。同一个 appid 在多租户或多业务账号下需要隔离 token 时可以设置。
+
+### fromArray 完整配置示例
+
+字段名兼容常见下划线写法，便于直接接数据库或配置中心：
+
+```php
+use We\Config\AlipayPaymentConfig;
+use We\Config\AlipayPlatformConfig;
+use We\Config\WechatPaymentConfig;
+use We\Config\WechatPlatformConfig;
+use We\Config\WechatServiceConfig;
+use We\Config\WechatWxappConfig;
+
+$wechatPlatform = WechatPlatformConfig::fromArray([
+    'appid' => 'wx_appid',
+    'appsecret' => 'app_secret',
+    'token' => 'messageToken123',
+    'encoding_aes_key' => 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
+    'storage_scope' => 'tenant:1:official',
+]);
+
+$wechatWxapp = WechatWxappConfig::fromArray([
+    'appid' => 'wx_appid',
+    'appsecret' => 'app_secret',
+    'storage_scope' => 'tenant:1:wxapp',
+]);
+
+$wechatService = WechatServiceConfig::fromArray([
+    'component_appid' => 'wx_component_appid',
+    'component_appsecret' => 'component_secret',
+    'component_token' => 'componentToken123',
+    'component_encoding_aes_key' => 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
+    'storage_scope' => 'tenant:1:component',
+]);
+
+$wechatPayment = WechatPaymentConfig::fromArray([
+    'appid' => 'wx_appid',
+    'mch_id' => '1900000001',
+    'api_v3_key' => str_repeat('k', 32),
+    'merchant_serial' => 'merchant_cert_serial',
+    'merchant_private_key' => file_get_contents(__DIR__ . '/apiclient_key.pem'),
+    // 二选一：平台证书 PEM 或平台公钥 PEM；平台序列号用于回调头校验。
+    'platform_certificate' => file_get_contents(__DIR__ . '/wechatpay_cert.pem'),
+    'platform_public_key' => '',
+    'platform_serial' => 'wechatpay_platform_serial',
+]);
+
+$alipayPlatform = AlipayPlatformConfig::fromArray([
+    'app_id' => '2021000000000000',
+    'private_key' => file_get_contents(__DIR__ . '/merchant_private_key.pem'),
+    'alipay_public_key' => file_get_contents(__DIR__ . '/alipay_public_key.pem'),
+    'gateway' => 'https://openapi.alipay.com/gateway.do',
+    'sign_type' => 'RSA2',
+]);
+
+$alipayPayment = AlipayPaymentConfig::fromArray([
+    'app_id' => '2021000000000000',
+    'private_key' => file_get_contents(__DIR__ . '/merchant_private_key.pem'),
+    'alipay_public_key' => file_get_contents(__DIR__ . '/alipay_public_key.pem'),
+]);
+```
+
+构造时会做基础格式校验：
+
+| 项 | 校验 |
+|----|------|
+| 微信消息 Token / componentToken | 3-32 位英文或数字。 |
+| EncodingAESKey | 43 位字符串，Base64 解码后必须是 32 字节。 |
+| 微信支付 APIv3 Key | 必须是 32 字节字符串。 |
+| RSA 私钥、公钥、证书 | 必须能被 OpenSSL 解析；支付宝支持无头尾的密钥正文。 |
+| 支付宝 gateway/sign_type | gateway 必须是有效 URL，sign_type 仅支持 `RSA` / `RSA2`。 |
 
 ## 缓存与锁
 
@@ -393,8 +705,8 @@ use We\Config\WechatPlatformConfig;
 $platform = $client->wechatPlatform(new WechatPlatformConfig(
     appid: 'wx_appid',
     appSecret: 'app_secret',
-    token: 'message_token',
-    encodingAesKey: 'encoding_aes_key',
+    token: 'messageToken123',
+    encodingAesKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
 ));
 
 $accessToken = $platform->accessToken();
@@ -456,8 +768,8 @@ $componentAppid = 'component_appid';
 $service = $client->wechatService(new WechatServiceConfig(
     componentAppid: $componentAppid,
     componentAppSecret: 'component_secret',
-    componentToken: 'component_token',
-    componentEncodingAesKey: 'component_encoding_aes_key',
+    componentToken: 'componentToken123',
+    componentEncodingAesKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
 ));
 
 $componentToken = $service->componentAccessToken($componentVerifyTicket);
@@ -468,7 +780,7 @@ $url = $service->authorizationUrl((string) $preAuth['pre_auth_code'], $redirectU
 代授权方调用：
 
 ```php
-$result = $service->post('cgi-bin/menu/get', [], [
+$result = $service->get('cgi-bin/menu/get', [], [
     'authorizer_appid' => 'authorizer_appid',
     'component_access_token' => $componentToken,
 ]);
@@ -482,7 +794,7 @@ use We\Config\WechatPaymentConfig;
 $payment = $client->wechatPayment(new WechatPaymentConfig(
     appid: 'wx_appid',
     mchId: 'mch_id',
-    apiV3Key: 'api_v3_key',
+    apiV3Key: str_repeat('k', 32),
     merchantSerial: 'merchant_serial',
     merchantPrivateKey: file_get_contents(__DIR__ . '/apiclient_key.pem'),
     platformPublicKey: file_get_contents(__DIR__ . '/wechatpay_public.pem'),
@@ -699,6 +1011,8 @@ We\Exception\SignatureException
 
 ```bash
 cd WeChatDeveloper
+composer cs:check
+composer analyse
 composer test
 ```
 
