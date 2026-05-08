@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 缓存键生成工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -18,9 +20,9 @@ final class CacheKey
     /**
      * 组合缓存完整键。
      *
-     * @param string $prefix 根 Client 通用命名段，不得为空，用于区分部署、租户或应用。
+     * @param string $prefix 根 Client 通用命名段，不得为空，用于区分部署、租户或应用
      * @param string $channel 通道段，如 `wechat.platform`，必须与 Client 通道标识一致。
-     * @param string $logicalKey 业务逻辑键，如 TokenCacheKey 生成的 access_token 键。
+     * @param string $logicalKey 业务逻辑键，如 TokenCacheKey 生成的 access_token 键
      */
     public static function compose(string $prefix, string $channel, string $logicalKey): string
     {

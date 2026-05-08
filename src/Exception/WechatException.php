@@ -1,22 +1,21 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 基础异常。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Exception;
-
-use RuntimeException;
-use Throwable;
 
 /**
  * SDK 基础异常。
  *
  * 通过 context() 暴露平台响应、验签明细等上下文，便于业务侧记录日志和排查问题。
  */
-class WechatException extends RuntimeException
+class WechatException extends \RuntimeException
 {
     /**
      * 创建 SDK 异常并保存可选上下文。
@@ -26,7 +25,7 @@ class WechatException extends RuntimeException
     public function __construct(
         string $message,
         int $code = 0,
-        ?Throwable $previous = null,
+        ?\Throwable $previous = null,
         private readonly array $context = []
     ) {
         parent::__construct($message, $code, $previous);

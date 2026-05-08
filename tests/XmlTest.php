@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信 XML 编解码工具测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -14,6 +16,7 @@ use We\Support\Xml;
 
 /**
  * 微信 XML 编解码工具测试用例。
+ * @internal
  */
 #[CoversClass(Xml::class)]
 final class XmlTest extends TestCase

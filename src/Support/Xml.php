@@ -1,14 +1,15 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 微信 XML 编解码工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
 
-use SimpleXMLElement;
 use We\Exception\WechatException;
 
 /**
@@ -31,9 +32,9 @@ final class Xml
         }
 
         $previous = libxml_use_internal_errors(true);
-        $element = simplexml_load_string($xml, SimpleXMLElement::class, LIBXML_NOCDATA);
+        $element = simplexml_load_string($xml, \SimpleXMLElement::class, LIBXML_NOCDATA);
         libxml_use_internal_errors($previous);
-        if (!$element instanceof SimpleXMLElement) {
+        if (!$element instanceof \SimpleXMLElement) {
             throw new WechatException('微信 XML 格式无效');
         }
 
@@ -89,7 +90,7 @@ final class Xml
      *
      * @return array<string,mixed>
      */
-    private static function normalize(SimpleXMLElement $element): array
+    private static function normalize(\SimpleXMLElement $element): array
     {
         $result = [];
         foreach ($element->children() as $key => $value) {

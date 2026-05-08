@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 运行态缓存契约。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Contract;

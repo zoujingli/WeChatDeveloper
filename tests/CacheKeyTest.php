@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 缓存键生成规则测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
@@ -16,6 +18,7 @@ use We\Support\TokenCacheKey;
 
 /**
  * SDK 缓存键生成规则测试用例。
+ * @internal
  */
 #[CoversClass(CacheKey::class)]
 final class CacheKeyTest extends TestCase

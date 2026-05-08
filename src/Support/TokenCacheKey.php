@@ -1,18 +1,22 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 平台接口调用凭据缓存逻辑键生成工具。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
+
+use We\Client;
 
 /**
  * 微信接口调用凭据缓存逻辑键统一按「微信侧 appid 优先」分段，便于 Redis 等存储按应用前缀扫描和清理。
  *
  * 约定前缀：`wechat:app:{appid}:...`；若 Config 带 `storageScope`（业务隔离），追加 `:scope:{值}`。
- * 经根 {@see \We\Client} 与各通道写入存储时，作为第三段与通用前缀、平台段经 {@see CacheKey::compose} 拼成固定三段键。
+ * 经根 {@see Client} 与各通道写入存储时，作为第三段与通用前缀、平台段经 {@see CacheKey::compose} 拼成固定三段键。
  */
 final class TokenCacheKey
 {

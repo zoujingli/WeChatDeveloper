@@ -1,9 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * 本地文件缓存实现。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Support;
@@ -60,7 +62,7 @@ final class FileCacheStore implements StoreCacheInterface
             return $default;
         }
 
-        /** @var array{expires_at?:int,value?:mixed}|null $payload */
+        /** @var null|array{expires_at?:int,value?:mixed} $payload */
         $payload = json_decode($raw, true);
         if (!is_array($payload) || !array_key_exists('expires_at', $payload) || !array_key_exists('value', $payload)) {
             return $default;

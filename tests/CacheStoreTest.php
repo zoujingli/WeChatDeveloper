@@ -1,14 +1,15 @@
 <?php
 
 declare(strict_types=1);
-
 /**
- * SDK 缓存存储实现测试。
+ * This file is part of HyperfAdmin.
+ *
+ * @Link https://thinkadmin.top
+ * @Author Anyon<zoujingli@qq.com>
  */
 
 namespace We\Tests;
 
-use DateInterval;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
@@ -19,6 +20,7 @@ use We\Support\PsrSimpleCacheStore;
 
 /**
  * SDK 缓存存储实现测试用例。
+ * @internal
  */
 #[CoversClass(FileCacheStore::class)]
 #[CoversClass(NullCacheStore::class)]
@@ -146,7 +148,7 @@ final class ArraySimpleCache implements CacheInterface
     /**
      * 写入缓存值。
      */
-    public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
+    public function set(string $key, mixed $value, \DateInterval|int|null $ttl = null): bool
     {
         $this->values[$key] = $value;
 
@@ -186,7 +188,7 @@ final class ArraySimpleCache implements CacheInterface
     /**
      * 批量写入测试缓存值。
      */
-    public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
+    public function setMultiple(iterable $values, \DateInterval|int|null $ttl = null): bool
     {
         foreach ($values as $key => $value) {
             $this->set((string)$key, $value, $ttl);
