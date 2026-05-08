@@ -11,6 +11,31 @@ permissions:
   contents: read
 
 jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: json, openssl, simplexml
+          coverage: none
+
+      - name: Validate composer metadata
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Check coding style
+        run: composer cs:check
+
+      - name: Run static analysis
+        run: composer analyse
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -33,6 +58,28 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run tests
+        run: composer test
+
+  lowest-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: json, openssl, simplexml
+          coverage: none
+
+      - name: Validate composer metadata
+        run: composer validate --strict
+
+      - name: Install lowest dependencies
+        run: composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist --no-progress
 
       - name: Run tests
         run: composer test

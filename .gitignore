@@ -3,6 +3,7 @@
 vendor/
 composer.lock
 .phpunit.cache/
+.phpstan.cache/
 Cache/
 Test/cert/
 _test/cert/
