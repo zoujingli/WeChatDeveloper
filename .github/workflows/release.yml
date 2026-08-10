@@ -5,12 +5,19 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
+  quality:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,4 +54,4 @@ jobs:
           name: Release ${{ steps.tags.outputs.current }}
           body_path: RELEASE_NOTES.md
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(steps.tags.outputs.current, '-alpha') || contains(steps.tags.outputs.current, '-beta') || contains(steps.tags.outputs.current, '-rc') }}

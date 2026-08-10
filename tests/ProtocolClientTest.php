@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Tests;
 
@@ -107,7 +101,8 @@ final class ProtocolClientTest extends TestCase
      */
     public function testWechatPaymentDownloadSignsRequestAndReturnsRawResponse(): void
     {
-        [$merchantPrivateKey] = self::keyPair();
+        $merchantPrivateKey = TestKeys::privateKey();
+        [, $platformPublicKey] = TestKeys::platformKeyPair();
         $http = new ProtocolHttpClient([new Response(200, ['Content-Type' => 'text/plain'], 'BILL-DATA')]);
         $payment = new WechatPaymentClient(new WechatPaymentConfig(
             'wx_app',
@@ -115,6 +110,8 @@ final class ProtocolClientTest extends TestCase
             str_repeat('k', 32),
             'merchant-serial',
             $merchantPrivateKey,
+            platformPublicKey: $platformPublicKey,
+            platformSerial: 'platform-serial',
         ), $http);
 
         $response = $payment->download('v3/bill/tradebill', ['bill_date' => '2026-05-08']);
@@ -131,14 +128,19 @@ final class ProtocolClientTest extends TestCase
      */
     public function testWechatPaymentCallPassesGuzzleOptions(): void
     {
-        [$merchantPrivateKey] = self::keyPair();
-        $http = new ProtocolHttpClient([new Response(200, [], '{"ok":true}')]);
+        $merchantPrivateKey = TestKeys::privateKey();
+        [$platformPrivateKey, $platformPublicKey] = TestKeys::platformKeyPair();
+        $http = new ProtocolHttpClient([
+            WechatPaymentResponse::signed(200, '{"ok":true}', $platformPrivateKey),
+        ]);
         $payment = new WechatPaymentClient(new WechatPaymentConfig(
             'wx_app',
             'mch_id',
             str_repeat('k', 32),
             'merchant-serial',
             $merchantPrivateKey,
+            platformPublicKey: $platformPublicKey,
+            platformSerial: 'platform-serial',
         ), $http);
 
         $data = $payment->post('v3/custom/request', ['ignored' => 'payload'], [
@@ -162,14 +164,23 @@ final class ProtocolClientTest extends TestCase
      */
     public function testWechatPaymentRequestThrowsOnHttpErrorPayload(): void
     {
-        [$merchantPrivateKey] = self::keyPair();
-        $http = new ProtocolHttpClient([new Response(400, [], '{"code":"PARAM_ERROR","message":"参数错误"}')]);
+        $merchantPrivateKey = TestKeys::privateKey();
+        [$platformPrivateKey, $platformPublicKey] = TestKeys::platformKeyPair();
+        $http = new ProtocolHttpClient([
+            WechatPaymentResponse::signed(
+                400,
+                '{"code":"PARAM_ERROR","message":"参数错误"}',
+                $platformPrivateKey,
+            ),
+        ]);
         $payment = new WechatPaymentClient(new WechatPaymentConfig(
             'wx_app',
             'mch_id',
             str_repeat('k', 32),
             'merchant-serial',
             $merchantPrivateKey,
+            platformPublicKey: $platformPublicKey,
+            platformSerial: 'platform-serial',
         ), $http);
 
         try {
@@ -206,22 +217,6 @@ final class ProtocolClientTest extends TestCase
         $this->assertTrue($data['ok']);
         $this->assertSame('NEXT', $http->requests[0]['options']['query']['next_openid']);
         $this->assertSame('authorizer-token', $http->requests[0]['options']['query']['access_token']);
-    }
-
-    /**
-     * 生成测试使用的 RSA 密钥对。
-     *
-     * @return array{0:string,1:string}
-     */
-    private static function keyPair(): array
-    {
-        $resource = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
-        self::assertNotFalse($resource);
-        openssl_pkey_export($resource, $privateKey);
-        $details = openssl_pkey_get_details($resource);
-        self::assertIsArray($details);
-
-        return [$privateKey, (string)$details['key']];
     }
 }
 

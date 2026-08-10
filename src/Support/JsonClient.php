@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Support;
 
@@ -15,6 +9,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 use We\Exception\ApiException;
+use We\Exception\TransportException;
 
 /**
  * JSON HTTP 客户端封装。
@@ -82,7 +77,12 @@ final class JsonClient
         try {
             return $this->http->request($method, $uri, $options);
         } catch (GuzzleException $exception) {
-            throw new ApiException($exception->getMessage(), (int)$exception->getCode(), $exception);
+            throw new TransportException(
+                $exception->getMessage(),
+                (int)$exception->getCode(),
+                $exception,
+                ['platform' => 'wechat', 'method' => $method, 'uri' => $uri],
+            );
         }
     }
 

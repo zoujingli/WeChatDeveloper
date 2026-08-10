@@ -1,18 +1,12 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use We\Exception\WechatException;
+use We\Exception\SdkException;
 use We\Support\CacheKey;
 use We\Support\TokenCacheKey;
 
@@ -30,7 +24,8 @@ final class CacheKeyTest extends TestCase
     {
         $logical = TokenCacheKey::wechatPlatformAccessToken('wx_demo', '');
         $full = CacheKey::compose('myapp', 'wechat.platform', $logical);
-        $this->assertSame('myapp:wechat.platform:' . $logical, $full);
+        $this->assertSame('myapp.wechat.platform.' . rawurlencode($logical), $full);
+        $this->assertDoesNotMatchRegularExpression('/[{}()\/\\\@:]/', $full);
     }
 
     /**
@@ -39,7 +34,10 @@ final class CacheKeyTest extends TestCase
     public function testComposeTrimsColonNoiseOnSegments(): void
     {
         $logical = TokenCacheKey::wechatServiceComponentAccessToken('wx_service');
-        $this->assertSame('ns:wechat.service:' . $logical, CacheKey::compose('::ns::', ':::wechat.service::', $logical));
+        $this->assertSame(
+            'ns.wechat.service.' . rawurlencode($logical),
+            CacheKey::compose('::ns::', ':::wechat.service::', $logical),
+        );
     }
 
     /**
@@ -70,7 +68,7 @@ final class CacheKeyTest extends TestCase
      */
     public function testComposeThrowsWhenPrefixEmpty(): void
     {
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('通用前缀');
         CacheKey::compose('', 'wechat.wxapp', 'wechat:app:x:wxapp:access_token');
     }
@@ -80,7 +78,7 @@ final class CacheKeyTest extends TestCase
      */
     public function testComposeThrowsWhenChannelEmpty(): void
     {
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('通道段');
         CacheKey::compose('app', '', 'wechat:app:x:wxapp:access_token');
     }
@@ -90,7 +88,7 @@ final class CacheKeyTest extends TestCase
      */
     public function testComposeThrowsWhenLogicalEmpty(): void
     {
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('逻辑段');
         CacheKey::compose('app', 'wechat.platform', '  ');
     }

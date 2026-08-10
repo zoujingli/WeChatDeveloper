@@ -1,18 +1,13 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Support;
 
+use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
 use We\Contract\StoreCacheInterface;
-use We\Exception\WechatException;
+use We\Exception\SdkException;
 
 /**
  * PSR-16 缓存适配器；缓存能力委托给 PSR Simple Cache，实现侧需注入原子锁回调以支持刷新锁。
@@ -34,7 +29,7 @@ final class PsrSimpleCacheStore implements StoreCacheInterface
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        return $this->cache->get($key, $default);
+        return $this->execute('get', $key, fn (): mixed => $this->cache->get($key, $default));
     }
 
     /**
@@ -42,7 +37,10 @@ final class PsrSimpleCacheStore implements StoreCacheInterface
      */
     public function set(string $key, mixed $value, int $ttl): void
     {
-        $this->cache->set($key, $value, max(1, $ttl));
+        $success = $this->execute('set', $key, fn (): bool => $this->cache->set($key, $value, max(1, $ttl)));
+        if ($success !== true) {
+            throw new SdkException('PsrSimpleCacheStore 写入失败', 0, null, ['key' => $key, 'operation' => 'set']);
+        }
     }
 
     /**
@@ -50,7 +48,10 @@ final class PsrSimpleCacheStore implements StoreCacheInterface
      */
     public function del(string $key): void
     {
-        $this->cache->delete($key);
+        $success = $this->execute('delete', $key, fn (): bool => $this->cache->delete($key));
+        if ($success !== true) {
+            throw new SdkException('PsrSimpleCacheStore 删除失败', 0, null, ['key' => $key, 'operation' => 'delete']);
+        }
     }
 
     /**
@@ -59,9 +60,23 @@ final class PsrSimpleCacheStore implements StoreCacheInterface
     public function lock(string $key, int $ttl, callable $callback): mixed
     {
         if (!is_callable($this->locker)) {
-            throw new WechatException('PsrSimpleCacheStore 未配置锁能力');
+            throw new SdkException('PsrSimpleCacheStore 未配置锁能力');
         }
 
         return ($this->locker)($key, max(1, $ttl), $callback);
+    }
+
+    private function execute(string $operation, string $key, callable $callback): mixed
+    {
+        try {
+            return $callback();
+        } catch (CacheException $exception) {
+            throw new SdkException(
+                'PsrSimpleCacheStore 后端操作失败',
+                0,
+                $exception,
+                ['key' => $key, 'operation' => $operation],
+            );
+        }
     }
 }

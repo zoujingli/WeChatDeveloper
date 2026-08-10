@@ -1,15 +1,10 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Support;
 
+use We\Exception\SdkException;
 use We\Exception\WechatException;
 
 /**
@@ -53,24 +48,38 @@ final class CredentialValidator
 
     /**
      * 校验 RSA 私钥。
+     *
+     * @param class-string<SdkException> $exceptionClass
      */
-    public static function assertPrivateKey(string $privateKey, string $field, bool $wrapRawKey = false): void
-    {
-        $resource = openssl_pkey_get_private(self::normalizePrivateKey($privateKey, $wrapRawKey));
-        if ($resource === false) {
-            throw new WechatException($field . ' 格式无效');
-        }
+    public static function assertPrivateKey(
+        string $privateKey,
+        string $field,
+        bool $wrapRawKey = false,
+        string $exceptionClass = WechatException::class,
+    ): void {
+        self::assertRsa(
+            openssl_pkey_get_private(self::normalizePrivateKey($privateKey, $wrapRawKey)),
+            $field,
+            $exceptionClass,
+        );
     }
 
     /**
      * 校验 RSA 公钥或证书。
+     *
+     * @param class-string<SdkException> $exceptionClass
      */
-    public static function assertPublicKey(string $publicKey, string $field, bool $wrapRawKey = false): void
-    {
-        $resource = openssl_pkey_get_public(self::normalizePublicKey($publicKey, $wrapRawKey));
-        if ($resource === false) {
-            throw new WechatException($field . ' 格式无效');
-        }
+    public static function assertPublicKey(
+        string $publicKey,
+        string $field,
+        bool $wrapRawKey = false,
+        string $exceptionClass = WechatException::class,
+    ): void {
+        self::assertRsa(
+            openssl_pkey_get_public(self::normalizePublicKey($publicKey, $wrapRawKey)),
+            $field,
+            $exceptionClass,
+        );
     }
 
     /**
@@ -86,7 +95,14 @@ final class CredentialValidator
             return $key;
         }
 
-        return "-----BEGIN PRIVATE KEY-----\n" . chunk_split($key, 64, "\n") . '-----END PRIVATE KEY-----';
+        foreach (['PRIVATE KEY', 'RSA PRIVATE KEY'] as $label) {
+            $candidate = self::wrapPem($key, $label);
+            if (openssl_pkey_get_private($candidate) !== false) {
+                return $candidate;
+            }
+        }
+
+        return self::wrapPem($key, 'PRIVATE KEY');
     }
 
     /**
@@ -102,6 +118,26 @@ final class CredentialValidator
             return $key;
         }
 
-        return "-----BEGIN PUBLIC KEY-----\n" . chunk_split($key, 64, "\n") . '-----END PUBLIC KEY-----';
+        return self::wrapPem($key, 'PUBLIC KEY');
+    }
+
+    private static function wrapPem(string $body, string $label): string
+    {
+        return "-----BEGIN {$label}-----\n" . chunk_split($body, 64, "\n") . "-----END {$label}-----";
+    }
+
+    /**
+     * @param false|\OpenSSLAsymmetricKey|resource $resource
+     * @param class-string<SdkException> $exceptionClass
+     */
+    private static function assertRsa(mixed $resource, string $field, string $exceptionClass): void
+    {
+        if ($resource === false) {
+            throw new $exceptionClass($field . ' 格式无效');
+        }
+        $details = openssl_pkey_get_details($resource);
+        if (!is_array($details) || ($details['type'] ?? null) !== OPENSSL_KEYTYPE_RSA) {
+            throw new $exceptionClass($field . ' 必须是 RSA 密钥或证书');
+        }
     }
 }

@@ -1,21 +1,17 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Platform\Wechat;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 use We\Config\WechatPaymentConfig;
 use We\Exception\ApiException;
 use We\Exception\SignatureException;
+use We\Exception\TransportException;
 use We\Exception\WechatException;
 use We\Support\JsonClient;
 use We\Support\PaymentCrypto;
@@ -30,6 +26,8 @@ final class PaymentClient
 {
     private JsonClient $http;
 
+    private ClientInterface $downloadHttp;
+
     /**
      * 创建微信支付 APIv3 客户端并初始化商户平台 API HTTP 客户端。
      */
@@ -37,7 +35,8 @@ final class PaymentClient
         private readonly WechatPaymentConfig $config,
         ?ClientInterface $http = null,
     ) {
-        $this->http = new JsonClient($http ?? new Client(['base_uri' => 'https://api.mch.weixin.qq.com/', 'timeout' => 20.0]));
+        $this->downloadHttp = $http ?? new Client(['base_uri' => 'https://api.mch.weixin.qq.com/', 'timeout' => 20.0]);
+        $this->http = new JsonClient($this->downloadHttp);
     }
 
     /**
@@ -53,6 +52,7 @@ final class PaymentClient
         $response = $this->raw($method, $uri, $payload, $query, $options);
         $statusCode = (int)$response->getStatusCode();
         $body = (string)$response->getBody();
+        $this->assertPlatformSignature($response->getHeaders(), $body, '响应');
         $data = $body === '' ? [] : json_decode($body, true);
         if (!is_array($data)) {
             throw new ApiException('微信支付接口响应不是有效 JSON', $statusCode, null, ['body' => $body]);
@@ -95,6 +95,44 @@ final class PaymentClient
     public function download(string $uri, array $query = [], array $options = []): ResponseInterface
     {
         return $this->raw('GET', $uri, [], $query, $options);
+    }
+
+    /**
+     * 先请求并验签微信支付账单下载地址，再下载二进制账单文件。
+     *
+     * @param array<string,mixed> $query
+     * @param array<string,mixed> $downloadOptions
+     */
+    public function downloadBill(string $uri, array $query = [], array $downloadOptions = []): ResponseInterface
+    {
+        $metadata = $this->request('GET', $uri, [], $query);
+        $downloadUrl = $metadata['download_url'] ?? null;
+        if (!is_string($downloadUrl) || !$this->isSafeDownloadUrl($downloadUrl)) {
+            throw new WechatException('微信支付账单 download_url 必须是有效 HTTPS 地址');
+        }
+        $downloadOptions['http_errors'] = $downloadOptions['http_errors'] ?? false;
+        $downloadOptions['allow_redirects'] = false;
+        try {
+            $response = $this->downloadHttp->request('GET', $downloadUrl, $downloadOptions);
+        } catch (GuzzleException $exception) {
+            throw new TransportException(
+                '微信支付账单下载失败: ' . $exception->getMessage(),
+                (int)$exception->getCode(),
+                $exception,
+                ['platform' => 'wechat.payment', 'url' => $downloadUrl],
+            );
+        }
+        $statusCode = (int)$response->getStatusCode();
+        if ($statusCode >= 300) {
+            throw new ApiException(
+                '微信支付账单下载失败',
+                $statusCode,
+                null,
+                ['body' => (string)$response->getBody(), 'url' => $downloadUrl],
+            );
+        }
+
+        return $response;
     }
 
     /**
@@ -160,7 +198,8 @@ final class PaymentClient
     {
         // 微信支付 APIv3 签名串要求使用 HTTP 原始 body；不能先 json_decode 再重新编码，否则字段顺序或转义差异会导致验签失败。
         $rawBody = is_string($body) ? $body : $this->encodeJsonBody($body);
-        $this->assertNotificationSignature($headers, $rawBody);
+        $this->assertPlatformSignature($headers, $rawBody, '回调');
+        $this->assertNotificationFreshness($headers);
         $payload = is_string($body) ? json_decode($body, true) : $body;
         if (!is_array($payload)) {
             throw new WechatException('微信支付回调 JSON 无效');
@@ -197,17 +236,17 @@ final class PaymentClient
      *
      * @param array<string,mixed> $headers
      */
-    private function assertNotificationSignature(array $headers, string $body): void
+    private function assertPlatformSignature(array $headers, string $body, string $source): void
     {
         $timestamp = $this->headerValue($headers, 'Wechatpay-Timestamp');
         $nonce = $this->headerValue($headers, 'Wechatpay-Nonce');
         $signature = $this->headerValue($headers, 'Wechatpay-Signature');
         $serial = $this->headerValue($headers, 'Wechatpay-Serial');
         if ($timestamp === '' || $nonce === '' || $signature === '' || $serial === '') {
-            throw new SignatureException('微信支付回调验签请求头不完整');
+            throw new SignatureException('微信支付' . $source . '验签请求头不完整');
         }
         if ($this->config->platformSerial !== '' && !hash_equals($this->config->platformSerial, $serial)) {
-            throw new SignatureException('微信支付平台序列号不匹配');
+            throw new SignatureException('微信支付' . $source . '平台序列号不匹配');
         }
         $message = "{$timestamp}\n{$nonce}\n{$body}\n";
         $publicKey = $this->config->platformPublicKey !== '' ? $this->config->platformPublicKey : $this->config->platformCertificate;
@@ -215,7 +254,12 @@ final class PaymentClient
             throw new SignatureException('微信支付平台公钥或证书不能为空');
         }
         if (!Signature::verifyPaymentV3($publicKey, $message, $signature)) {
-            throw new SignatureException('微信支付回调验签失败');
+            throw new SignatureException(
+                '微信支付' . $source . '验签失败',
+                0,
+                null,
+                ['serial' => $serial, 'timestamp' => $timestamp],
+            );
         }
     }
 
@@ -233,6 +277,26 @@ final class PaymentClient
         }
 
         return '';
+    }
+
+    /**
+     * @param array<string,mixed> $headers
+     */
+    private function assertNotificationFreshness(array $headers): void
+    {
+        $tolerance = $this->config->notificationToleranceSeconds;
+        if ($tolerance === 0) {
+            return;
+        }
+        $timestamp = $this->headerValue($headers, 'Wechatpay-Timestamp');
+        if (preg_match('/^\d+$/', $timestamp) !== 1 || abs(time() - (int)$timestamp) > $tolerance) {
+            throw new SignatureException(
+                '微信支付回调时间戳已过期或超出允许偏差',
+                0,
+                null,
+                ['timestamp' => $timestamp, 'tolerance' => $tolerance],
+            );
+        }
     }
 
     /**
@@ -348,5 +412,20 @@ final class PaymentClient
         $headers['Authorization'] = $authorization;
 
         return $headers;
+    }
+
+    private function isSafeDownloadUrl(string $url): bool
+    {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+        $parts = parse_url($url);
+
+        return is_array($parts)
+            && strtolower((string)($parts['scheme'] ?? '')) === 'https'
+            && is_string($parts['host'] ?? null)
+            && $parts['host'] !== ''
+            && !isset($parts['user'])
+            && !isset($parts['pass']);
     }
 }

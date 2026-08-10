@@ -1,19 +1,13 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Support;
 
-use We\Exception\WechatException;
+use We\Exception\SdkException;
 
 /**
- * SDK 缓存完整键生成器，固定为 `{cacheKeyPrefix}:{platformChannel}:{logicalKey}` 三段，便于按项目、通道和逻辑键隔离。
+ * SDK 缓存完整键生成器，将通用前缀、平台通道和逻辑键编码为 PSR-16 安全的三段键。
  */
 final class CacheKey
 {
@@ -30,16 +24,16 @@ final class CacheKey
         $channel = self::normalizeSegment($channel);
         $logical = trim($logicalKey);
         if ($prefix === '') {
-            throw new WechatException('缓存键通用前缀不能为空');
+            throw new SdkException('缓存键通用前缀不能为空');
         }
         if ($channel === '') {
-            throw new WechatException('缓存键通道段不能为空');
+            throw new SdkException('缓存键通道段不能为空');
         }
         if ($logical === '') {
-            throw new WechatException('缓存键逻辑段不能为空');
+            throw new SdkException('缓存键逻辑段不能为空');
         }
 
-        return $prefix . ':' . $channel . ':' . $logical;
+        return implode('.', array_map('rawurlencode', [$prefix, $channel, $logical]));
     }
 
     /**

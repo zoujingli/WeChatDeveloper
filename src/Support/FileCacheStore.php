@@ -1,17 +1,11 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Support;
 
 use We\Contract\StoreCacheInterface;
-use We\Exception\WechatException;
+use We\Exception\SdkException;
 
 /**
  * 本地文件缓存实现：缓存值以 JSON 保存，并使用 flock 提供单机多进程刷新锁。
@@ -24,13 +18,13 @@ final class FileCacheStore implements StoreCacheInterface
     public function __construct(private readonly string $directory)
     {
         if ($this->directory === '') {
-            throw new WechatException('FileCacheStore 目录不能为空');
+            throw new SdkException('FileCacheStore 目录不能为空');
         }
         if (!is_dir($this->directory) && @mkdir($this->directory, 0775, true) !== true) {
-            throw new WechatException('FileCacheStore 无法创建目录: ' . $this->directory);
+            throw new SdkException('FileCacheStore 无法创建目录: ' . $this->directory);
         }
         if (!is_writable($this->directory)) {
-            throw new WechatException('FileCacheStore 目录不可写: ' . $this->directory);
+            throw new SdkException('FileCacheStore 目录不可写: ' . $this->directory);
         }
     }
 
@@ -68,8 +62,6 @@ final class FileCacheStore implements StoreCacheInterface
             return $default;
         }
         if ((int)$payload['expires_at'] <= time()) {
-            $this->del($key);
-
             return $default;
         }
 
@@ -84,23 +76,32 @@ final class FileCacheStore implements StoreCacheInterface
         $path = $this->pathFor($key);
         $dir = dirname($path);
         if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
-            throw new WechatException('FileCacheStore 无法创建子目录: ' . $dir);
+            throw new SdkException('FileCacheStore 无法创建子目录: ' . $dir);
         }
 
-        $body = json_encode(
-            ['expires_at' => time() + max(1, $ttl), 'value' => $value],
-            JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
-        );
+        try {
+            $body = json_encode(
+                ['expires_at' => time() + max(1, $ttl), 'value' => $value],
+                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+            );
+        } catch (\JsonException $exception) {
+            throw new SdkException(
+                'FileCacheStore 缓存值无法 JSON 编码',
+                0,
+                $exception,
+                ['key' => $key],
+            );
+        }
         $tmp = $path . '.' . bin2hex(random_bytes(4)) . '.tmp';
         if (@file_put_contents($tmp, $body, LOCK_EX) === false) {
             @unlink($tmp);
-            throw new WechatException('FileCacheStore 写入失败: ' . $tmp);
+            throw new SdkException('FileCacheStore 写入失败: ' . $tmp);
         }
         if (!@rename($tmp, $path)) {
             @unlink($path);
             if (!@rename($tmp, $path)) {
                 @unlink($tmp);
-                throw new WechatException('FileCacheStore 提交失败: ' . $path);
+                throw new SdkException('FileCacheStore 提交失败: ' . $path);
             }
         }
     }
@@ -124,17 +125,17 @@ final class FileCacheStore implements StoreCacheInterface
         $path = $this->pathFor('lock:' . $key) . '.lock';
         $dir = dirname($path);
         if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
-            throw new WechatException('FileCacheStore 无法创建锁目录: ' . $dir);
+            throw new SdkException('FileCacheStore 无法创建锁目录: ' . $dir);
         }
 
         $handle = @fopen($path, 'c');
         if ($handle === false) {
-            throw new WechatException('FileCacheStore 无法创建锁文件: ' . $path);
+            throw new SdkException('FileCacheStore 无法创建锁文件: ' . $path);
         }
 
         try {
             if (!flock($handle, LOCK_EX)) {
-                throw new WechatException('FileCacheStore 获取锁失败: ' . $key);
+                throw new SdkException('FileCacheStore 获取锁失败: ' . $key);
             }
 
             return $callback();

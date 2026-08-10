@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 $autoloadCandidates = [
     dirname(__DIR__) . '/vendor/autoload.php',
     dirname(__DIR__, 2) . '/vendor/autoload.php',

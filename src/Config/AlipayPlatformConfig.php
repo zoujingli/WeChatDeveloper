@@ -1,17 +1,11 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Config;
 
 use We\Contract\ConfigInterface;
-use We\Exception\WechatException;
+use We\Exception\AlipayException;
 use We\Support\CredentialValidator;
 
 /**
@@ -44,19 +38,17 @@ class AlipayPlatformConfig implements ConfigInterface
      */
     public function validate(): void
     {
-        if (trim($this->appid) === '' || trim($this->privateKey) === '') {
-            throw new WechatException('支付宝 appid 与 private_key 不能为空');
+        if (trim($this->appid) === '' || trim($this->privateKey) === '' || trim($this->alipayPublicKey) === '') {
+            throw new AlipayException('支付宝 appid、private_key 与 alipay_public_key 不能为空');
         }
         if (!in_array(strtoupper($this->signType), ['RSA', 'RSA2'], true)) {
-            throw new WechatException('支付宝 sign_type 仅支持 RSA 或 RSA2');
+            throw new AlipayException('支付宝 sign_type 仅支持 RSA 或 RSA2');
         }
         if (!filter_var($this->gateway, FILTER_VALIDATE_URL)) {
-            throw new WechatException('支付宝 gateway 必须是有效 URL');
+            throw new AlipayException('支付宝 gateway 必须是有效 URL');
         }
-        CredentialValidator::assertPrivateKey($this->privateKey, '支付宝 private_key', true);
-        if ($this->alipayPublicKey !== '') {
-            CredentialValidator::assertPublicKey($this->alipayPublicKey, '支付宝 alipay_public_key', true);
-        }
+        CredentialValidator::assertPrivateKey($this->privateKey, '支付宝 private_key', true, AlipayException::class);
+        CredentialValidator::assertPublicKey($this->alipayPublicKey, '支付宝 alipay_public_key', true, AlipayException::class);
     }
 
     /**

@@ -1,22 +1,19 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Tests;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
-use We\Exception\WechatException;
+use We\Exception\SdkException;
+use We\Support\CacheKey;
 use We\Support\FileCacheStore;
 use We\Support\NullCacheStore;
 use We\Support\PsrSimpleCacheStore;
+use We\Support\TokenCacheKey;
 
 /**
  * SDK 缓存存储实现测试用例。
@@ -62,6 +59,72 @@ final class CacheStoreTest extends TestCase
         $this->removeDir($dir);
     }
 
+    public function testFileCacheStoreWrapsJsonEncodingFailureAsSdkException(): void
+    {
+        $dir = $this->tempDir();
+        $store = new FileCacheStore($dir);
+        $recursive = [];
+        $recursive['self'] = &$recursive;
+
+        try {
+            $store->set('recursive', $recursive, 60);
+            self::fail('Expected the recursive value to be rejected.');
+        } catch (SdkException $exception) {
+            self::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+        } finally {
+            $this->removeDir($dir);
+        }
+    }
+
+    public function testExpiredReadCannotDeleteConcurrentFreshWrite(): void
+    {
+        if (!function_exists('pcntl_fork') || !function_exists('stream_socket_pair')) {
+            self::markTestSkipped('This concurrency regression requires pcntl and local sockets.');
+        }
+        $dir = $this->tempDir();
+        $store = new FileCacheStore($dir);
+        $store->set('race-key', str_repeat('x', 16 * 1024 * 1024), 1);
+        sleep(2);
+        $files = iterator_to_array(new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+        ));
+        $cacheFile = array_values(array_filter(
+            $files,
+            static fn (\SplFileInfo $file): bool => $file->isFile() && str_ends_with($file->getFilename(), '.json'),
+        ))[0] ?? null;
+        self::assertInstanceOf(\SplFileInfo::class, $cacheFile);
+        $lock = fopen($cacheFile->getPathname(), 'rb');
+        self::assertIsResource($lock);
+        self::assertTrue(flock($lock, LOCK_EX));
+        $sockets = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP);
+        self::assertIsArray($sockets);
+
+        $pid = pcntl_fork();
+        self::assertGreaterThanOrEqual(0, $pid);
+        if ($pid === 0) {
+            fclose($sockets[0]);
+            fwrite($sockets[1], 'ready');
+            $store->get('race-key', 'expired');
+            fclose($sockets[1]);
+            exit(0);
+        }
+
+        fclose($sockets[1]);
+        self::assertSame('ready', fread($sockets[0], 5));
+        flock($lock, LOCK_UN);
+        usleep(1000);
+        self::assertTrue(flock($lock, LOCK_EX));
+        $store->set('race-key', 'fresh', 3600);
+        flock($lock, LOCK_UN);
+        fclose($lock);
+        fclose($sockets[0]);
+        pcntl_waitpid($pid, $status);
+
+        self::assertSame(0, pcntl_wexitstatus($status));
+        self::assertSame('fresh', $store->get('race-key', 'missing'));
+        $this->removeDir($dir);
+    }
+
     /**
      * 测试空缓存锁会直接执行回调。
      */
@@ -79,7 +142,7 @@ final class CacheStoreTest extends TestCase
     {
         $store = new PsrSimpleCacheStore(new ArraySimpleCache());
 
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('锁能力');
 
         $store->lock('k', 10, static fn (): string => 'never');
@@ -99,6 +162,67 @@ final class CacheStoreTest extends TestCase
 
         $this->assertSame('ok', $store->lock('k', 10, static fn (): string => 'ok'));
         $this->assertSame([['k', 10]], $calls);
+    }
+
+    public function testPsrSimpleCacheStoreAcceptsGeneratedTokenKey(): void
+    {
+        $cache = new ArraySimpleCache();
+        $store = new PsrSimpleCacheStore($cache);
+        $key = CacheKey::compose(
+            'tenant@example',
+            'wechat.platform',
+            TokenCacheKey::wechatPlatformAccessToken('wx/app:1'),
+        );
+
+        $store->set($key, 'token', 3600);
+
+        self::assertSame('token', $store->get($key));
+        self::assertDoesNotMatchRegularExpression('/[{}()\/\\\@:]/', $key);
+    }
+
+    public function testPsrSimpleCacheStoreWrapsBackendFailure(): void
+    {
+        $failure = new TestCacheException('backend unavailable');
+        $store = new PsrSimpleCacheStore(new ArraySimpleCache(failure: $failure));
+
+        try {
+            $store->get('token');
+            self::fail('Expected the backend failure to be wrapped.');
+        } catch (SdkException $exception) {
+            self::assertSame($failure, $exception->getPrevious());
+            self::assertSame('get', $exception->context()['operation']);
+        }
+    }
+
+    public function testPsrSimpleCacheStoreDoesNotMaskProgrammingErrors(): void
+    {
+        $store = new PsrSimpleCacheStore(new ArraySimpleCache(
+            failure: new \TypeError('backend programming error'),
+        ));
+
+        $this->expectException(\TypeError::class);
+
+        $store->get('token');
+    }
+
+    public function testPsrSimpleCacheStoreRejectsUnsuccessfulWrite(): void
+    {
+        $store = new PsrSimpleCacheStore(new ArraySimpleCache(writeResult: false));
+
+        $this->expectException(SdkException::class);
+        $this->expectExceptionMessage('写入失败');
+
+        $store->set('token', 'value', 60);
+    }
+
+    public function testPsrSimpleCacheStoreRejectsUnsuccessfulDelete(): void
+    {
+        $store = new PsrSimpleCacheStore(new ArraySimpleCache(deleteResult: false));
+
+        $this->expectException(SdkException::class);
+        $this->expectExceptionMessage('删除失败');
+
+        $store->del('token');
     }
 
     /**
@@ -137,11 +261,20 @@ final class ArraySimpleCache implements CacheInterface
     /** @var array<string,mixed> */
     private array $values = [];
 
+    public function __construct(
+        private readonly ?\Throwable $failure = null,
+        private readonly bool $writeResult = true,
+        private readonly bool $deleteResult = true,
+    ) {}
+
     /**
      * 读取测试缓存值。
      */
     public function get(string $key, mixed $default = null): mixed
     {
+        $this->failWhenConfigured();
+        $this->assertValidKey($key);
+
         return $this->values[$key] ?? $default;
     }
 
@@ -150,6 +283,11 @@ final class ArraySimpleCache implements CacheInterface
      */
     public function set(string $key, mixed $value, \DateInterval|int|null $ttl = null): bool
     {
+        $this->failWhenConfigured();
+        $this->assertValidKey($key);
+        if (!$this->writeResult) {
+            return false;
+        }
         $this->values[$key] = $value;
 
         return true;
@@ -160,6 +298,11 @@ final class ArraySimpleCache implements CacheInterface
      */
     public function delete(string $key): bool
     {
+        $this->failWhenConfigured();
+        $this->assertValidKey($key);
+        if (!$this->deleteResult) {
+            return false;
+        }
         unset($this->values[$key]);
 
         return true;
@@ -214,6 +357,24 @@ final class ArraySimpleCache implements CacheInterface
      */
     public function has(string $key): bool
     {
+        $this->assertValidKey($key);
+
         return array_key_exists($key, $this->values);
     }
+
+    private function assertValidKey(string $key): void
+    {
+        if ($key === '' || preg_match('/[{}()\/\\\@:]/', $key) === 1) {
+            throw new \InvalidArgumentException('Invalid PSR-16 key: ' . $key);
+        }
+    }
+
+    private function failWhenConfigured(): void
+    {
+        if ($this->failure !== null) {
+            throw $this->failure;
+        }
+    }
 }
+
+final class TestCacheException extends \RuntimeException implements CacheException {}

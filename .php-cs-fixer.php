@@ -1,22 +1,10 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
+
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 use PhpCsFixer\Runner\Parallel\ParallelConfig;
-
-$header = <<<'EOF'
-This file is part of HyperfAdmin.
-
-@Link https://thinkadmin.top
-@Author Anyon<zoujingli@qq.com>
-EOF;
 
 $config = new Config();
 $config->setRiskyAllowed(true)->setParallelConfig(new ParallelConfig(8, 24));
@@ -30,12 +18,6 @@ return $config->setFinder($finder)->setUsingCache(false)->setRules([
     '@Symfony' => true,
     '@DoctrineAnnotation' => true,
     '@PhpCsFixer' => true,
-    'header_comment' => [
-        'comment_type' => 'PHPDoc',
-        'header' => $header,
-        'separate' => 'none',
-        'location' => 'after_declare_strict',
-    ],
     'array_syntax' => [
         'syntax' => 'short',
     ],

@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Tests;
 
@@ -16,10 +10,13 @@ use We\Client;
 use We\Config\AlipayPlatformConfig;
 use We\Config\WechatPlatformConfig;
 use We\Config\WechatServiceConfig;
-use We\Exception\WechatException;
+use We\Exception\SdkException;
+use We\Platform\Alipay\PaymentClient as AlipayPaymentClient;
 use We\Platform\Alipay\PlatformClient as AlipayPlatformClient;
+use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
 use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
 use We\Platform\Wechat\ServiceClient as WechatServiceClient;
+use We\Platform\Wechat\WxappClient as WechatWxappClient;
 
 /**
  * SDK 根入口通道工厂测试用例。
@@ -28,12 +25,31 @@ use We\Platform\Wechat\ServiceClient as WechatServiceClient;
 #[CoversClass(Client::class)]
 final class ClientTest extends TestCase
 {
+    public function testPlatformFactoriesExposeConcreteReturnTypes(): void
+    {
+        $factories = [
+            'wechatPlatform' => WechatPlatformClient::class,
+            'wechatWxapp' => WechatWxappClient::class,
+            'wechatService' => WechatServiceClient::class,
+            'wechatPayment' => WechatPaymentClient::class,
+            'alipayPlatform' => AlipayPlatformClient::class,
+            'alipayPayment' => AlipayPaymentClient::class,
+        ];
+        $client = new \ReflectionClass(Client::class);
+
+        foreach ($factories as $method => $returnType) {
+            self::assertTrue($client->hasMethod($method), $method . ' must be a declared method');
+            self::assertSame($returnType, (string)$client->getMethod($method)->getReturnType());
+        }
+        self::assertFalse($client->hasMethod('__call'));
+    }
+
     /**
      * 测试根客户端缓存前缀为空时抛出异常。
      */
     public function testConstructorThrowsWhenCacheKeyPrefixEmpty(): void
     {
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('cacheKeyPrefix');
         new Client(cacheKeyPrefix: '   ');
     }
@@ -55,7 +71,7 @@ final class ClientTest extends TestCase
     {
         $client = new Client();
 
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('不支持的通道标识');
         $client->get('unknown.channel', new WechatPlatformConfig('wx_x', 'sec'));
     }
@@ -67,7 +83,7 @@ final class ClientTest extends TestCase
     {
         $client = new Client();
 
-        $this->expectException(WechatException::class);
+        $this->expectException(SdkException::class);
         $this->expectExceptionMessage('WechatPlatformConfig');
         $client->get('wechat.platform', new WechatServiceConfig('app', 'sec', 'token', TestKeys::encodingAesKey()));
     }
@@ -129,7 +145,11 @@ final class ClientTest extends TestCase
     public function testAlipayPlatformCallReturnsAuthorizationUrl(): void
     {
         $client = new Client();
-        $alipay = $client->alipayPlatform(new AlipayPlatformConfig('202605010001', TestKeys::privateKey()));
+        $alipay = $client->alipayPlatform(new AlipayPlatformConfig(
+            '202605010001',
+            TestKeys::privateKey(),
+            TestKeys::publicKey(),
+        ));
         $result = $alipay->get('auth', [
             'redirect_uri' => 'https://example.com/alipay/callback',
             'scope' => 'auth_user',
@@ -146,7 +166,11 @@ final class ClientTest extends TestCase
     public function testGetCanReturnSpecificChannelClient(): void
     {
         $client = new Client();
-        $channelClient = $client->get('alipay.platform', new AlipayPlatformConfig('202605010001', TestKeys::privateKey()));
+        $channelClient = $client->get('alipay.platform', new AlipayPlatformConfig(
+            '202605010001',
+            TestKeys::privateKey(),
+            TestKeys::publicKey(),
+        ));
 
         $this->assertInstanceOf(AlipayPlatformClient::class, $channelClient);
         $this->assertNotInstanceOf(WechatServiceClient::class, $channelClient);

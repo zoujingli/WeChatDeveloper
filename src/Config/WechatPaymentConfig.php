@@ -1,12 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of HyperfAdmin.
- *
- * @Link https://thinkadmin.top
- * @Author Anyon<zoujingli@qq.com>
- */
 
 namespace We\Config;
 
@@ -36,6 +30,8 @@ final class WechatPaymentConfig implements ConfigInterface
         public string $platformPublicKey = '',
         /** 微信支付平台证书/公钥序列号；非空时会校验回调头 Wechatpay-Serial。 */
         public string $platformSerial = '',
+        /** 通知时间戳允许偏差秒数；0 表示显式关闭新鲜度校验。 */
+        public int $notificationToleranceSeconds = 300,
     ) {
         $this->validate();
     }
@@ -57,12 +53,21 @@ final class WechatPaymentConfig implements ConfigInterface
             }
         }
         CredentialValidator::assertApiV3Key($this->apiV3Key);
-        CredentialValidator::assertPrivateKey($this->merchantPrivateKey, 'merchantPrivateKey');
+        CredentialValidator::assertPrivateKey($this->merchantPrivateKey, 'merchantPrivateKey', exceptionClass: WechatException::class);
+        if ($this->platformCertificate === '' && $this->platformPublicKey === '') {
+            throw new WechatException('platformCertificate 或 platformPublicKey 不能为空');
+        }
+        if (trim($this->platformSerial) === '') {
+            throw new WechatException('platformSerial 不能为空');
+        }
+        if ($this->notificationToleranceSeconds < 0) {
+            throw new WechatException('notificationToleranceSeconds 不能小于 0');
+        }
         if ($this->platformCertificate !== '') {
-            CredentialValidator::assertPublicKey($this->platformCertificate, 'platformCertificate');
+            CredentialValidator::assertPublicKey($this->platformCertificate, 'platformCertificate', exceptionClass: WechatException::class);
         }
         if ($this->platformPublicKey !== '') {
-            CredentialValidator::assertPublicKey($this->platformPublicKey, 'platformPublicKey');
+            CredentialValidator::assertPublicKey($this->platformPublicKey, 'platformPublicKey', exceptionClass: WechatException::class);
         }
     }
 
@@ -79,9 +84,32 @@ final class WechatPaymentConfig implements ConfigInterface
             (string)($data['api_v3_key'] ?? $data['mch_v3_key'] ?? ''),
             (string)($data['merchant_serial'] ?? $data['cert_serial'] ?? ''),
             (string)($data['merchant_private_key'] ?? $data['cert_private'] ?? ''),
-            (string)($data['platform_certificate'] ?? $data['cert_public'] ?? ''),
+            (string)($data['platform_certificate'] ?? ''),
             (string)($data['platform_public_key'] ?? ''),
             (string)($data['platform_serial'] ?? ''),
+            self::notificationTolerance($data),
         );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private static function notificationTolerance(array $data): int
+    {
+        if (!array_key_exists('notification_tolerance_seconds', $data)) {
+            return 300;
+        }
+        $value = $data['notification_tolerance_seconds'];
+        if (is_int($value) && $value >= 0) {
+            return $value;
+        }
+        if (is_string($value) && preg_match('/^(0|[1-9]\d*)$/D', $value) === 1) {
+            $parsed = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if (is_int($parsed)) {
+                return $parsed;
+            }
+        }
+
+        throw new WechatException('notification_tolerance_seconds 必须是 0 或正整数');
     }
 }
