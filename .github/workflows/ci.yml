@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Audit dependencies
+        run: composer audit --locked --no-interaction
+
       - name: Check coding style
         run: composer cs:check
 

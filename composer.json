@@ -22,7 +22,7 @@
     "ext-json": "*",
     "ext-openssl": "*",
     "ext-simplexml": "*",
-    "guzzlehttp/guzzle": "^7.0",
+    "guzzlehttp/guzzle": "^7.15.3",
     "psr/simple-cache": "^3.0"
   },
   "require-dev": {
