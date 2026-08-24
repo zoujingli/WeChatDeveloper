@@ -35,6 +35,7 @@ composer cs:fix
 composer cs:check
 composer analyse
 composer validate --strict
+composer audit --locked
 composer test
 ```
 
@@ -45,6 +46,7 @@ composer test
 CI 包含：
 
 - Composer 严格元数据校验。
+- Composer 锁定依赖安全审计。
 - PHP CS Fixer dry-run。
 - PHPStan 静态分析。
 - PHP 8.1、8.2、8.3、8.4 完整 PHPUnit 测试。
@@ -65,7 +67,7 @@ CI 包含：
 
 文件缓存并发回归是一个明确的低层调度例外：测试只用文件路径和 `flock` 确定旧读与新写的交错顺序，最终行为仍只通过公开 `get()`/`set()` 断言。该调度不构成缓存文件格式的公开契约。
 
-文档测试会解析 README 与 `docs/` 中每个 PHP fenced code，示例必须语法完整，不要在 PHP code block 中使用省略号代替表达式。
+文档测试会检查 README、文档中心、更新记录和所有面向使用者的主题文档，并解析其中每个 PHP fenced code。示例必须语法完整，不要在 PHP code block 中使用省略号代替表达式。
 
 ## 临时文件
 

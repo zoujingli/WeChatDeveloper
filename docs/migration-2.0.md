@@ -124,6 +124,7 @@ $trade = $alipayPayment->post('alipay.trade.query', [
 
 - `appid` 保持不变。
 - `appsecret` 数组字段仍可由 `fromArray()` 读取；构造参数名为 `appSecret`。
+- 配置数组中的凭证、标识和 URL 字段必须是字符串，不再把数组、布尔值或对象隐式转换为字符串。
 - `cache_path` 被移除，改为向根 `Client` 注入缓存。
 - `GetAccessTokenCallback` 被移除。普通 access token 由 SDK 通过缓存管理；授权方 token 使用 `StoreTokenInterface`。
 
@@ -151,7 +152,7 @@ $trade = $alipayPayment->post('alipay.trade.query', [
 
 实现 `StoreCacheInterface`，或把现有 PSR-16 缓存包装为 `PsrSimpleCacheStore`。生产实现必须提供跨进程/跨节点刷新锁，不能只实现 `get()` 与 `set()`。
 
-2.0 缓存键使用三段 PSR-16 安全格式。不要复用 1.x 缓存文件名或手工拼接旧 key；让 SDK 首次调用时重新获取 token。
+2.0 缓存键使用三段 PSR-16 安全格式，段内点号编码为 `%2E`。不要复用 1.x 缓存文件名或手工拼接旧 key；让 SDK 首次调用时重新获取 token。
 
 ## 异常迁移
 

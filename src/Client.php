@@ -66,31 +66,37 @@ final class Client
         $this->http = $http;
     }
 
+    /** 使用微信公众平台配置创建公众平台客户端。 */
     public function wechatPlatform(WechatPlatformConfig $config): WechatPlatformClient
     {
         return new WechatPlatformClient($config, $this->http, $this->cache, $this->cacheKeyPrefix);
     }
 
+    /** 使用微信小程序配置创建小程序客户端。 */
     public function wechatWxapp(WechatWxappConfig $config): WechatWxappClient
     {
         return new WechatWxappClient($config, $this->http, $this->cache, $this->cacheKeyPrefix);
     }
 
+    /** 使用微信服务平台配置创建第三方平台客户端。 */
     public function wechatService(WechatServiceConfig $config): WechatServiceClient
     {
         return new WechatServiceClient($config, $this->http, $this->cache, $this->authorizers, $this->cacheKeyPrefix);
     }
 
+    /** 使用微信支付 APIv3 配置创建支付客户端。 */
     public function wechatPayment(WechatPaymentConfig $config): WechatPaymentClient
     {
         return new WechatPaymentClient($config, $this->http);
     }
 
+    /** 使用支付宝开放平台配置创建平台客户端。 */
     public function alipayPlatform(AlipayPlatformConfig $config): AlipayPlatformClient
     {
         return new AlipayPlatformClient($config, $this->http);
     }
 
+    /** 使用支付宝支付配置创建支付客户端。 */
     public function alipayPayment(AlipayPaymentConfig $config): AlipayPaymentClient
     {
         return new AlipayPaymentClient($config, $this->http);

@@ -1,6 +1,8 @@
 # 配置与凭证
 
-所有平台配置实现 `We\Contract\ConfigInterface`，在构造或 `fromArray()` 时立即验证必填字段和密钥。配置无效时不会创建可调用的客户端。
+所有平台配置实现 `We\Contract\ConfigInterface`，在构造或 `fromArray()` 时立即验证必填字段和密钥。配置属性在校验后保持只读，配置无效时不会创建可调用的客户端。
+
+除 `notification_tolerance_seconds` 明确接受非负整数外，`fromArray()` 的配置字段必须是字符串。数组、对象、布尔值或浮点数不会被隐式转换；类型不匹配时抛出对应平台的 SDK 异常。
 
 ## 根客户端
 

@@ -47,6 +47,32 @@ $oauth = $platform->get('sns/oauth2/access_token', [
 ]);
 ```
 
+## 网页授权与扫码登录地址
+
+公众号网页授权和网站应用扫码登录使用 `open.weixin.qq.com`，不会向普通 JSON API 发起请求。传入对应特殊 path 时，客户端返回包含 URL 的数组；`appid` 默认取自当前配置，参数数组显式提供 `appid` 时以参数值为准：
+
+```php
+<?php
+
+declare(strict_types=1);
+
+$authorization = $platform->get('connect/oauth2/authorize', [
+    'redirect_uri' => 'https://example.com/wechat/oauth/callback',
+    'scope' => 'snsapi_userinfo',
+    'state' => 'csrf-state',
+]);
+$authorizationUrl = (string) $authorization['url'];
+
+$qrconnect = $platform->get('connect/qrconnect', [
+    'redirect_uri' => 'https://example.com/wechat/qr/callback',
+    'scope' => 'snsapi_login',
+    'state' => 'csrf-state',
+]);
+$qrconnectUrl = (string) $qrconnect['url'];
+```
+
+调用方负责生成并验证 `state`，以及在回调阶段校验重定向上下文。生成 URL 本身不获取 access token。
+
 ## 小程序
 
 ```php
@@ -148,10 +174,35 @@ $url = $service->authorizationUrl(
     (string) $preAuth['pre_auth_code'],
     'https://example.com/wechat/component/callback',
 );
+
+$authorization = $service->queryAuth(
+    $componentToken,
+    'authorization_code_from_callback',
+);
+$authorizerAppid = (string) $authorization['authorization_info']['authorizer_appid'];
+
+$authorizer = $service->authorizerInfo($componentToken, $authorizerAppid);
 ```
 
 通过通用 `get()`/`post()` 代表授权方调用时，在 options 中传 `authorizer_appid` 与 `component_access_token`。SDK 从 `StoreTokenInterface` 读取 refresh token，刷新后把完整 payload 回写业务存储。
 
+```php
+<?php
+
+declare(strict_types=1);
+
+$users = $service->get('cgi-bin/user/get', [
+    'next_openid' => '',
+], [
+    'authorizer_appid' => $authorizerAppid,
+    'component_access_token' => $componentToken,
+]);
+```
+
+也可以用 `requestAsAuthorizer()` 显式表达同一调用。两种入口都要求根 `Client` 已注入 `StoreTokenInterface`；未注入仓库、refresh token 为空或刷新响应无效时会抛出 `WechatException`。
+
+刷新响应会先校验 `authorizer_access_token` 与有效期，再回写 `StoreTokenInterface`。无效响应不会进入业务存储或 token 缓存。
+
 ## 返回与错误
 
-JSON 调用成功时返回数组。微信平台业务错误、无效 JSON、凭证错误和传输错误抛出 `WechatException` 或 `ApiException`；签名错误抛出 `SignatureException`。它们都可由 `SdkException` 统一捕获。
+JSON 调用成功时返回数组。微信配置和协议错误抛出 `WechatException`，平台业务错误或无效 JSON 抛出 `ApiException`，网络传输错误抛出 `TransportException`，签名错误抛出 `SignatureException`。它们都可由 `SdkException` 统一捕获。

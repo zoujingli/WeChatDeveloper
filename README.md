@@ -25,7 +25,7 @@ SDK 负责配置校验、访问令牌缓存、HTTP 调用、请求签名、平�
 - `ext-json`
 - `ext-openssl`
 - `ext-simplexml`
-- `guzzlehttp/guzzle ^7.0`
+- `guzzlehttp/guzzle ^7.15.3`
 - `psr/simple-cache ^3.0`
 
 CI 覆盖 PHP 8.1 至 8.4，并验证最低依赖组合。
@@ -119,6 +119,7 @@ $wxapp = $client->get(
 
 ## 安全默认值
 
+- 配置对象构造后保持只读；`fromArray()` 的字符串字段拒绝数组、布尔值等隐式类型转换。
 - 支付宝应用私钥与支付宝公钥均为必填项；同步响应与通知必须验签。
 - 微信支付必须配置平台公钥或平台证书及对应序列号；普通 JSON 响应在解析前验签。
 - 微信支付通知默认只接受时间戳偏差不超过 300 秒的已签名原始 body；配置为 `0` 才会关闭时间检查。
@@ -128,15 +129,11 @@ $wxapp = $client->get(
 
 ## 文档
 
-- [配置与凭证](docs/configuration.md)：配置对象、数组字段、RSA 和平台信任材料。
-- [缓存](docs/cache.md)：缓存契约、PSR-16 适配、键格式和刷新锁。
-- [微信平台](docs/wechat.md)：公众号、小程序、服务平台、下载与上传。
-- [微信支付](docs/payments.md)：请求/响应验签、通知时间窗口和账单下载。
-- [支付宝](docs/alipay.md)：开放平台调用、支付、响应和通知验签。
-- [异常](docs/exceptions.md)：统一异常层级、上下文和捕获方式。
-- [测试与贡献](docs/testing.md)：本地环境与完整质量门禁。
-- [设计](docs/design.md)：模块边界、安全决策和扩展接缝。
-- [从 1.x 迁移到 2.0](docs/migration-2.0.md)：破坏性变化、字段和常用调用映射。
+从[文档中心](docs/index.md)按接入目标阅读，或直接查阅：
+
+- 入门与参考：[配置与凭证](docs/configuration.md)、[公开 API 速查](docs/api.md)、[缓存](docs/cache.md)、[异常](docs/exceptions.md)。
+- 平台能力：[微信平台](docs/wechat.md)、[微信支付](docs/payments.md)、[支付宝](docs/alipay.md)。
+- 维护与升级：[设计](docs/design.md)、[测试与贡献](docs/testing.md)、[从 1.x 迁移到 2.0](docs/migration-2.0.md)、[更新记录](CHANGELOG.md)。
 
 ## 错误处理
 

@@ -43,6 +43,10 @@ final class ApplicationCache implements StoreCacheInterface
 
 文件缓存使用临时文件和原子重命名提交新值。读取过期文件只返回默认值，不会按旧路径删除，因此不会误删并发写入的新值。
 
+根 `Client` 未注入缓存时，会在 `Client::defaultCacheStoreDirectory()` 返回的系统临时目录子目录中创建 `FileCacheStore`。该默认值适合本地开发和单机运行；容器、多实例或无持久临时目录的生产部署应显式注入共享缓存与匹配的锁实现。
+
+新建文件缓存目录使用 POSIX `0700` 权限，缓存值文件在发布前收紧为 `0600`。Windows 不使用 POSIX 权限位；部署侧仍应保证缓存目录只对运行 SDK 的账号开放。
+
 ## PSR-16 适配
 
 ```php
@@ -70,13 +74,13 @@ $client = new Client(
 
 ## 缓存键
 
-完整键由部署前缀、平台通道和逻辑键三段组成。每段使用 `rawurlencode()`，再用点号连接：
+完整键由部署前缀、平台通道和逻辑键三段组成。每段先使用 `rawurlencode()`，再把不会被该函数编码的点号替换为 `%2E`，最后用点号连接：
 
 ```text
-production-tenant-a.wechat.platform.wechat%3Aapp%3Awx_appid%3Aplatform%3Aaccess_token
+production-tenant-a.wechat%2Eplatform.wechat%3Aapp%3Awx_appid%3Aplatform%3Aaccess_token
 ```
 
-该格式不会包含 PSR-16 保留字符 `{ } ( ) / \\ @ :`。部署前缀和通道仍保持稳定隔离；逻辑键的内部层次被编码在第三段内。
+该格式不会包含 PSR-16 保留字符 `{ } ( ) / \\ @ :`，也不会让段内容中的点号与分隔符发生碰撞。部署前缀和通道仍保持稳定隔离；逻辑键的内部层次被编码在第三段内。
 
 2.0 发布前的旧冒号格式不属于稳定接口。升级时不需要迁移旧 token 缓存，允许 SDK 按新键重新获取。
 
