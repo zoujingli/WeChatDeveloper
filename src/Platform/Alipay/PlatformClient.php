@@ -70,8 +70,8 @@ class PlatformClient
         } else {
             throw new AlipayApiException('支付宝响应缺少节点: ' . $node, 0, null, $payload);
         }
-        $this->assertResponseSignature($body, $responseNode, (string)($payload['sign'] ?? ''));
         $data = $payload[$responseNode];
+        $this->assertResponseSignature($body, $responseNode, (string)($payload['sign'] ?? ''), $data);
         if (!array_key_exists('code', $data) || !is_scalar($data['code'])) {
             throw new AlipayApiException('支付宝响应缺少有效 code', 0, null, $data);
         }
@@ -140,6 +140,12 @@ class PlatformClient
         $ivValue = base64_decode($iv, true);
         if ($ciphertext === false || $key === false || $ivValue === false) {
             throw new AlipayException('支付宝数据解密参数 Base64 无效');
+        }
+        if (strlen($key) !== 16) {
+            throw new AlipayException('支付宝数据解密 sessionKey 解码后必须是 16 字节');
+        }
+        if (strlen($ivValue) !== 16) {
+            throw new AlipayException('支付宝数据解密 iv 解码后必须是 16 字节');
         }
         $plain = openssl_decrypt(
             $ciphertext,
@@ -250,7 +256,7 @@ class PlatformClient
             'sign_type' => $this->config->signType,
             'timestamp' => date('Y-m-d H:i:s'),
             'version' => $this->config->version,
-            'biz_content' => $this->jsonString($bizContent, '{}'),
+            'biz_content' => $this->jsonString($bizContent),
         ];
         foreach ($extra as $key => $value) {
             $params[(string)$key] = $this->gatewayValue($value);
@@ -263,15 +269,24 @@ class PlatformClient
     /**
      * 使用支付宝公钥校验网关同步响应签名。
      */
-    private function assertResponseSignature(string $body, string $node, string $sign): void
+    private function assertResponseSignature(string $body, string $node, string $sign, array $parsedNode): void
     {
         if ($sign === '') {
             throw new AlipaySignatureException('支付宝响应缺少签名');
         }
 
         // 支付宝同步响应的验签原文是响应节点的原始 JSON 片段，不能使用 json_decode 后重新编码的数组。
-        if (!$this->verifySignature($this->extractJsonValue($body, $node), $sign)) {
+        $signedNode = $this->extractJsonValue($body, $node);
+        if (!$this->verifySignature($signedNode, $sign)) {
             throw new AlipaySignatureException('支付宝响应验签失败');
+        }
+        try {
+            $verifiedNode = json_decode($signedNode, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $exception) {
+            throw new AlipayApiException('支付宝响应签名节点 JSON 无效', 0, $exception);
+        }
+        if (!is_array($verifiedNode) || $verifiedNode !== $parsedNode) {
+            throw new AlipaySignatureException('支付宝响应验签节点与解析结果不一致');
         }
     }
 
@@ -299,17 +314,19 @@ class PlatformClient
      */
     private function gatewayValue(mixed $value): string
     {
-        return is_scalar($value) ? (string)$value : $this->jsonString($value, '');
+        return is_scalar($value) ? (string)$value : $this->jsonString($value);
     }
 
     /**
      * 将支付宝网关数组参数编码为 JSON 字符串。
      */
-    private function jsonString(mixed $value, string $fallback): string
+    private function jsonString(mixed $value): string
     {
-        $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
-        return is_string($json) ? $json : $fallback;
+        try {
+            return json_encode($value, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } catch (\JsonException $exception) {
+            throw new AlipayException('支付宝网关参数 JSON 编码失败', 0, $exception);
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use We\Config\AlipayPlatformConfig;
 use We\Exception\AlipayApiException;
+use We\Exception\AlipayException;
 use We\Exception\AlipaySignatureException;
 use We\Exception\TransportException;
 use We\Platform\Alipay\PlatformClient as AlipayPlatformClient;
@@ -189,6 +190,66 @@ final class AlipayPlatformClientTest extends TestCase
         } catch (AlipayApiException $exception) {
             self::assertSame(40004, $exception->getCode());
             self::assertSame('交易不存在', $exception->getMessage());
+        }
+    }
+
+    public function testRequestRejectsDuplicateResponseNodesBeforeReturningUnsignedData(): void
+    {
+        [$alipayPrivateKey, $alipayPublicKey] = TestKeys::platformKeyPair();
+        $signedNode = '{"code":"10000","user_id":"trusted"}';
+        $unsignedNode = '{"code":"10000","user_id":"attacker"}';
+        $body = '{"alipay_user_info_share_response":' . $signedNode
+            . ',"alipay_user_info_share_response":' . $unsignedNode
+            . ',"sign":"' . self::sign($signedNode, $alipayPrivateKey) . '"}';
+        $client = new AlipayPlatformClient(
+            new AlipayPlatformConfig('ali_app', TestKeys::privateKey(), $alipayPublicKey),
+            new AlipayFakeHttpClient($body),
+        );
+
+        $this->expectException(AlipaySignatureException::class);
+        $this->expectExceptionMessage('不一致');
+
+        $client->request('alipay.user.info.share');
+    }
+
+    public function testRequestRejectsBizContentThatCannotBeEncodedAsJson(): void
+    {
+        [, $alipayPublicKey] = TestKeys::platformKeyPair();
+        $recursive = [];
+        $recursive['self'] = &$recursive;
+        $client = new AlipayPlatformClient(
+            new AlipayPlatformConfig('ali_app', TestKeys::privateKey(), $alipayPublicKey),
+            new AlipayFakeHttpClient('{}'),
+        );
+
+        try {
+            $client->request('alipay.test', $recursive);
+            self::fail('Expected invalid JSON input to be rejected.');
+        } catch (AlipayException $exception) {
+            self::assertStringContainsString('JSON 编码', $exception->getMessage());
+            self::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+        }
+    }
+
+    public function testDecryptRejectsInvalidAesKeyAndIvLengths(): void
+    {
+        [, $alipayPublicKey] = TestKeys::platformKeyPair();
+        $client = new AlipayPlatformClient(
+            new AlipayPlatformConfig('ali_app', TestKeys::privateKey(), $alipayPublicKey),
+        );
+        $ciphertext = base64_encode(str_repeat('x', 16));
+
+        foreach ([
+            'sessionKey' => [base64_encode('short-key'), base64_encode(str_repeat('i', 16))],
+            'iv' => [base64_encode(str_repeat('k', 16)), base64_encode('short-iv')],
+        ] as $field => [$sessionKey, $iv]) {
+            try {
+                $client->decrypt($ciphertext, $sessionKey, $iv);
+                self::fail('Expected invalid ' . $field . ' length to be rejected.');
+            } catch (AlipayException $exception) {
+                self::assertStringContainsString($field, $exception->getMessage());
+                self::assertStringContainsString('16 字节', $exception->getMessage());
+            }
         }
     }
 
