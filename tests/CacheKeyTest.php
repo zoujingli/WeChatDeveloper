@@ -24,7 +24,7 @@ final class CacheKeyTest extends TestCase
     {
         $logical = TokenCacheKey::wechatPlatformAccessToken('wx_demo', '');
         $full = CacheKey::compose('myapp', 'wechat.platform', $logical);
-        $this->assertSame('myapp.wechat.platform.' . rawurlencode($logical), $full);
+        $this->assertSame('myapp.wechat%2Eplatform.' . rawurlencode($logical), $full);
         $this->assertDoesNotMatchRegularExpression('/[{}()\/\\\@:]/', $full);
     }
 
@@ -35,7 +35,7 @@ final class CacheKeyTest extends TestCase
     {
         $logical = TokenCacheKey::wechatServiceComponentAccessToken('wx_service');
         $this->assertSame(
-            'ns.wechat.service.' . rawurlencode($logical),
+            'ns.wechat%2Eservice.' . rawurlencode($logical),
             CacheKey::compose('::ns::', ':::wechat.service::', $logical),
         );
     }
@@ -91,5 +91,15 @@ final class CacheKeyTest extends TestCase
         $this->expectException(SdkException::class);
         $this->expectExceptionMessage('逻辑段');
         CacheKey::compose('app', 'wechat.platform', '  ');
+    }
+
+    public function testComposeEncodesDelimiterDotsWithoutCrossSegmentCollisions(): void
+    {
+        $left = CacheKey::compose('a', 'wechat.platform', 'b.wechat.platform.c');
+        $right = CacheKey::compose('a.wechat.platform.b', 'wechat.platform', 'c');
+
+        self::assertNotSame($left, $right);
+        self::assertSame('a.wechat%2Eplatform.b%2Ewechat%2Eplatform%2Ec', $left);
+        self::assertSame('a%2Ewechat%2Eplatform%2Eb.wechat%2Eplatform.c', $right);
     }
 }

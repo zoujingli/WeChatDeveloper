@@ -76,6 +76,28 @@ final class CacheStoreTest extends TestCase
         }
     }
 
+    public function testFileCacheStoreRestrictsNewCacheFilePermissions(): void
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('POSIX file permission bits are not available on Windows.');
+        }
+        $dir = $this->tempDir();
+        $store = new FileCacheStore($dir);
+        $store->set('sensitive-token', 'token-value', 60);
+        $files = iterator_to_array(new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+        ));
+        $cacheFile = array_values(array_filter(
+            $files,
+            static fn (\SplFileInfo $file): bool => $file->isFile() && str_ends_with($file->getFilename(), '.json'),
+        ))[0] ?? null;
+
+        self::assertInstanceOf(\SplFileInfo::class, $cacheFile);
+        self::assertSame(0600, $cacheFile->getPerms() & 0777);
+        self::assertSame(0700, fileperms($dir) & 0777);
+        $this->removeDir($dir);
+    }
+
     public function testExpiredReadCannotDeleteConcurrentFreshWrite(): void
     {
         if (!function_exists('pcntl_fork') || !function_exists('stream_socket_pair')) {

@@ -12,6 +12,10 @@ use We\Exception\SdkException;
  */
 final class FileCacheStore implements StoreCacheInterface
 {
+    private const DIRECTORY_MODE = 0700;
+
+    private const FILE_MODE = 0600;
+
     /**
      * 创建文件缓存目录并校验可写权限。
      */
@@ -20,7 +24,7 @@ final class FileCacheStore implements StoreCacheInterface
         if ($this->directory === '') {
             throw new SdkException('FileCacheStore 目录不能为空');
         }
-        if (!is_dir($this->directory) && @mkdir($this->directory, 0775, true) !== true) {
+        if (!is_dir($this->directory) && @mkdir($this->directory, self::DIRECTORY_MODE, true) !== true) {
             throw new SdkException('FileCacheStore 无法创建目录: ' . $this->directory);
         }
         if (!is_writable($this->directory)) {
@@ -75,7 +79,7 @@ final class FileCacheStore implements StoreCacheInterface
     {
         $path = $this->pathFor($key);
         $dir = dirname($path);
-        if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
+        if (!is_dir($dir) && @mkdir($dir, self::DIRECTORY_MODE, true) !== true) {
             throw new SdkException('FileCacheStore 无法创建子目录: ' . $dir);
         }
 
@@ -96,6 +100,10 @@ final class FileCacheStore implements StoreCacheInterface
         if (@file_put_contents($tmp, $body, LOCK_EX) === false) {
             @unlink($tmp);
             throw new SdkException('FileCacheStore 写入失败: ' . $tmp);
+        }
+        if (DIRECTORY_SEPARATOR !== '\\' && !@chmod($tmp, self::FILE_MODE)) {
+            @unlink($tmp);
+            throw new SdkException('FileCacheStore 无法收紧文件权限: ' . $tmp);
         }
         if (!@rename($tmp, $path)) {
             @unlink($path);
@@ -124,7 +132,7 @@ final class FileCacheStore implements StoreCacheInterface
     {
         $path = $this->pathFor('lock:' . $key) . '.lock';
         $dir = dirname($path);
-        if (!is_dir($dir) && @mkdir($dir, 0775, true) !== true) {
+        if (!is_dir($dir) && @mkdir($dir, self::DIRECTORY_MODE, true) !== true) {
             throw new SdkException('FileCacheStore 无法创建锁目录: ' . $dir);
         }
 

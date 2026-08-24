@@ -33,7 +33,15 @@ final class CacheKey
             throw new SdkException('缓存键逻辑段不能为空');
         }
 
-        return implode('.', array_map('rawurlencode', [$prefix, $channel, $logical]));
+        return implode('.', array_map(self::encodeSegment(...), [$prefix, $channel, $logical]));
+    }
+
+    /**
+     * 编码单个键段；额外编码点号，确保它只承担段分隔符语义。
+     */
+    private static function encodeSegment(string $segment): string
+    {
+        return str_replace('.', '%2E', rawurlencode($segment));
     }
 
     /**
