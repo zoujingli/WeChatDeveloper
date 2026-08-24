@@ -6,6 +6,7 @@ namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\ConfigValue;
 
 /**
  * 微信小程序基础配置。
@@ -18,10 +19,10 @@ final class WechatWxappConfig implements ConfigInterface
      * 创建微信小程序配置并执行必填项校验。
      */
     public function __construct(
-        public string $appid,
-        public string $appSecret,
+        public readonly string $appid,
+        public readonly string $appSecret,
         /** @see WechatPlatformConfig::$storageScope */
-        public string $storageScope = '',
+        public readonly string $storageScope = '',
     ) {
         $this->validate();
     }
@@ -34,9 +35,9 @@ final class WechatWxappConfig implements ConfigInterface
     public static function fromArray(array $data): static
     {
         return new self(
-            (string)($data['appid'] ?? ''),
-            (string)($data['appsecret'] ?? $data['app_secret'] ?? ''),
-            (string)($data['storage_scope'] ?? $data['storageScope'] ?? ''),
+            ConfigValue::string($data, ['appid'], 'appid', '', WechatException::class),
+            ConfigValue::string($data, ['appsecret', 'app_secret'], 'appSecret', '', WechatException::class),
+            ConfigValue::string($data, ['storage_scope', 'storageScope'], 'storageScope', '', WechatException::class),
         );
     }
 

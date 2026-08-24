@@ -6,6 +6,7 @@ namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\AlipayException;
+use We\Support\ConfigValue;
 use We\Support\CredentialValidator;
 
 /**
@@ -21,14 +22,14 @@ class AlipayPlatformConfig implements ConfigInterface
      * 创建支付宝开放平台配置并执行必填项校验。
      */
     public function __construct(
-        public string $appid,
-        public string $privateKey,
-        public string $alipayPublicKey = '',
-        public string $gateway = 'https://openapi.alipay.com/gateway.do',
-        public string $charset = 'utf-8',
-        public string $signType = 'RSA2',
-        public string $format = 'JSON',
-        public string $version = '1.0',
+        public readonly string $appid,
+        public readonly string $privateKey,
+        public readonly string $alipayPublicKey = '',
+        public readonly string $gateway = 'https://openapi.alipay.com/gateway.do',
+        public readonly string $charset = 'utf-8',
+        public readonly string $signType = 'RSA2',
+        public readonly string $format = 'JSON',
+        public readonly string $version = '1.0',
     ) {
         $this->validate();
     }
@@ -59,14 +60,14 @@ class AlipayPlatformConfig implements ConfigInterface
     public static function fromArray(array $data): static
     {
         return new static(
-            (string)($data['appid'] ?? $data['app_id'] ?? ''),
-            (string)($data['private_key'] ?? $data['merchant_private_key'] ?? ''),
-            (string)($data['alipay_public_key'] ?? ''),
-            (string)($data['gateway'] ?? 'https://openapi.alipay.com/gateway.do'),
-            (string)($data['charset'] ?? 'utf-8'),
-            (string)($data['sign_type'] ?? 'RSA2'),
-            (string)($data['format'] ?? 'JSON'),
-            (string)($data['version'] ?? '1.0'),
+            ConfigValue::string($data, ['appid', 'app_id'], 'appid', '', AlipayException::class),
+            ConfigValue::string($data, ['private_key', 'merchant_private_key'], 'private_key', '', AlipayException::class),
+            ConfigValue::string($data, ['alipay_public_key'], 'alipay_public_key', '', AlipayException::class),
+            ConfigValue::string($data, ['gateway'], 'gateway', 'https://openapi.alipay.com/gateway.do', AlipayException::class),
+            ConfigValue::string($data, ['charset'], 'charset', 'utf-8', AlipayException::class),
+            ConfigValue::string($data, ['sign_type'], 'sign_type', 'RSA2', AlipayException::class),
+            ConfigValue::string($data, ['format'], 'format', 'JSON', AlipayException::class),
+            ConfigValue::string($data, ['version'], 'version', '1.0', AlipayException::class),
         );
     }
 }

@@ -6,6 +6,7 @@ namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\ConfigValue;
 use We\Support\CredentialValidator;
 
 /**
@@ -19,19 +20,19 @@ final class WechatPaymentConfig implements ConfigInterface
      * 创建微信支付 APIv3 配置并执行必填项校验。
      */
     public function __construct(
-        public string $appid,
-        public string $mchId,
-        public string $apiV3Key,
-        public string $merchantSerial,
-        public string $merchantPrivateKey,
+        public readonly string $appid,
+        public readonly string $mchId,
+        public readonly string $apiV3Key,
+        public readonly string $merchantSerial,
+        public readonly string $merchantPrivateKey,
         /** 微信支付平台证书 PEM；未配置 platformPublicKey 时用于回调验签。 */
-        public string $platformCertificate = '',
+        public readonly string $platformCertificate = '',
         /** 微信支付平台公钥 PEM，优先用于回调验签。 */
-        public string $platformPublicKey = '',
+        public readonly string $platformPublicKey = '',
         /** 微信支付平台证书/公钥序列号；非空时会校验回调头 Wechatpay-Serial。 */
-        public string $platformSerial = '',
+        public readonly string $platformSerial = '',
         /** 通知时间戳允许偏差秒数；0 表示显式关闭新鲜度校验。 */
-        public int $notificationToleranceSeconds = 300,
+        public readonly int $notificationToleranceSeconds = 300,
     ) {
         $this->validate();
     }
@@ -79,14 +80,14 @@ final class WechatPaymentConfig implements ConfigInterface
     public static function fromArray(array $data): static
     {
         return new self(
-            (string)($data['appid'] ?? ''),
-            (string)($data['mch_id'] ?? $data['mchid'] ?? ''),
-            (string)($data['api_v3_key'] ?? $data['mch_v3_key'] ?? ''),
-            (string)($data['merchant_serial'] ?? $data['cert_serial'] ?? ''),
-            (string)($data['merchant_private_key'] ?? $data['cert_private'] ?? ''),
-            (string)($data['platform_certificate'] ?? ''),
-            (string)($data['platform_public_key'] ?? ''),
-            (string)($data['platform_serial'] ?? ''),
+            ConfigValue::string($data, ['appid'], 'appid', '', WechatException::class),
+            ConfigValue::string($data, ['mch_id', 'mchid'], 'mchId', '', WechatException::class),
+            ConfigValue::string($data, ['api_v3_key', 'mch_v3_key'], 'apiV3Key', '', WechatException::class),
+            ConfigValue::string($data, ['merchant_serial', 'cert_serial'], 'merchantSerial', '', WechatException::class),
+            ConfigValue::string($data, ['merchant_private_key', 'cert_private'], 'merchantPrivateKey', '', WechatException::class),
+            ConfigValue::string($data, ['platform_certificate'], 'platformCertificate', '', WechatException::class),
+            ConfigValue::string($data, ['platform_public_key'], 'platformPublicKey', '', WechatException::class),
+            ConfigValue::string($data, ['platform_serial'], 'platformSerial', '', WechatException::class),
             self::notificationTolerance($data),
         );
     }

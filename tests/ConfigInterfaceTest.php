@@ -215,6 +215,46 @@ final class ConfigInterfaceTest extends TestCase
         self::assertSame(0, $config->notificationToleranceSeconds);
     }
 
+    public function testWechatConfigFromArrayRejectsNonStringFields(): void
+    {
+        $this->expectException(WechatException::class);
+        $this->expectExceptionMessage('appid 必须是字符串');
+
+        WechatPlatformConfig::fromArray([
+            'appid' => [],
+            'app_secret' => 'secret',
+        ]);
+    }
+
+    public function testAlipayConfigFromArrayRejectsNonStringFields(): void
+    {
+        $this->expectException(AlipayException::class);
+        $this->expectExceptionMessage('private_key 必须是字符串');
+
+        AlipayPlatformConfig::fromArray([
+            'appid' => 'ali_app',
+            'private_key' => [],
+            'alipay_public_key' => 'unused',
+        ]);
+    }
+
+    public function testConfigPropertiesAreReadonlyAfterValidation(): void
+    {
+        foreach ([
+            WechatPlatformConfig::class,
+            WechatWxappConfig::class,
+            WechatServiceConfig::class,
+            WechatPaymentConfig::class,
+            AlipayPlatformConfig::class,
+            AlipayPaymentConfig::class,
+        ] as $configClass) {
+            $reflection = new \ReflectionClass($configClass);
+            foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+                self::assertTrue($property->isReadOnly(), $configClass . '::$' . $property->getName() . ' 必须只读');
+            }
+        }
+    }
+
     /**
      * @param array<string,mixed> $overrides
      * @return array<string,mixed>

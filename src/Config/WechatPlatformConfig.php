@@ -6,6 +6,7 @@ namespace We\Config;
 
 use We\Contract\ConfigInterface;
 use We\Exception\WechatException;
+use We\Support\ConfigValue;
 use We\Support\CredentialValidator;
 
 /**
@@ -19,15 +20,15 @@ final class WechatPlatformConfig implements ConfigInterface
      * 创建微信公众平台配置并执行必填项校验。
      */
     public function __construct(
-        public string $appid,
-        public string $appSecret,
-        public string $token = '',
-        public string $encodingAesKey = '',
+        public readonly string $appid,
+        public readonly string $appSecret,
+        public readonly string $token = '',
+        public readonly string $encodingAesKey = '',
         /**
          * 业务维度的缓存分桶：Token 键形如 `wechat:app:{appid}:platform:access_token:scope:{storageScope}`；
          * 空字符串则仅按 appid 分组。多租户下同一 appid 若需隔离（极少见）可传租户/账号标识。
          */
-        public string $storageScope = '',
+        public readonly string $storageScope = '',
     ) {
         $this->validate();
     }
@@ -40,11 +41,11 @@ final class WechatPlatformConfig implements ConfigInterface
     public static function fromArray(array $data): static
     {
         return new self(
-            (string)($data['appid'] ?? ''),
-            (string)($data['appsecret'] ?? $data['app_secret'] ?? ''),
-            (string)($data['token'] ?? ''),
-            (string)($data['encodingaeskey'] ?? $data['encoding_aes_key'] ?? ''),
-            (string)($data['storage_scope'] ?? $data['storageScope'] ?? ''),
+            ConfigValue::string($data, ['appid'], 'appid', '', WechatException::class),
+            ConfigValue::string($data, ['appsecret', 'app_secret'], 'appSecret', '', WechatException::class),
+            ConfigValue::string($data, ['token'], 'token', '', WechatException::class),
+            ConfigValue::string($data, ['encodingaeskey', 'encoding_aes_key'], 'encodingAesKey', '', WechatException::class),
+            ConfigValue::string($data, ['storage_scope', 'storageScope'], 'storageScope', '', WechatException::class),
         );
     }
 
