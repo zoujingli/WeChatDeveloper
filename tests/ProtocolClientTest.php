@@ -19,6 +19,7 @@ use We\Config\WechatServiceConfig;
 use We\Contract\StoreCacheInterface;
 use We\Contract\StoreTokenInterface;
 use We\Exception\ApiException;
+use We\Exception\WechatException;
 use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
 use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
 use We\Platform\Wechat\ServiceClient as WechatServiceClient;
@@ -218,6 +219,26 @@ final class ProtocolClientTest extends TestCase
         $this->assertSame('NEXT', $http->requests[0]['options']['query']['next_openid']);
         $this->assertSame('authorizer-token', $http->requests[0]['options']['query']['access_token']);
     }
+
+    public function testWechatServiceDoesNotPersistInvalidAuthorizerTokenResponse(): void
+    {
+        $cache = new ProtocolCacheStore();
+        $authorizers = new ProtocolAuthorizerTokenStore();
+        $http = new ProtocolHttpClient([new Response(200, [], '{"expires_in":7200}')]);
+        $service = (new Client(cache: $cache, authorizers: $authorizers, http: $http))
+            ->wechatService(new WechatServiceConfig('component_app', 'component_secret', 'componentToken123', TestKeys::encodingAesKey()));
+
+        try {
+            $service->get('cgi-bin/user/get', [], [
+                'authorizer_appid' => 'authorizer_app',
+                'component_access_token' => 'component-token',
+            ]);
+            self::fail('Expected an invalid authorizer token response.');
+        } catch (WechatException $exception) {
+            self::assertStringContainsString('authorizer_access_token', $exception->getMessage());
+            self::assertSame([], $authorizers->saved);
+        }
+    }
 }
 
 /**
@@ -334,6 +355,9 @@ final class ProtocolCacheStore implements StoreCacheInterface
  */
 final class ProtocolAuthorizerTokenStore implements StoreTokenInterface
 {
+    /** @var list<array{authorizer_appid:string,payload:array<string,mixed>}> */
+    public array $saved = [];
+
     /**
      * 返回测试授权方刷新凭据。
      */
@@ -343,9 +367,12 @@ final class ProtocolAuthorizerTokenStore implements StoreTokenInterface
     }
 
     /**
-     * 忽略授权方 Token 回写。
+     * 记录授权方 Token 回写。
      *
      * @param array<string,mixed> $payload
      */
-    public function saveAuthorizerToken(string $authorizerAppid, array $payload): void {}
+    public function saveAuthorizerToken(string $authorizerAppid, array $payload): void
+    {
+        $this->saved[] = ['authorizer_appid' => $authorizerAppid, 'payload' => $payload];
+    }
 }

@@ -278,9 +278,10 @@ final class ServiceClient
                 throw new WechatException('授权方 authorizer_refresh_token 不能为空');
             }
             $data = $this->refreshAuthorizerToken($componentAccessToken, $authorizerAppid, $refreshToken);
-            $authorizers->saveAuthorizerToken($authorizerAppid, $data);
             $token = $this->wechatTokenValue($data, 'authorizer_access_token', '微信 authorizer_access_token');
-            $this->cache->set($key, $token, $this->wechatTokenTtl($data, '微信 authorizer_access_token'));
+            $ttl = $this->wechatTokenTtl($data, '微信 authorizer_access_token');
+            $authorizers->saveAuthorizerToken($authorizerAppid, $data);
+            $this->cache->set($key, $token, $ttl);
 
             return $token;
         });
