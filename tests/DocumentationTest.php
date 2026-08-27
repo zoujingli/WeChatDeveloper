@@ -401,7 +401,8 @@ final class DocumentationTest extends TestCase
     {
         self::assertStringContainsString('路径越级段', self::read('docs/api.md'));
         self::assertStringContainsString('显式二进制类型', self::read('docs/api.md'));
-        self::assertStringContainsString('查询参数和片段', self::read('docs/configuration.md'));
+        self::assertStringContainsString('查询参数、片段', self::read('docs/configuration.md'));
+        self::assertStringContainsString('编码路径越级段', self::read('docs/configuration.md'));
         self::assertStringContainsString('1 MiB 响应上限', self::read('docs/wechat.md'));
         self::assertStringContainsString('只使用唯一字符串 `meta`', self::read('docs/payments.md'));
         self::assertStringContainsString('超过 300 秒', self::read('docs/payments.md'));

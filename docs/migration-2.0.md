@@ -63,7 +63,7 @@ $data = $client->call(Request::get('cgi-bin/user/get'))->json();
 
 `Endpoint` 只保留 HTTPS `baseUri`；`endpoint_profile` 和未参与调用的环境名称已删除。
 
-最终 `Endpoint` 同时拒绝用户信息、查询参数和片段，并规范化尾部 `/`。普通 `Request` 目标拒绝普通或百分号编码的 `.`、`..` 路径段；查询参数继续通过 `query()` 提供。
+最终 `Endpoint` 同时拒绝用户信息、查询参数、片段和普通或百分号编码的 `.`、`..` 路径段，并规范化尾部 `/`。普通 `Request` 目标遵循同一路径越级规则；查询参数继续通过 `query()` 提供。
 
 `cert_public` 等旧模糊字段迁移为明确的 `platform_public_key` / `platform_certificate` 或 `alipay_public_key`。
 

@@ -102,7 +102,7 @@ Gateway 默认使用信任材料 ID `default`、字符集 `utf-8`、签名类型
 
 ## 端点
 
-六种配置都可传入 `We\Common\Config\Endpoint`。它只保存规范化掉尾部 `/` 的 `baseUri`，并要求使用没有用户信息、查询参数和片段的 HTTPS URL。自定义端点由部署配置显式提供，不从单次请求覆盖。
+六种配置都可传入 `We\Common\Config\Endpoint`。它只保存规范化掉尾部 `/` 的 `baseUri`，并要求使用没有用户信息、查询参数、片段和普通或编码路径越级段的 HTTPS URL。自定义端点由部署配置显式提供，不从单次请求覆盖。
 
 ## 数组配置
 
