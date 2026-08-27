@@ -63,6 +63,8 @@ $data = $client->call(Request::get('cgi-bin/user/get'))->json();
 
 `Endpoint` 只保留 HTTPS `baseUri`；`endpoint_profile` 和未参与调用的环境名称已删除。
 
+最终 `Endpoint` 同时拒绝用户信息、查询参数和片段，并规范化尾部 `/`。普通 `Request` 目标拒绝普通或百分号编码的 `.`、`..` 路径段；查询参数继续通过 `query()` 提供。
+
 `cert_public` 等旧模糊字段迁移为明确的 `platform_public_key` / `platform_certificate` 或 `alipay_public_key`。
 
 ## 扩展接口映射
@@ -80,7 +82,9 @@ $data = $client->call(Request::get('cgi-bin/user/get'))->json();
 
 数组结果迁移为 `Response::json()`，XML 使用 `xml()`，原始字节使用 `raw()`。下载字节数和摘要从同一 `Response` 读取。
 
-平台平行异常树迁移为 `We\Common\Exception` 下的阶段异常；支付验签失败统一捕获 `We\Common\Exception\SignatureException`。微信 Token 缓存继续实现 `We\Wechat\Common\StoreCacheInterface`。
+早期 2.0 `Request` 上可直接读取的请求体、身份、流策略字段及内部常量不属于最终公开接口，已经收进内部状态；调用方改用 `Request` 工厂与不可变修改方法，不提供属性兼容层。显式二进制 `Content-Type` 不再按首字节改判为 JSON/XML。
+
+平台平行异常树迁移为 `We\Common\Exception` 下的阶段异常；支付验签失败统一捕获 `We\Common\Exception\SignatureException`。平台响应后的阶段异常会保留 request ID。微信 Token 缓存继续实现 `We\Wechat\Common\StoreCacheInterface`。
 
 ## 移除范围
 

@@ -70,7 +70,7 @@ $wxPay = new WxPayConfig(
 );
 ```
 
-商户签名 Provider 只需实现 `keyId()` 与 `sign()`，可由 HSM 或 KMS 适配器实现。信任材料 Provider 按平台序列号解析公钥，未知序列号失败关闭。
+商户签名 Provider 只需实现 `keyId()` 与 `sign()`，可由 HSM 或 KMS 适配器实现。`mchId` 和 Provider 返回的密钥 ID 必须能安全写入微信支付请求头，签名结果必须是非空 Base64。信任材料 Provider 按平台序列号解析公钥，未知序列号失败关闭。
 
 ## 支付宝
 
@@ -96,13 +96,13 @@ $aliPay = new AliPayConfig('ali_appid', $signer, $gatewayTrust);
 $aliRest = new AliRestConfig('ali_appid', $signer, $restTrust);
 ```
 
-支付宝用户和代调用应用 Token 由 `We\Alipay\Common\TokenProviderInterface` 解析。SDK 提供 `We\Alipay\Common\StaticTokenProvider`；Provider 负责刷新生命周期，SDK 只在发送前按凭证 ID 读取当前有效 Token。
+支付宝用户和代调用应用 Token 由 `We\Alipay\Common\TokenProviderInterface` 解析。SDK 提供 `We\Alipay\Common\StaticTokenProvider`；Provider 负责刷新生命周期，SDK 只在发送前按凭证 ID 读取当前有效且不含控制字符的 Token。
 
-Gateway 默认使用信任材料 ID `default`、字符集 `utf-8`、签名类型 `RSA2`、响应格式 `JSON` 和版本 `1.0`；响应格式只支持 JSON 或 XML，签名类型只支持 RSA 或 RSA2。REST 默认信任材料 ID 同样为 `default`。证书模式可通过 `appCertificateSerial` 和 Gateway 的 `alipayRootCertificateSerial` 写入协议字段。
+Gateway 默认使用信任材料 ID `default`、字符集 `utf-8`、签名类型 `RSA2`、响应格式 `JSON` 和版本 `1.0`；`charset` 与 `version` 必须是无控制字符的非空值，响应格式只支持 JSON 或 XML，签名类型只支持 RSA 或 RSA2。REST 默认信任材料 ID 同样为 `default`。证书模式可通过 `appCertificateSerial` 和 Gateway 的 `alipayRootCertificateSerial` 写入协议字段；REST `appid` 和应用证书序列号不能包含请求头分隔符。
 
 ## 端点
 
-六种配置都可传入 `We\Common\Config\Endpoint`。它只保存 `baseUri`，并要求使用没有用户信息的 HTTPS URL。自定义端点由部署配置显式提供，不从单次请求覆盖。
+六种配置都可传入 `We\Common\Config\Endpoint`。它只保存规范化掉尾部 `/` 的 `baseUri`，并要求使用没有用户信息、查询参数和片段的 HTTPS URL。自定义端点由部署配置显式提供，不从单次请求覆盖。
 
 ## 数组配置
 
@@ -120,6 +120,6 @@ Gateway 默认使用信任材料 ID `default`、字符集 `utf-8`、签名类型
 
 `WeChatTokenStrategy::Standard` 使用微信标准 Token 端点，`WeChatTokenStrategy::Stable` 使用稳定版 Token 端点。`storageScope` 只参与 Token 缓存键，不会发送给平台。
 
-微信支付数组配置要求 PEM 私钥以及 PEM 公钥或证书。支付宝数组配置同时接受 PEM 和没有 PEM 边界的 Base64 密钥内容。这些内置 Provider 的无效材料在配置阶段失败；构造函数注入的自定义 Provider 负责自身可用性，并在签名或读取信任材料失败时关闭调用。
+微信支付数组配置要求 PEM 私钥以及 PEM 公钥或证书。支付宝数组配置同时接受 PEM 和没有 PEM 边界的 Base64 密钥内容。这些内置 Provider 的无效材料在配置阶段失败；构造函数注入的自定义 Provider 负责自身可用性，其 Token、签名和密钥 ID 会在进入最终 HTTP 报文前再次校验。
 
 私钥、公钥、证书、Token 和完整 Secret 不应写入日志或异常 `context`。

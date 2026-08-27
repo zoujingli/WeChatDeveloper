@@ -390,10 +390,23 @@ final class DocumentationTest extends TestCase
             '支付宝 REST v3',
             '派生资源',
             '失败关闭',
+            '1 MiB',
             'PHP 8.1、8.2、8.3、8.4',
         ] as $requiredText) {
             self::assertStringContainsString($requiredText, $changelog);
         }
+    }
+
+    public function testReferencesCoverFinalCallSafetyRules(): void
+    {
+        self::assertStringContainsString('路径越级段', self::read('docs/api.md'));
+        self::assertStringContainsString('显式二进制类型', self::read('docs/api.md'));
+        self::assertStringContainsString('查询参数和片段', self::read('docs/configuration.md'));
+        self::assertStringContainsString('1 MiB 响应上限', self::read('docs/wechat.md'));
+        self::assertStringContainsString('只使用唯一字符串 `meta`', self::read('docs/payments.md'));
+        self::assertStringContainsString('超过 300 秒', self::read('docs/payments.md'));
+        self::assertStringContainsString('JSON/XML 平台错误识别', self::read('docs/alipay.md'));
+        self::assertStringContainsString('不提供属性兼容层', self::read('docs/migration-2.0.md'));
     }
 
     public function testMigrationGuideCoversRequiredBreakingChanges(): void
@@ -412,6 +425,7 @@ final class DocumentationTest extends TestCase
             'StoreCacheInterface',
             '%2E',
             '不提供兼容层',
+            '不提供属性兼容层',
         ] as $requiredText) {
             self::assertStringContainsString($requiredText, $migration);
         }

@@ -67,7 +67,7 @@ $client = WxAppClient::mk($config, $runtime);
 | `Request::create(string $method, Resource|string $target)` | 使用任意有效 HTTP 方法创建请求 |
 | `Request::get()`、`post()`、`put()`、`patch()`、`delete()` | 使用常见 HTTP 方法创建请求 |
 
-字符串目标必须是没有查询参数、片段、反斜杠或 URL scheme 的相对路径；支付宝支付 v2 Gateway 进一步要求点分方法名。绝对 URL 只能通过可信 `Response` 创建的 `Resource` 进入调用链。
+字符串目标必须是没有查询参数、片段、反斜杠、URL scheme 或普通及编码路径越级段的相对路径；支付宝支付 v2 Gateway 进一步要求点分方法名。绝对 URL 只能通过可信 `Response` 创建的 `Resource` 进入调用链。
 
 ### 查询参数与请求头
 
@@ -115,7 +115,7 @@ $client = WxAppClient::mk($config, $runtime);
 
 ## Response
 
-`We\Common\Response` 只表示已完成通道协议校验的响应。通道自动识别 JSON、XML、空响应和原始字节：
+`We\Common\Response` 只表示已完成通道协议校验的响应。通道优先按 `Content-Type` 识别 JSON、XML 和原始字节；缺少该响应头时才按内容保守识别。显式二进制类型不会因首字节类似 JSON/XML 被改判：
 
 | 方法 | 返回与失败语义 |
 | --- | --- |
@@ -166,4 +166,4 @@ $download = $client->call(
 | `We\Wechat\WxOpen\ComponentTicketProviderInterface` | 返回当前有效的 `component_verify_ticket` | `We\Wechat\WxOpen\StaticComponentTicketProvider` |
 | `We\Alipay\Common\TokenProviderInterface` | 按身份类型和凭证 ID 返回当前有效 Token | `We\Alipay\Common\StaticTokenProvider` |
 
-Provider 返回空值、未知密钥 ID 或缺失部署依赖时必须失败关闭。公共请求不接受 Guzzle 选项，业务 API 不增加具名方法。
+Provider 返回空值、非法 Token、非 Base64 签名、非法密钥 ID、未知信任材料或缺失部署依赖时必须失败关闭。公共请求不接受 Guzzle 选项，业务 API 不增加具名方法。

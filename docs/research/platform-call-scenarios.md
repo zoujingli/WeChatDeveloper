@@ -1,6 +1,6 @@
 # 平台 API 调用场景事实矩阵
 
-研究日期：2026-08-26
+研究日期：2026-08-27
 
 状态：已完成
 
@@ -16,7 +16,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 微信公众号/小程序 | `api.weixin.qq.com` 相对路径，主要使用 GET/POST | 查询参数中的 Token、JSON、`multipart`、文件 | JSON、二进制、成功二进制/失败 JSON | access Token；JSON `errcode` | [access Token](https://developers.weixin.qq.com/miniprogram/dev/server/API/mp-access-token/api_getaccesstoken)、[素材上传](https://developers.weixin.qq.com/doc/service/api/material/temporary/api_uploadtempmedia.html)、[小程序码](https://developers.weixin.qq.com/miniprogram/dev/server/API/qrcode-link/qr-code/api_getunlimitedqrcode.html) |
 | 微信开放平台 | `cgi-bin/component/...` 及授权方 API | component/authorizer Token、JSON | JSON | component ticket、component Token、authorizer Token | [component Token](https://developers.weixin.qq.com/doc/oplatform/openApi/ticket-token/api_getcomponentaccesstoken.html)、[authorizer Token](https://developers.weixin.qq.com/doc/oplatform/openApi/ticket-token/api_getauthorizeraccesstoken.html) |
-| 微信支付 APIv3 | REST 路径，GET/PUT/POST/PATCH/DELETE | 查询参数、JSON、原始字节或流、平台请求头 | JSON、原始字节或流 | 商户签名请求；平台序列号对应公钥验签响应 | [官方 PHP SDK](https://github.com/wechatpay-apiv3/wechatpay-php)、[签名实现](https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/src/ClientJsonTrait.php) |
+| 微信支付 APIv3 | REST 路径，GET/PUT/POST/PATCH/DELETE | 查询参数、JSON、原始字节或流、`multipart` 的 `meta` 与文件 | JSON、原始字节或流 | 商户签名请求；`multipart` 只签 `meta`；平台序列号对应公钥验签响应并限制 300 秒时钟偏移 | [官方 PHP SDK](https://github.com/wechatpay-apiv3/wechatpay-php)、[签名与验签](https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/src/ClientJsonTrait.php)、[媒体上传](https://github.com/wechatpay-apiv3/wechatpay-php/blob/main/src/Util/MediaUtil.php) |
 | 支付宝支付 v2 | OpenAPI 方法，Gateway GET/POST | AOP 参数、`biz_content`、表单/`multipart` | JSON/XML 的 `{method}_response` 或 `error_response` 签名节点，以及官方未签名媒体 | 应用私钥签名；支付宝公钥/证书验签响应 | [AopClient](https://github.com/alipay/alipay-sdk-php-all/blob/master/v2/aop/AopClient.php) |
 | 支付宝 REST v3 | REST 路径，多种 HTTP 方法 | 查询参数、JSON、`multipart` 的 `data` 与文件部件、应用授权请求头 | HTTP 状态码/响应头与 JSON/资源 | HTTP 报文签名；`multipart` 只签 `data`；响应头验签 | [v3 通用执行器](https://github.com/alipay/alipay-sdk-php-all/blob/master/v3/src/Util/GenericExecuteApi.php)、[v3 签名](https://github.com/alipay/alipay-sdk-php-all/blob/master/v3/src/Util/AlipayConfigUtil.php) |
 
@@ -55,6 +55,7 @@
 4. 原始字节读取不能关闭微信支付或支付宝 REST 的强制验签。
 5. 支付宝支付 v2 未签名媒体响应需要显式 `rawMedia()`，不能由 `Content-Type` 静默放宽。
 6. 信任材料必须按序列号或密钥 ID 解析，并允许调用方实现轮换适配器。
+7. 微信支付 `multipart` 发送完整 MIME 报文，但签名正文只使用 `meta`；响应时间戳与本机时间偏移不得超过 300 秒。
 
 ## 限制
 

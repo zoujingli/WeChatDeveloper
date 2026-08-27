@@ -43,7 +43,9 @@ try {
 }
 ```
 
-`SdkException` 提供 `channel()`、`requestId()`、`platformCode()` 和脱敏 `context()`。诊断上下文不包含私钥、完整 Token、签名材料、文件内容或完整业务请求体。
+`SdkException` 提供 `channel()`、`requestId()`、`platformCode()` 和脱敏 `context()`。平台响应一旦可用，后续协议解析、验签、平台拒绝和流处理异常都会携带可提取的 request ID；微信 Token 内部调用遵循同一规则。诊断上下文不包含私钥、完整 Token、签名材料、文件内容或完整业务请求体。
+
+自定义 Token 或签名 Provider 返回非法值时分别抛出 `ConfigurationException` 或 `SignatureException`。最终 PSR-7 请求参数拒绝报文时转换为 `InvalidCallException`，不向调用方泄漏偶发的底层参数异常。
 
 `TransportException` 只表示本次调用的传输失败，不代表请求一定没有到达平台。SDK 不自动重放；调用方必须依据业务幂等性和平台查询结果决定是否重试。`PlatformException` 表示已经识别到可信平台拒绝，不应按网络故障盲目重试。
 

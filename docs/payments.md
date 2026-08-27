@@ -27,11 +27,39 @@ $transaction = $payment->call(
 
 ## 信任
 
-- 请求签名覆盖最终 HTTP 方法、路径与查询参数，以及实际请求体字节。
+- 常规请求签名覆盖最终 HTTP 方法、路径与查询参数，以及实际请求体字节。
+- `multipart` 上传只使用唯一字符串 `meta` 部件作为签名正文；文件部件只进入实际 HTTP 请求体。
 - `Authorization` 与 `Wechatpay-Serial` 为保留请求头。
 - 普通 API 响应必须包含完整的微信支付验签响应头。
+- 响应时间戳与本机时间相差超过 300 秒时验签失败。
 - `raw()` 读取原始字节也不能跳过验签。
 - `sensitiveKey()` 只让通道写入官方敏感字段密钥 ID 请求头；字段加密由应用完成。
+
+## Multipart 上传
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use GuzzleHttp\Psr7\Utils;
+use We\Common\MultipartPart;
+use We\Common\Request;
+
+$meta = json_encode([
+    'filename' => 'image.png',
+    'sha256' => hash('sha256', $imageBytes),
+], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+
+$response = $payment->call(
+    Request::post('v3/merchant-service/images/upload')->multipart(
+        new MultipartPart('meta', $meta, mediaType: 'application/json'),
+        new MultipartPart('file', Utils::streamFor($imageBytes), 'image.png', 'image/png'),
+    ),
+);
+```
+
+微信支付 `multipart` 必须包含且只能包含一个字符串 `meta` 普通部件；其余部件必须提供文件名。通道签名 `meta` 原始字符串，不读取文件字节生成签名。
 
 ## 派生下载
 

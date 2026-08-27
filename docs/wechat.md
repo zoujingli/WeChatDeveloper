@@ -75,7 +75,7 @@ $response = $client->call(
 $media = $response->json();
 ```
 
-成功二进制/失败 JSON 场景使用 `downloadTo()`。SDK 先识别 JSON 错误，再写入目标流。
+成功二进制/失败 JSON 场景使用 `downloadTo()`。SDK 按响应 `Content-Type` 识别 JSON 错误，再写入目标流；显式二进制类型保持原始字节。
 
 ## 微信开放平台
 
@@ -107,6 +107,8 @@ $data = $openClient
 ```
 
 默认身份使用 component Token；`anonymous()` 不注入 Token；`asWechatAuthorizer()` 使用授权方 Token。component ticket 通过 `ComponentTicketProviderInterface` 注入，授权方 refresh Token 和已验证的刷新响应通过 `StoreTokenInterface` 读写。
+
+标准 access Token、stable access Token、component Token 和 authorizer Token 的内部 HTTP 调用统一使用 20 秒超时和 1 MiB 响应上限。HTTP 状态、JSON、`errcode`、Token 字段和 `expires_in` 全部通过后才写入缓存；失败异常保留平台通道和 request ID。
 
 微信公众号、小程序和微信开放平台的 `access_token` 查询参数由通道独占。调用方直接写入该参数会在发送前失败。
 

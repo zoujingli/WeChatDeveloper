@@ -9,7 +9,11 @@ use We\Common\Exception\SignatureException;
 /** 提供支持不可导出密钥实现的 RSA 签名接口。 */
 interface SigningKeyProviderInterface
 {
-    /** 返回写入平台协议的签名密钥 ID 或证书序列号。 */
+    /**
+     * 返回写入平台协议的非空签名密钥 ID 或证书序列号。
+     *
+     * @throws SignatureException 签名密钥身份不可用
+     */
     public function keyId(): string;
 
     /**

@@ -35,6 +35,8 @@ final class ApplicationCache implements StoreCacheInterface
 
 Token 响应的 `expires_in` 必须是大于 0 的数值。SDK 按 `max(1, expires_in - 300)` 秒写入缓存，并使用 30 秒刷新锁；锁内会再次读取缓存，避免等待期间重复刷新。
 
+微信 Token HTTP 调用使用 20 秒超时和 1 MiB 响应上限。HTTP 状态、JSON、平台错误、Token 字段或有效期任一校验失败时都不会写入缓存。缓存适配器无法读取、写入、删除或获取刷新锁时必须抛出 `We\Common\Exception\SdkException`；锁内回调异常按原类型向上传递。
+
 ## 内置实现
 
 | 实现 | 用途 | 锁语义 |
