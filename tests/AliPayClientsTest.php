@@ -48,6 +48,31 @@ final class AliPayClientsTest extends TestCase
         self::assertNotSame('', $fields['sign']);
     }
 
+    public function testGatewayJsonBodyIsEncodedOnlyOnce(): void
+    {
+        $method = 'alipay.trade.query';
+        $payload = new class implements \JsonSerializable {
+            public int $calls = 0;
+
+            public function jsonSerialize(): mixed
+            {
+                ++$this->calls;
+
+                return ['out_trade_no' => 'ORDER-1'];
+            }
+        };
+        $client = AliPayClient::mk(
+            ProtocolFixtures::aliPayConfig(),
+            new Runtime(transport: new RecordingTransport([
+                ProtocolFixtures::aliPayResponse($method, ['code' => '10000']),
+            ])),
+        );
+
+        $client->call(Request::post($method)->json($payload));
+
+        self::assertSame(1, $payload->calls);
+    }
+
     public function testGatewayUsesReferencedUserToken(): void
     {
         $method = 'alipay.user.info.share';

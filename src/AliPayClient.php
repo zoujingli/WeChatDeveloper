@@ -98,7 +98,7 @@ final class AliPayClient extends AbstractClient
     /** @param array<string,string> $credentials */
     protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface
     {
-        $params = $this->gatewayParameters($request, $credentials);
+        $params = $this->gatewayParameters($request, $body, $credentials);
         ksort($params);
         $signContent = [];
         foreach ($params as $name => $value) {
@@ -250,7 +250,7 @@ final class AliPayClient extends AbstractClient
     }
 
     /** @return array<string,string> */
-    private function gatewayParameters(RequestState $request, array $credentials): array
+    private function gatewayParameters(RequestState $request, EncodedBody $body, array $credentials): array
     {
         $params = [
             'app_id' => $this->config->appid,
@@ -272,11 +272,7 @@ final class AliPayClient extends AbstractClient
         }
 
         if ($request->bodyType === RequestState::BODY_JSON) {
-            try {
-                $params['biz_content'] = json_encode($request->body, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            } catch (\JsonException $exception) {
-                throw new ProtocolException('支付宝 `biz_content` JSON 编码失败', 0, $exception, channel: self::NAME);
-            }
+            $params['biz_content'] = $this->encodedBodyContents($body);
         } elseif ($request->bodyType === RequestState::BODY_FORM && is_array($request->body)) {
             foreach ($request->body as [$name, $value]) {
                 $params[$name] = $value;
@@ -293,6 +289,19 @@ final class AliPayClient extends AbstractClient
         }
 
         return $params;
+    }
+
+    private function encodedBodyContents(EncodedBody $body): string
+    {
+        try {
+            $position = $body->stream->tell();
+            $contents = $body->stream->getContents();
+            $body->stream->seek($position);
+        } catch (\RuntimeException $exception) {
+            throw new ProtocolException('读取支付宝 `biz_content` 编码结果失败', 0, $exception, channel: self::NAME);
+        }
+
+        return $contents;
     }
 
     private function assertBusinessPayload(RequestState $request): void
