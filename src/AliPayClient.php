@@ -17,9 +17,9 @@ use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
 use We\Common\Exception\SignatureException;
 use We\Common\Internal\RequestState;
+use We\Common\Internal\RsaVerifier;
 use We\Common\MultipartPart;
 use We\Common\Runtime;
-use We\Common\Support\CredentialValidator;
 use We\Common\Support\XmlCodec;
 use We\Common\Transport\BodyEncoder;
 use We\Common\Transport\EncodedBody;
@@ -60,6 +60,9 @@ final class AliPayClient extends AbstractClient
         }
         if (!in_array($request->method, ['GET', 'POST'], true)) {
             throw new InvalidCallException('支付宝 v2 Gateway 只支持 GET 或 POST', channel: self::NAME);
+        }
+        if ($request->method === 'GET' && $request->bodyType === RequestState::BODY_MULTIPART) {
+            throw new InvalidCallException('支付宝 v2 Gateway GET 不支持 `multipart` 请求体', channel: self::NAME);
         }
         if (!in_array($request->identity, [
             RequestState::IDENTITY_DEFAULT,
@@ -184,16 +187,17 @@ final class AliPayClient extends AbstractClient
         if ($signature === '') {
             throw new SignatureException('支付宝 v2 响应缺少签名', channel: self::NAME);
         }
-        $decoded = base64_decode($signature, true);
-        $key = CredentialValidator::loadPublicKey(
-            $this->config->trust->publicKey(self::NAME, $keyId),
-            '支付宝 v2 平台信任材料',
-            exceptionClass: SignatureException::class,
-        );
         $algorithm = strtoupper($this->config->signType) === 'RSA' ? OPENSSL_ALGO_SHA1 : OPENSSL_ALGO_SHA256;
-        if ($decoded === false || @openssl_verify($signed, $decoded, $key, $algorithm) !== 1) {
-            throw new SignatureException('支付宝 v2 响应验签失败', channel: self::NAME);
-        }
+        RsaVerifier::verify(
+            $this->config->trust,
+            self::NAME,
+            $keyId,
+            $signed,
+            $signature,
+            '支付宝 v2 平台信任材料',
+            '支付宝 v2 响应验签失败',
+            $algorithm,
+        );
     }
 
     protected function normalizeJson(RequestState $request, ResponseInterface $response, mixed $value): mixed

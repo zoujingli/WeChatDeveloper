@@ -53,9 +53,9 @@ final class ProtocolFixtures
         );
     }
 
-    public static function wxPayResponse(int $status, string $body): Response
+    public static function wxPayResponse(int $status, string $body, ?string $timestamp = null): Response
     {
-        $timestamp = '1778200000';
+        $timestamp ??= (string)time();
         $nonce = 'response-nonce';
         $signer = new PemSigningKeyProvider('platform-serial', TestKeys::platformKeyPair()[0]);
 

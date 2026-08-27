@@ -96,6 +96,22 @@ final class ClientTest extends TestCase
         $raw->body()->close();
     }
 
+    public function testExplicitBinaryContentTypeDoesNotSniffLeadingJsonByte(): void
+    {
+        $contents = '{BINARY-DATA';
+        $client = WeChatClient::mk(
+            new WeChatConfig('wx_app', 'secret'),
+            new Runtime(transport: new RecordingTransport([
+                new PsrResponse(200, ['Content-Type' => 'application/octet-stream'], $contents),
+            ])),
+        );
+
+        $response = $client->call(Request::get('binary')->anonymous());
+
+        self::assertSame($contents, $response->raw());
+        $response->body()->close();
+    }
+
     public function testJsonErrorDoesNotPolluteDownloadDestination(): void
     {
         $transport = new RecordingTransport([
@@ -171,7 +187,7 @@ final class ClientTest extends TestCase
     public function testErrorsKeepDiagnosticContextWithoutPayload(): void
     {
         $transport = new RecordingTransport([
-            new PsrResponse(200, [], '{"errcode":40003,"errmsg":"invalid","openid":"sensitive-user"}'),
+            new PsrResponse(200, ['Request-Id' => 'request-123'], '{"errcode":40003,"errmsg":"invalid","openid":"sensitive-user"}'),
         ]);
         $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
 
@@ -180,6 +196,7 @@ final class ClientTest extends TestCase
             self::fail('预期平台错误被拒绝');
         } catch (PlatformException $exception) {
             self::assertSame(40003, $exception->platformCode());
+            self::assertSame('request-123', $exception->requestId());
             self::assertArrayNotHasKey('openid', $exception->context());
         }
     }

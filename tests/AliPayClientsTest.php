@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace We\Tests;
 
 use GuzzleHttp\Psr7\Response as PsrResponse;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
 use We\Alipay\Common\StaticTokenProvider;
 use We\Alipay\Common\TokenKind;
@@ -93,6 +94,46 @@ final class AliPayClientsTest extends TestCase
             self::fail('预期媒体响应中的平台错误被拒绝');
         } catch (PlatformException $exception) {
             self::assertSame('40004', $exception->platformCode());
+        }
+    }
+
+    public function testGatewayRawMediaRejectsXmlErrorBeforeDownload(): void
+    {
+        $xml = '<alipay><error_response><code>40004</code><msg>failed</msg></error_response></alipay>';
+        $destination = Utils::streamFor('');
+        $client = AliPayClient::mk(
+            ProtocolFixtures::aliPayConfig('XML'),
+            new Runtime(transport: new RecordingTransport([
+                new PsrResponse(200, ['Content-Type' => 'application/xml'], $xml),
+            ])),
+        );
+
+        try {
+            $client->call(
+                Request::get('alipay.mobile.public.multimedia.download')->rawMedia()->downloadTo($destination),
+            );
+            self::fail('预期媒体响应中的 XML 平台错误被拒绝');
+        } catch (PlatformException $exception) {
+            self::assertSame('40004', $exception->platformCode());
+        }
+        self::assertSame('', (string)$destination);
+    }
+
+    public function testGatewayGetRejectsMultipartWithoutSending(): void
+    {
+        $transport = new RecordingTransport();
+        $client = AliPayClient::mk(
+            ProtocolFixtures::aliPayConfig(),
+            new Runtime(transport: $transport),
+        );
+
+        try {
+            $client->call(Request::get('alipay.example.upload')->multipart(
+                new MultipartPart('file', 'FILE', 'demo.txt'),
+            ));
+            self::fail('预期 Gateway GET multipart 被拒绝');
+        } catch (InvalidCallException) {
+            self::assertSame([], $transport->requests);
         }
     }
 

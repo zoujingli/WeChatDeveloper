@@ -15,9 +15,9 @@ use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
 use We\Common\Internal\RequestState;
+use We\Common\Internal\RsaVerifier;
 use We\Common\Resource;
 use We\Common\Runtime;
-use We\Common\Support\CredentialValidator;
 use We\Common\Transport\EncodedBody;
 use We\Common\Transport\UriBuilder;
 
@@ -149,16 +149,15 @@ final class AliRestClient extends AbstractClient
         if ($keyId === '') {
             $keyId = $this->config->defaultTrustKeyId;
         }
-        $decoded = base64_decode($signature, true);
-        $publicKey = CredentialValidator::loadPublicKey(
-            $this->config->trust->publicKey(self::NAME, $keyId),
+        RsaVerifier::verify(
+            $this->config->trust,
+            self::NAME,
+            $keyId,
+            $timestamp . "\n" . $nonce . "\n" . $body . "\n",
+            $signature,
             '支付宝 v3 平台信任材料',
-            exceptionClass: SignatureException::class,
+            '支付宝 v3 响应验签失败',
         );
-        $message = $timestamp . "\n" . $nonce . "\n" . $body . "\n";
-        if ($decoded === false || @openssl_verify($message, $decoded, $publicKey, OPENSSL_ALGO_SHA256) !== 1) {
-            throw new SignatureException('支付宝 v3 响应验签失败', channel: self::NAME);
-        }
     }
 
     protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void

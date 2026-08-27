@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\SignatureException;
 use We\Common\Exception\StreamException;
+use We\Common\MultipartPart;
 use We\Common\Provider\TrustMaterialProviderInterface;
 use We\Common\Request;
 use We\Common\Runtime;
@@ -45,6 +46,74 @@ final class WxPayClientTest extends TestCase
         self::assertStringStartsWith('WECHATPAY2-SHA256-RSA2048 ', $request->getHeaderLine('Authorization'));
     }
 
+    public function testMultipartSignsMetaWithoutFileWireBytes(): void
+    {
+        $responseBody = '{"media_id":"M1"}';
+        $transport = new RecordingTransport([
+            ProtocolFixtures::wxPayResponse(200, $responseBody),
+        ]);
+        $client = WxPayClient::mk(ProtocolFixtures::wxPayConfig(), new Runtime(transport: $transport));
+        $meta = '{"filename":"demo.png","sha256":"hash"}';
+
+        $client->call(Request::post('v3/merchant-service/images/upload')->multipart(
+            new MultipartPart('meta', $meta, mediaType: 'application/json'),
+            new MultipartPart('file', 'FILE-BYTES', 'demo.png', 'image/png'),
+        ));
+
+        $request = $transport->requests[0];
+        $authorization = $request->getHeaderLine('Authorization');
+        self::assertMatchesRegularExpression(
+            '/nonce_str="([^"]+)",timestamp="([^"]+)",serial_no="[^"]+",signature="([^"]+)"/',
+            $authorization,
+        );
+        preg_match(
+            '/nonce_str="([^"]+)",timestamp="([^"]+)",serial_no="[^"]+",signature="([^"]+)"/',
+            $authorization,
+            $matches,
+        );
+        $signature = base64_decode($matches[3], true);
+        $publicKey = openssl_pkey_get_public(TestKeys::publicKey());
+        self::assertIsString($signature);
+        self::assertNotFalse($publicKey);
+        self::assertSame(1, openssl_verify(
+            "POST\n/v3/merchant-service/images/upload\n{$matches[2]}\n{$matches[1]}\n{$meta}\n",
+            $signature,
+            $publicKey,
+            OPENSSL_ALGO_SHA256,
+        ));
+        self::assertStringContainsString('FILE-BYTES', (string)$request->getBody());
+    }
+
+    public function testStaleResponseTimestampFailsClosed(): void
+    {
+        $body = '{"ok":true}';
+        $client = WxPayClient::mk(
+            ProtocolFixtures::wxPayConfig(),
+            new Runtime(transport: new RecordingTransport([
+                ProtocolFixtures::wxPayResponse(200, $body, (string)(time() - 301)),
+            ])),
+        );
+
+        $this->expectException(SignatureException::class);
+        $this->expectExceptionMessage('时间戳超出允许范围');
+        $client->call(Request::get('v3/example'));
+    }
+
+    public function testMultipartRequiresStringMetaBeforeSending(): void
+    {
+        $transport = new RecordingTransport();
+        $client = WxPayClient::mk(ProtocolFixtures::wxPayConfig(), new Runtime(transport: $transport));
+
+        try {
+            $client->call(Request::post('v3/example/upload')->multipart(
+                new MultipartPart('file', 'FILE', 'demo.txt'),
+            ));
+            self::fail('预期缺少 meta 的微信支付 multipart 被拒绝');
+        } catch (InvalidCallException) {
+            self::assertSame([], $transport->requests);
+        }
+    }
+
     public function testRawResponseCannotBypassRequiredVerification(): void
     {
         $client = WxPayClient::mk(
@@ -72,9 +141,9 @@ final class WxPayClientTest extends TestCase
                 }
             },
         );
-        $client = WxPayClient::mk($config, new Runtime(transport: new RecordingTransport([
-            ProtocolFixtures::wxPayResponse(200, '{"ok":true}'),
-        ])));
+        $response = ProtocolFixtures::wxPayResponse(200, '{"ok":true}')
+            ->withHeader('Request-Id', 'payment-request-123');
+        $client = WxPayClient::mk($config, new Runtime(transport: new RecordingTransport([$response])));
         set_error_handler(static function (int $severity, string $message): never {
             throw new \ErrorException($message, 0, $severity);
         });
@@ -84,6 +153,7 @@ final class WxPayClientTest extends TestCase
             self::fail('预期无效自定义信任材料被拒绝');
         } catch (SignatureException $exception) {
             self::assertStringContainsString('信任材料 格式无效', $exception->getMessage());
+            self::assertSame('payment-request-123', $exception->requestId());
         } finally {
             restore_error_handler();
         }

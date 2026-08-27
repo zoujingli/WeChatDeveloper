@@ -65,6 +65,7 @@ final class DocumentationTest extends TestCase
     private const COMMON_INTERNAL_TYPES = [
         'src/Common/AbstractClient.php',
         'src/Common/Internal/RequestState.php',
+        'src/Common/Internal/RsaVerifier.php',
         'src/Common/Support/ConfigValue.php',
         'src/Common/Support/CredentialValidator.php',
         'src/Common/Support/XmlCodec.php',

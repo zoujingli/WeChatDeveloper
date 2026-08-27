@@ -12,9 +12,9 @@ use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
 use We\Common\Internal\RequestState;
+use We\Common\Internal\RsaVerifier;
 use We\Common\Resource;
 use We\Common\Runtime;
-use We\Common\Support\CredentialValidator;
 use We\Common\Transport\EncodedBody;
 use We\Common\Transport\UriBuilder;
 use We\Wechat\WxPayConfig;
@@ -23,6 +23,8 @@ use We\Wechat\WxPayConfig;
 final class WxPayClient extends AbstractClient
 {
     public const NAME = 'wechat.payment';
+
+    private const MAX_RESPONSE_CLOCK_OFFSET = 300;
 
     private function __construct(
         private readonly WxPayConfig $config,
@@ -56,6 +58,9 @@ final class WxPayClient extends AbstractClient
                 throw new InvalidCallException('派生资源 URL 不接受额外查询参数', channel: self::NAME);
             }
         }
+        if ($request->bodyType === RequestState::BODY_MULTIPART) {
+            $this->multipartMeta($request);
+        }
     }
 
     /** @param array<string,string> $credentials */
@@ -67,7 +72,11 @@ final class WxPayClient extends AbstractClient
             $uri = new Uri($request->target->url);
         }
 
-        [$contents, $body] = $this->signableBody($request, $body);
+        if ($request->bodyType === RequestState::BODY_MULTIPART) {
+            $contents = $this->multipartMeta($request);
+        } else {
+            [$contents, $body] = $this->signableBody($request, $body);
+        }
         $headers = ['Accept' => 'application/json'];
         if ($request->sensitiveKeyId !== null) {
             $headers['Wechatpay-Serial'] = $request->sensitiveKeyId;
@@ -104,17 +113,18 @@ final class WxPayClient extends AbstractClient
         if ($timestamp === '' || $nonce === '' || $signature === '' || $serial === '' || $body === null) {
             throw new SignatureException('微信支付响应缺少完整验签材料', channel: self::NAME);
         }
-        $publicKey = $this->config->platformTrust->publicKey(self::NAME, $serial);
-        $decoded = base64_decode($signature, true);
-        $key = CredentialValidator::loadPublicKey(
-            $publicKey,
-            '微信支付平台信任材料',
-            exceptionClass: SignatureException::class,
-        );
-        $message = $timestamp . "\n" . $nonce . "\n" . $body . "\n";
-        if ($decoded === false || @openssl_verify($message, $decoded, $key, OPENSSL_ALGO_SHA256) !== 1) {
-            throw new SignatureException('微信支付响应验签失败', channel: self::NAME);
+        if (preg_match('/^[0-9]+$/D', $timestamp) !== 1 || abs(time() - (int)$timestamp) > self::MAX_RESPONSE_CLOCK_OFFSET) {
+            throw new SignatureException('微信支付响应时间戳超出允许范围', channel: self::NAME);
         }
+        RsaVerifier::verify(
+            $this->config->platformTrust,
+            self::NAME,
+            $serial,
+            $timestamp . "\n" . $nonce . "\n" . $body . "\n",
+            $signature,
+            '微信支付平台信任材料',
+            '微信支付响应验签失败',
+        );
     }
 
     protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
@@ -147,5 +157,28 @@ final class WxPayClient extends AbstractClient
             throw new InvalidCallException('派生资源不属于微信支付通道', channel: self::NAME);
         }
         $this->resourcePolicy->assertAllowed(self::NAME, $resource);
+    }
+
+    private function multipartMeta(RequestState $request): string
+    {
+        $meta = null;
+        foreach ($request->parts as $part) {
+            if ($part->name === 'meta' && $part->filename === null && is_string($part->contents)) {
+                if ($meta !== null) {
+                    throw new InvalidCallException('微信支付 `multipart` 只能包含一个 `meta` 字段', channel: self::NAME);
+                }
+                $meta = $part->contents;
+
+                continue;
+            }
+            if ($part->filename === null) {
+                throw new InvalidCallException('微信支付 `multipart` 普通字段只支持字符串 `meta`', channel: self::NAME);
+            }
+        }
+        if ($meta === null) {
+            throw new InvalidCallException('微信支付 `multipart` 缺少字符串 `meta` 字段', channel: self::NAME);
+        }
+
+        return $meta;
     }
 }

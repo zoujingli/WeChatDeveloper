@@ -13,6 +13,7 @@ use We\Common\Contract\ChannelInterface;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
+use We\Common\Exception\SdkException;
 use We\Common\Exception\StreamException;
 use We\Common\Exception\TransportException;
 use We\Common\Internal\RequestState;
@@ -74,15 +75,20 @@ abstract class AbstractClient implements ChannelInterface
                 $exception->platformCode(),
             );
         }
-        $spool = $this->spooler->spool($response->getBody(), $state->maxResponseBytes);
+        [$requestId, $keyId] = $this->metadata($response);
+        $spool = null;
 
         try {
+            $spool = $this->spooler->spool($response->getBody(), $state->maxResponseBytes);
             $contents = $spool->contents();
             $this->verifyResponse($state, $response, $contents);
 
-            return $this->response($state, $response, $spool, $contents);
+            return $this->response($state, $response, $spool, $contents, $requestId, $keyId);
+        } catch (SdkException $exception) {
+            $spool?->stream->close();
+            throw $this->enrichResponseException($exception, $requestId);
         } catch (\Throwable $exception) {
-            $spool->stream->close();
+            $spool?->stream->close();
             throw $exception;
         }
     }
@@ -191,9 +197,14 @@ abstract class AbstractClient implements ChannelInterface
         }
     }
 
-    private function response(RequestState $request, ResponseInterface $response, Spool $spool, string $contents): Response
-    {
-        [$requestId, $keyId] = $this->metadata($response);
+    private function response(
+        RequestState $request,
+        ResponseInterface $response,
+        Spool $spool,
+        string $contents,
+        ?string $requestId,
+        ?string $keyId,
+    ): Response {
         if ($request->destination !== null) {
             return $this->streamResponse($request, $response, $spool, $contents, $requestId, $keyId);
         }
@@ -220,7 +231,8 @@ abstract class AbstractClient implements ChannelInterface
                 $keyId,
             );
         }
-        if ($this->looksLikeJson($response, $contents)) {
+        $format = $this->structuredFormat($response, $contents);
+        if ($format === Response::FORMAT_JSON) {
             try {
                 $value = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
@@ -242,7 +254,7 @@ abstract class AbstractClient implements ChannelInterface
                 $keyId,
             );
         }
-        if ($this->looksLikeXml($response, $contents)) {
+        if ($format === Response::FORMAT_XML) {
             $value = XmlCodec::decode($contents);
             $value = $this->normalizeXml($request, $response, $value);
             $this->assertXmlSuccess($request, $response, $value);
@@ -290,14 +302,22 @@ abstract class AbstractClient implements ChannelInterface
         ?string $requestId,
         ?string $keyId,
     ): Response {
-        if ($this->looksLikeJson($response, $contents)) {
+        $format = $this->structuredFormat($response, $contents);
+        if ($format === Response::FORMAT_JSON) {
             try {
                 $value = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
                 throw new ProtocolException('流响应中的 JSON 错误格式无效', 0, $exception, channel: $this->channel());
             }
+            $value = $this->normalizeJson($request, $response, $value);
             $this->assertJsonSuccess($request, $response, $value);
             throw new ProtocolException('预期二进制响应但平台返回 JSON', channel: $this->channel());
+        }
+        if ($format === Response::FORMAT_XML) {
+            $value = XmlCodec::decode($contents);
+            $value = $this->normalizeXml($request, $response, $value);
+            $this->assertXmlSuccess($request, $response, $value);
+            throw new ProtocolException('预期二进制响应但平台返回 XML', channel: $this->channel());
         }
         if ($response->getStatusCode() >= 400) {
             throw new PlatformException(
@@ -353,15 +373,45 @@ abstract class AbstractClient implements ChannelInterface
         return [$requestId, $this->responseKeyId($response)];
     }
 
-    private function looksLikeJson(ResponseInterface $response, string $contents): bool
+    private function structuredFormat(ResponseInterface $response, string $contents): ?string
     {
-        return str_contains(strtolower($response->getHeaderLine('Content-Type')), 'json')
-            || in_array(substr(ltrim($contents), 0, 1), ['{', '['], true);
+        $contentType = strtolower(trim(explode(';', $response->getHeaderLine('Content-Type'), 2)[0]));
+        if ($contentType !== '') {
+            if (str_ends_with($contentType, '/json') || str_ends_with($contentType, '+json')) {
+                return Response::FORMAT_JSON;
+            }
+            if (str_ends_with($contentType, '/xml') || str_ends_with($contentType, '+xml')) {
+                return Response::FORMAT_XML;
+            }
+
+            return null;
+        }
+        $first = substr(ltrim($contents), 0, 1);
+        if (in_array($first, ['{', '['], true)) {
+            return Response::FORMAT_JSON;
+        }
+        if ($first === '<') {
+            return Response::FORMAT_XML;
+        }
+
+        return null;
     }
 
-    private function looksLikeXml(ResponseInterface $response, string $contents): bool
+    private function enrichResponseException(SdkException $exception, ?string $requestId): SdkException
     {
-        return str_contains(strtolower($response->getHeaderLine('Content-Type')), 'xml')
-            || str_starts_with(ltrim($contents), '<');
+        if ($exception->channel() === $this->channel() && $exception->requestId() === $requestId) {
+            return $exception;
+        }
+        $class = $exception::class;
+
+        return new $class(
+            $exception->getMessage(),
+            $exception->getCode(),
+            $exception,
+            $exception->context(),
+            $exception->channel() ?? $this->channel(),
+            $exception->requestId() ?? $requestId,
+            $exception->platformCode(),
+        );
     }
 }
