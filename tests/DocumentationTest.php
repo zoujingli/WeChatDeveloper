@@ -75,6 +75,7 @@ final class DocumentationTest extends TestCase
         'src/Common/Transport/Spool.php',
         'src/Common/Transport/Spooler.php',
         'src/Common/Transport/UriBuilder.php',
+        'src/Wechat/Common/Internal/TokenHttpClient.php',
     ];
 
     public function testReadmeLinksEveryTopicDocument(): void

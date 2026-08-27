@@ -10,11 +10,15 @@ use We\Alipay\Common\StaticTokenProvider;
 use We\Alipay\Common\TokenKind;
 use We\Common\Config\Endpoint;
 use We\Common\Exception\ConfigurationException;
+use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
+use We\Common\Exception\StreamException;
 use We\Common\Provider\PemSigningKeyProvider;
 use We\Common\Provider\StaticTrustMaterialProvider;
+use We\Common\Runtime;
 use We\Wechat\Common\Internal\CacheKey;
 use We\Wechat\Common\Internal\TokenCacheKey;
+use We\Wechat\Common\Internal\TokenHttpClient;
 use We\Wechat\Common\Internal\WeChatTokenManager;
 use We\Wechat\Common\WeChatTokenStrategy;
 use We\Wechat\WxOpen\Internal\WxOpenTokenManager;
@@ -63,7 +67,7 @@ final class ProviderContractTest extends TestCase
             new PsrResponse(200, [], '{"access_token":"STANDARD","expires_in":7200}'),
             new PsrResponse(200, [], '{"access_token":"STABLE","expires_in":7200}'),
         ]);
-        $manager = new WeChatTokenManager($cache, $transport, 'test');
+        $manager = $this->tokenManager($cache, $transport);
         $endpoint = new Endpoint('https://api.weixin.qq.com');
 
         $standard = $manager->token('wechat.platform', 'standard', 'appid', 'secret', WeChatTokenStrategy::Standard, $endpoint);
@@ -89,7 +93,7 @@ final class ProviderContractTest extends TestCase
         $manager = new WxOpenTokenManager(
             $config,
             $cache,
-            $transport,
+            new TokenHttpClient($transport, (new Runtime(transport: $transport))->spooler()),
             new StaticComponentTicketProvider(['component_app' => 'ticket']),
             $store,
             'test',
@@ -111,6 +115,115 @@ final class ProviderContractTest extends TestCase
             self::assertStringContainsString('authorizer_access_token', $exception->getMessage());
         }
         self::assertSame([], $store->saved);
+    }
+
+    public function testTokenHttpPipelineRejectsHttpFailureWithoutCaching(): void
+    {
+        $cache = new MemoryCache();
+        $transport = new RecordingTransport([
+            new PsrResponse(500, ['Request-Id' => 'token-http-500'], '{"access_token":"INVALID","expires_in":7200}'),
+        ]);
+
+        try {
+            $this->tokenManager($cache, $transport)->token(
+                'wechat.platform',
+                'http-error',
+                'appid',
+                'secret',
+                WeChatTokenStrategy::Standard,
+                new Endpoint('https://api.weixin.qq.com'),
+            );
+            self::fail('预期 Token HTTP 错误被拒绝');
+        } catch (PlatformException $exception) {
+            self::assertSame('wechat.platform', $exception->channel());
+            self::assertSame('token-http-500', $exception->requestId());
+            self::assertSame(500, $exception->platformCode());
+        }
+        self::assertSame([], $cache->values);
+        self::assertSame([20_000], $transport->timeouts);
+    }
+
+    public function testTokenHttpPipelineRejectsInvalidJsonWithoutCaching(): void
+    {
+        $cache = new MemoryCache();
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Request-Id' => 'token-invalid-json'], '{invalid'),
+        ]);
+
+        try {
+            $this->tokenManager($cache, $transport)->token(
+                'wechat.wxapp',
+                'invalid-json',
+                'appid',
+                'secret',
+                WeChatTokenStrategy::Standard,
+                new Endpoint('https://api.weixin.qq.com'),
+            );
+            self::fail('预期 Token 非法 JSON 被拒绝');
+        } catch (ProtocolException $exception) {
+            self::assertSame('wechat.wxapp', $exception->channel());
+            self::assertSame('token-invalid-json', $exception->requestId());
+        }
+        self::assertSame([], $cache->values);
+    }
+
+    public function testTokenHttpPipelineRejectsPlatformErrorWithoutCaching(): void
+    {
+        $cache = new MemoryCache();
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Request-Id' => 'token-platform-error'], '{"errcode":40013,"errmsg":"invalid appid"}'),
+        ]);
+
+        try {
+            $this->tokenManager($cache, $transport)->token(
+                'wechat.platform',
+                'platform-error',
+                'appid',
+                'secret',
+                WeChatTokenStrategy::Stable,
+                new Endpoint('https://api.weixin.qq.com'),
+            );
+            self::fail('预期 Token 平台错误被拒绝');
+        } catch (PlatformException $exception) {
+            self::assertSame(40013, $exception->platformCode());
+            self::assertSame('token-platform-error', $exception->requestId());
+        }
+        self::assertSame([], $cache->values);
+    }
+
+    public function testTokenHttpPipelineLimitsResponseBytes(): void
+    {
+        $cache = new MemoryCache();
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Request-Id' => 'token-too-large'], str_repeat('x', 1_048_577)),
+        ]);
+
+        try {
+            $this->tokenManager($cache, $transport)->token(
+                'wechat.platform',
+                'oversized',
+                'appid',
+                'secret',
+                WeChatTokenStrategy::Standard,
+                new Endpoint('https://api.weixin.qq.com'),
+            );
+            self::fail('预期过大的 Token 响应被拒绝');
+        } catch (StreamException $exception) {
+            self::assertSame('wechat.platform', $exception->channel());
+            self::assertSame('token-too-large', $exception->requestId());
+        }
+        self::assertSame([], $cache->values);
+    }
+
+    private function tokenManager(MemoryCache $cache, RecordingTransport $transport): WeChatTokenManager
+    {
+        $runtime = new Runtime(transport: $transport);
+
+        return new WeChatTokenManager(
+            $cache,
+            new TokenHttpClient($transport, $runtime->spooler()),
+            'test',
+        );
     }
 }
 

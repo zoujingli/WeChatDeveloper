@@ -7,6 +7,7 @@ namespace We;
 use We\Common\Internal\RequestState;
 use We\Common\Runtime;
 use We\Wechat\Common\Internal\AbstractApiClient;
+use We\Wechat\Common\Internal\TokenHttpClient;
 use We\Wechat\WxOpen\Internal\WxOpenTokenManager;
 use We\Wechat\WxOpenConfig;
 
@@ -25,7 +26,7 @@ final class WxOpenClient extends AbstractApiClient
         $this->tokens = new WxOpenTokenManager(
             $config,
             $runtime->cache(),
-            $transport,
+            new TokenHttpClient($transport, $runtime->spooler()),
             $runtime->componentTickets(),
             $runtime->authorizers(),
             $runtime->cacheKeyPrefix(),

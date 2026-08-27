@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace We\Wechat\WxOpen\Internal;
 
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Utils;
 use We\Common\Exception\ConfigurationException;
-use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
-use We\Common\Transport\HttpTransportInterface;
+use We\Common\Transport\UriBuilder;
 use We\Wechat\Common\Internal\CacheKey;
 use We\Wechat\Common\Internal\TokenCacheKey;
+use We\Wechat\Common\Internal\TokenHttpClient;
 use We\Wechat\Common\StoreCacheInterface;
 use We\Wechat\WxOpen\ComponentTicketProviderInterface;
 use We\Wechat\WxOpen\StoreTokenInterface;
@@ -27,7 +25,7 @@ final class WxOpenTokenManager
     public function __construct(
         private readonly WxOpenConfig $config,
         private readonly StoreCacheInterface $cache,
-        private readonly HttpTransportInterface $transport,
+        private readonly TokenHttpClient $http,
         private readonly ComponentTicketProviderInterface $tickets,
         private readonly ?StoreTokenInterface $authorizers,
         private readonly string $cachePrefix,
@@ -41,7 +39,7 @@ final class WxOpenTokenManager
         return $this->cached($key, fn (): array => $this->post('cgi-bin/component/api_component_token', [
             'component_appid' => $this->config->componentAppid,
             'component_appsecret' => $this->config->componentAppSecret,
-            'component_verify_ticket' => $this->tickets->ticket($this->config->componentAppid),
+            'component_verify_ticket' => $this->componentTicket(),
         ]), 'component_access_token');
     }
 
@@ -63,12 +61,13 @@ final class WxOpenTokenManager
                 throw new ConfigurationException('授权方 refresh Token 不能为空');
             }
             $data = $this->post(
-                'cgi-bin/component/api_authorizer_token?component_access_token=' . rawurlencode($this->componentToken()),
+                'cgi-bin/component/api_authorizer_token',
                 [
                     'component_appid' => $this->config->componentAppid,
                     'authorizer_appid' => $authorizerAppid,
                     'authorizer_refresh_token' => $refreshToken,
                 ],
+                [['component_access_token', $this->componentToken()]],
             );
             $this->tokenValue($data, 'authorizer_access_token');
             $this->ttl($data);
@@ -126,34 +125,27 @@ final class WxOpenTokenManager
         return max(1, (int)$expires - 300);
     }
 
-    /** @param array<string,mixed> $payload @return array<string,mixed> */
-    private function post(string $path, array $payload): array
+    private function componentTicket(): string
     {
-        $json = json_encode($payload, JSON_THROW_ON_ERROR);
-        $uri = rtrim($this->config->endpoint->baseUri, '/') . '/' . ltrim($path, '/');
-        $response = $this->transport->send(new Request('POST', $uri, [
-            'Content-Type' => 'application/json',
-        ], Utils::streamFor($json)));
-        try {
-            $data = json_decode((string)$response->getBody(), true, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new ProtocolException('微信开放平台 Token 响应不是有效 JSON', 0, $exception);
-        }
-        if (!is_array($data)) {
-            throw new ProtocolException('微信开放平台 Token 响应结构无效');
-        }
-        if ((int)($data['errcode'] ?? 0) != 0) {
-            throw new PlatformException(
-                (string)($data['errmsg'] ?? '微信开放平台 Token 获取失败'),
-                context: [
-                    'errcode' => (int)$data['errcode'],
-                    'errmsg' => is_scalar($data['errmsg'] ?? null) ? (string)$data['errmsg'] : null,
-                ],
-                channel: 'wechat.service',
-                platformCode: (int)$data['errcode'],
-            );
+        $ticket = $this->tickets->ticket($this->config->componentAppid);
+        if (trim($ticket) === '') {
+            throw new ConfigurationException('`component_verify_ticket` Provider 返回值不能为空');
         }
 
-        return $data;
+        return $ticket;
+    }
+
+    /**
+     * @param array<string,mixed> $payload
+     * @param list<array{0:string,1:string}> $query
+     * @return array<string,mixed>
+     */
+    private function post(string $path, array $payload, array $query = []): array
+    {
+        return $this->http->postJson(
+            UriBuilder::build($this->config->endpoint->baseUri, $path, $query),
+            $payload,
+            'wechat.service',
+        );
     }
 }

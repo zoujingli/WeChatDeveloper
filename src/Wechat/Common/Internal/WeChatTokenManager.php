@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace We\Wechat\Common\Internal;
 
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Utils;
 use We\Common\Config\Endpoint;
-use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
-use We\Common\Transport\HttpTransportInterface;
 use We\Common\Transport\UriBuilder;
 use We\Wechat\Common\StoreCacheInterface;
 use We\Wechat\Common\WeChatTokenStrategy;
@@ -23,7 +19,7 @@ final class WeChatTokenManager
 {
     public function __construct(
         private readonly StoreCacheInterface $cache,
-        private readonly HttpTransportInterface $transport,
+        private readonly TokenHttpClient $http,
         private readonly string $cachePrefix,
     ) {}
 
@@ -47,8 +43,8 @@ final class WeChatTokenManager
                 return $cached;
             }
             $data = $strategy === WeChatTokenStrategy::Stable
-                ? $this->stable($endpoint, $appid, $appSecret)
-                : $this->standard($endpoint, $appid, $appSecret);
+                ? $this->stable($endpoint, $appid, $appSecret, $channel)
+                : $this->standard($endpoint, $appid, $appSecret, $channel);
             $token = $data['access_token'] ?? null;
             $expires = $data['expires_in'] ?? null;
             if (!is_string($token) || trim($token) === '' || !is_numeric($expires) || (int)$expires <= 0) {
@@ -64,7 +60,7 @@ final class WeChatTokenManager
     }
 
     /** @return array<string,mixed> */
-    private function standard(Endpoint $endpoint, string $appid, string $secret): array
+    private function standard(Endpoint $endpoint, string $appid, string $secret, string $channel): array
     {
         $uri = UriBuilder::build($endpoint->baseUri, 'cgi-bin/token', [
             ['grant_type', 'client_credential'],
@@ -72,43 +68,16 @@ final class WeChatTokenManager
             ['secret', $secret],
         ]);
 
-        return $this->request(new Request('GET', $uri));
+        return $this->http->get($uri, $channel);
     }
 
     /** @return array<string,mixed> */
-    private function stable(Endpoint $endpoint, string $appid, string $secret): array
+    private function stable(Endpoint $endpoint, string $appid, string $secret, string $channel): array
     {
-        $json = json_encode(['grant_type' => 'client_credential', 'appid' => $appid, 'secret' => $secret], JSON_THROW_ON_ERROR);
-
-        return $this->request(new Request('POST', rtrim($endpoint->baseUri, '/') . '/cgi-bin/stable_token', [
-            'Content-Type' => 'application/json',
-        ], Utils::streamFor($json)));
-    }
-
-    /** @return array<string,mixed> */
-    private function request(Request $request): array
-    {
-        $response = $this->transport->send($request);
-        $body = (string)$response->getBody();
-        try {
-            $data = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new ProtocolException('微信 Token 响应不是有效 JSON', 0, $exception);
-        }
-        if (!is_array($data)) {
-            throw new ProtocolException('微信 Token 响应结构无效');
-        }
-        if ((int)($data['errcode'] ?? 0) != 0) {
-            throw new PlatformException(
-                (string)($data['errmsg'] ?? '微信 Token 获取失败'),
-                context: [
-                    'errcode' => (int)$data['errcode'],
-                    'errmsg' => is_scalar($data['errmsg'] ?? null) ? (string)$data['errmsg'] : null,
-                ],
-                platformCode: (int)$data['errcode'],
-            );
-        }
-
-        return $data;
+        return $this->http->postJson(
+            $endpoint->baseUri . '/cgi-bin/stable_token',
+            ['grant_type' => 'client_credential', 'appid' => $appid, 'secret' => $secret],
+            $channel,
+        );
     }
 }
