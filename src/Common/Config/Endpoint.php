@@ -15,6 +15,17 @@ final class Endpoint
     public function __construct(string $baseUri)
     {
         $parts = parse_url($baseUri);
+        $invalidPath = false;
+        if (is_array($parts)) {
+            $path = rawurldecode((string)($parts['path'] ?? ''));
+            $invalidPath = preg_match('/[\\\\\x00-\x1F\x7F]/', $path) === 1;
+            foreach (explode('/', $path) as $segment) {
+                if ($segment === '.' || $segment === '..') {
+                    $invalidPath = true;
+                    break;
+                }
+            }
+        }
         if (
             filter_var($baseUri, FILTER_VALIDATE_URL) === false
             || !is_array($parts)
@@ -25,8 +36,9 @@ final class Endpoint
             || isset($parts['pass'])
             || isset($parts['query'])
             || isset($parts['fragment'])
+            || $invalidPath
         ) {
-            throw new ConfigurationException('端点配置必须使用不含用户信息、查询参数和片段的 HTTPS URL');
+            throw new ConfigurationException('端点配置必须使用不含用户信息、查询参数、片段和路径越级段的 HTTPS URL');
         }
         $this->baseUri = rtrim($baseUri, '/');
     }

@@ -161,10 +161,15 @@ final class RequestTest extends TestCase
             self::fail('预期无效端点被拒绝');
         } catch (ConfigurationException) {
         }
-        foreach (['https://example.com/base?debug=1', 'https://example.com/base#fragment'] as $endpoint) {
+        foreach ([
+            'https://example.com/base?debug=1',
+            'https://example.com/base#fragment',
+            'https://example.com/base/../admin',
+            'https://example.com/base/%2e%2e/admin',
+        ] as $endpoint) {
             try {
                 new Endpoint($endpoint);
-                self::fail('预期包含查询参数或片段的端点被拒绝');
+                self::fail('预期包含歧义或越级路径的端点被拒绝');
             } catch (ConfigurationException) {
             }
         }
