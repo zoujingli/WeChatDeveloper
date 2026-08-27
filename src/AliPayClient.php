@@ -16,6 +16,7 @@ use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
 use We\Common\Exception\SignatureException;
+use We\Common\Internal\ProviderValue;
 use We\Common\Internal\RequestState;
 use We\Common\Internal\RsaVerifier;
 use We\Common\MultipartPart;
@@ -79,10 +80,16 @@ final class AliPayClient extends AbstractClient
     protected function resolveCredentials(RequestState $request): array
     {
         if ($request->identity === RequestState::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
-            return ['auth_token' => $this->tokens->token(TokenKind::AlipayUser, $request->credentialId)];
+            return ['auth_token' => ProviderValue::token(
+                $this->tokens->token(TokenKind::AlipayUser, $request->credentialId),
+                self::NAME,
+            )];
         }
         if ($request->identity === RequestState::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
-            return ['app_auth_token' => $this->tokens->token(TokenKind::AlipayApp, $request->credentialId)];
+            return ['app_auth_token' => ProviderValue::token(
+                $this->tokens->token(TokenKind::AlipayApp, $request->credentialId),
+                self::NAME,
+            )];
         }
 
         return [];
@@ -100,7 +107,10 @@ final class AliPayClient extends AbstractClient
             }
         }
         $algorithm = strtoupper($this->config->signType) === 'RSA' ? OPENSSL_ALGO_SHA1 : OPENSSL_ALGO_SHA256;
-        $params['sign'] = $this->config->signer->sign(implode('&', $signContent), $algorithm);
+        $params['sign'] = ProviderValue::signature(
+            $this->config->signer->sign(implode('&', $signContent), $algorithm),
+            self::NAME,
+        );
 
         if ($request->method === 'GET') {
             $uri = (new Uri($this->config->endpoint->baseUri))->withQuery($this->queryString($params));

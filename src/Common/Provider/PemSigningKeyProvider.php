@@ -21,8 +21,8 @@ final class PemSigningKeyProvider implements SigningKeyProviderInterface
         string $privateKey,
         bool $wrapRawKey = false,
     ) {
-        if (trim($this->id) === '') {
-            throw new ConfigurationException('签名密钥 ID 不能为空');
+        if (trim($this->id) === '' || preg_match('/[\x00-\x20\x7F"\\\]/', $this->id) === 1) {
+            throw new ConfigurationException('签名密钥 ID 无效');
         }
         $this->privateKey = CredentialValidator::normalizePrivateKey($privateKey, $wrapRawKey);
         CredentialValidator::assertPrivateKey(

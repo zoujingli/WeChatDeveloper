@@ -60,5 +60,8 @@ final class WxPayConfig
         if (trim($this->appid) === '' || trim($this->mchId) === '') {
             throw new ConfigurationException('微信支付 `appid` 与 `mchId` 不能为空');
         }
+        if (preg_match('/[\x00-\x20\x7F"\\\]/', $this->mchId) === 1) {
+            throw new ConfigurationException('微信支付 `mchId` 协议值无效');
+        }
     }
 }

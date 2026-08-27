@@ -183,8 +183,8 @@ final class Request
     public function sensitiveKey(string $keyId): self
     {
         $keyId = trim($keyId);
-        if ($keyId === '') {
-            throw new InvalidCallException('敏感字段密钥 ID 不能为空');
+        if ($keyId === '' || preg_match('/[\x00-\x20\x7F"\\\,]/', $keyId) === 1) {
+            throw new InvalidCallException('敏感字段密钥 ID 无效');
         }
 
         return $this->copy(sensitiveKeyId: $keyId);
@@ -281,6 +281,15 @@ final class Request
             || preg_match('/[?#\\\\\x00-\x1F\x7F]/', $target) === 1
         ) {
             throw new InvalidCallException('API 目标必须是没有查询参数和片段的相对路径或 Gateway 方法');
+        }
+        $decoded = rawurldecode($target);
+        if (preg_match('/[\\\\\x00-\x1F\x7F]/', $decoded) === 1) {
+            throw new InvalidCallException('API 目标包含无效的编码字符');
+        }
+        foreach (explode('/', $decoded) as $segment) {
+            if ($segment === '.' || $segment === '..') {
+                throw new InvalidCallException('API 目标不能包含路径越级段');
+            }
         }
 
         return ltrim($target, '/');

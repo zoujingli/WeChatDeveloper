@@ -14,6 +14,7 @@ use We\Common\AbstractClient;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
+use We\Common\Internal\ProviderValue;
 use We\Common\Internal\RequestState;
 use We\Common\Internal\RsaVerifier;
 use We\Common\Resource;
@@ -84,10 +85,16 @@ final class AliRestClient extends AbstractClient
     protected function resolveCredentials(RequestState $request): array
     {
         if ($request->identity === RequestState::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
-            return ['auth_token' => $this->tokens->token(TokenKind::AlipayUser, $request->credentialId)];
+            return ['auth_token' => ProviderValue::token(
+                $this->tokens->token(TokenKind::AlipayUser, $request->credentialId),
+                self::NAME,
+            )];
         }
         if ($request->identity === RequestState::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
-            return ['app_auth_token' => $this->tokens->token(TokenKind::AlipayApp, $request->credentialId)];
+            return ['app_auth_token' => ProviderValue::token(
+                $this->tokens->token(TokenKind::AlipayApp, $request->credentialId),
+                self::NAME,
+            )];
         }
 
         return [];
@@ -128,7 +135,10 @@ final class AliRestClient extends AbstractClient
                 . $requestUri . "\n"
                 . $contents . "\n"
                 . ($appAuth === '' ? '' : $appAuth . "\n");
-            $headers['Authorization'] = 'ALIPAY-SHA256withRSA ' . $auth . ',sign=' . $this->config->signer->sign($message);
+            $headers['Authorization'] = 'ALIPAY-SHA256withRSA ' . $auth . ',sign=' . ProviderValue::signature(
+                $this->config->signer->sign($message),
+                self::NAME,
+            );
         }
 
         return $this->httpRequest($request, $uri, $body, $headers);

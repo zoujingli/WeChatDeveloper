@@ -59,5 +59,8 @@ final class AliRestConfig
         if (trim($this->appid) === '' || trim($this->defaultTrustKeyId) === '') {
             throw new ConfigurationException('支付宝 v3 `appid` 与默认信任材料 ID 不能为空');
         }
+        if (preg_match('/[\x00-\x20\x7F,=]/', $this->appid . $this->appCertificateSerial) === 1) {
+            throw new ConfigurationException('支付宝 v3 应用身份协议值无效');
+        }
     }
 }

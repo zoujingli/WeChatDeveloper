@@ -11,6 +11,7 @@ use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\SignatureException;
 use We\Common\Exception\StreamException;
 use We\Common\MultipartPart;
+use We\Common\Provider\SigningKeyProviderInterface;
 use We\Common\Provider\TrustMaterialProviderInterface;
 use We\Common\Request;
 use We\Common\Runtime;
@@ -199,6 +200,29 @@ final class WxPayClientTest extends TestCase
         );
 
         self::assertSame('platform-serial', $transport->requests[0]->getHeaderLine('Wechatpay-Serial'));
+    }
+
+    public function testInvalidCustomSigningKeyIdStaysInSignatureException(): void
+    {
+        $base = ProtocolFixtures::wxPayConfig();
+        $signer = new class($base->merchantSigner) implements SigningKeyProviderInterface {
+            public function __construct(private readonly SigningKeyProviderInterface $delegate) {}
+
+            public function keyId(): string
+            {
+                return "serial\r\nX-Evil: yes";
+            }
+
+            public function sign(string $message, int|string $algorithm = OPENSSL_ALGO_SHA256): string
+            {
+                return $this->delegate->sign($message, $algorithm);
+            }
+        };
+        $config = new WxPayConfig($base->appid, $base->mchId, $signer, $base->platformTrust);
+
+        $this->expectException(SignatureException::class);
+        WxPayClient::mk($config, new Runtime(transport: new RecordingTransport()))
+            ->call(Request::get('v3/example'));
     }
 
     public function testCallerCannotOverrideProtocolSerial(): void

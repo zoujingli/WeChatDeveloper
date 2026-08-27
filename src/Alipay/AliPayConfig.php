@@ -69,6 +69,13 @@ final class AliPayConfig
         if (trim($this->appid) === '' || trim($this->defaultTrustKeyId) === '') {
             throw new ConfigurationException('支付宝 `appid` 与默认信任材料 ID 不能为空');
         }
+        if (
+            trim($this->charset) === ''
+            || trim($this->version) === ''
+            || preg_match('/[\x00-\x1F\x7F]/', $this->charset . $this->version) === 1
+        ) {
+            throw new ConfigurationException('支付宝 v2 `charset` 与 `version` 必须是非空协议值');
+        }
         if (!in_array(strtoupper($this->signType), ['RSA', 'RSA2'], true)) {
             throw new ConfigurationException('支付宝 v2 `signType` 仅支持 RSA 或 RSA2');
         }

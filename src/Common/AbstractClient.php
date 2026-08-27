@@ -141,7 +141,11 @@ abstract class AbstractClient implements ChannelInterface
             $headers['Content-Length'] = [(string)$body->contentLength];
         }
 
-        return new PsrRequest($request->method, $uri, $headers, $body->stream);
+        try {
+            return new PsrRequest($request->method, $uri, $headers, $body->stream);
+        } catch (\InvalidArgumentException $exception) {
+            throw new InvalidCallException('最终 HTTP 请求参数无效', 0, $exception, channel: $this->channel());
+        }
     }
 
     protected function verifyResponse(RequestState $request, ResponseInterface $response, ?string $body): void {}

@@ -11,6 +11,7 @@ use We\Common\AbstractClient;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
+use We\Common\Internal\ProviderValue;
 use We\Common\Internal\RequestState;
 use We\Common\Internal\RsaVerifier;
 use We\Common\Resource;
@@ -87,13 +88,14 @@ final class WxPayClient extends AbstractClient
             $nonce = bin2hex(random_bytes(16));
             $path = $uri->getPath() . ($uri->getQuery() === '' ? '' : '?' . $uri->getQuery());
             $message = implode("\n", [$request->method, $path, $timestamp, $nonce, $contents, '']);
-            $signature = $this->config->merchantSigner->sign($message);
+            $signature = ProviderValue::signature($this->config->merchantSigner->sign($message), self::NAME);
+            $keyId = ProviderValue::signingKeyId($this->config->merchantSigner->keyId(), self::NAME);
             $headers['Authorization'] = sprintf(
                 'WECHATPAY2-SHA256-RSA2048 mchid="%s",nonce_str="%s",timestamp="%s",serial_no="%s",signature="%s"',
                 $this->config->mchId,
                 $nonce,
                 $timestamp,
-                $this->config->merchantSigner->keyId(),
+                $keyId,
                 $signature,
             );
         }

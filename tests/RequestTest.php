@@ -49,7 +49,16 @@ final class RequestTest extends TestCase
 
     public function testTargetRejectsAbsoluteOrAmbiguousValues(): void
     {
-        foreach (['https://example.com/a', '//example.com/a', 'path?a=1', 'path#fragment'] as $target) {
+        foreach ([
+            'https://example.com/a',
+            '//example.com/a',
+            'path?a=1',
+            'path#fragment',
+            '../admin',
+            'v1/../admin',
+            '%2e%2e/admin',
+            'v1/%2E%2E/admin',
+        ] as $target) {
             try {
                 Request::get($target);
                 self::fail('预期无效目标被拒绝：' . $target);
@@ -71,6 +80,12 @@ final class RequestTest extends TestCase
     {
         $this->expectException(InvalidCallException::class);
         Request::get('example')->headers(['X-Test' => "value\r\nAuthorization: leaked"]);
+    }
+
+    public function testSensitiveKeyRejectsInvalidHeaderValue(): void
+    {
+        $this->expectException(InvalidCallException::class);
+        Request::post('v3/example')->sensitiveKey("serial\r\nX-Evil: yes");
     }
 
     public function testHeadersAndDownloadTargetRejectInvalidRuntimeValues(): void
@@ -146,6 +161,14 @@ final class RequestTest extends TestCase
             self::fail('预期无效端点被拒绝');
         } catch (ConfigurationException) {
         }
+        foreach (['https://example.com/base?debug=1', 'https://example.com/base#fragment'] as $endpoint) {
+            try {
+                new Endpoint($endpoint);
+                self::fail('预期包含查询参数或片段的端点被拒绝');
+            } catch (ConfigurationException) {
+            }
+        }
+        self::assertSame('https://example.com/base', (new Endpoint('https://example.com/base/'))->baseUri);
 
         $payment = WxPayConfig::fromArray([
             'appid' => 'wx_app',
@@ -169,5 +192,52 @@ final class RequestTest extends TestCase
         self::assertSame('merchant-serial', $payment->merchantSigner->keyId());
         self::assertSame('ali_app', $gateway->appid);
         self::assertSame('ali_app', $rest->appid);
+    }
+
+    public function testAliPayConfigRejectsEmptyOrControlledProtocolValues(): void
+    {
+        $base = ProtocolFixtures::aliPayConfig();
+        $rejected = 0;
+        foreach ([
+            ['', '1.0'],
+            ['utf-8', ''],
+            ["utf-8\r\nx", '1.0'],
+        ] as [$charset, $version]) {
+            try {
+                new AliPayConfig(
+                    $base->appid,
+                    $base->signer,
+                    $base->trust,
+                    charset: $charset,
+                    version: $version,
+                );
+                self::fail('预期无效支付宝 Gateway 协议配置被拒绝');
+            } catch (ConfigurationException) {
+                ++$rejected;
+            }
+        }
+        self::assertSame(3, $rejected);
+    }
+
+    public function testProtocolHeaderConfigRejectsSeparators(): void
+    {
+        $payment = ProtocolFixtures::wxPayConfig();
+        $rest = ProtocolFixtures::aliRestConfig();
+        $rejected = 0;
+
+        try {
+            new WxPayConfig($payment->appid, "mch\r\nbad", $payment->merchantSigner, $payment->platformTrust);
+            self::fail('预期无效微信支付商户号被拒绝');
+        } catch (ConfigurationException) {
+            ++$rejected;
+        }
+        try {
+            new AliRestConfig('ali,app', $rest->signer, $rest->trust);
+            self::fail('预期无效支付宝 REST 应用 ID 被拒绝');
+        } catch (ConfigurationException) {
+            ++$rejected;
+        }
+
+        self::assertSame(2, $rejected);
     }
 }

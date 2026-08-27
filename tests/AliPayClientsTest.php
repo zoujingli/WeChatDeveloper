@@ -7,16 +7,19 @@ namespace We\Tests;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
+use We\Alipay\AliRestConfig;
 use We\Alipay\Common\StaticTokenProvider;
 use We\Alipay\Common\TokenKind;
 use We\Alipay\Common\TokenProviderInterface;
 use We\AliPayClient;
 use We\AliRestClient;
+use We\Common\Exception\ConfigurationException;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
 use We\Common\MultipartPart;
 use We\Common\Provider\PemSigningKeyProvider;
+use We\Common\Provider\SigningKeyProviderInterface;
 use We\Common\Request;
 use We\Common\Runtime;
 
@@ -281,5 +284,44 @@ final class AliPayClientsTest extends TestCase
 
         $this->expectException(SignatureException::class);
         $client->call(Request::get('v3/example'));
+    }
+
+    public function testInvalidCustomTokenAndSignatureStayInSdkExceptions(): void
+    {
+        $base = ProtocolFixtures::aliRestConfig();
+        $invalidToken = new class implements TokenProviderInterface {
+            public function token(TokenKind $kind, string $credentialId): string
+            {
+                return "bad\r\nX-Evil: yes";
+            }
+        };
+        try {
+            AliRestClient::mk($base, new Runtime(
+                transport: new RecordingTransport(),
+                tokens: $invalidToken,
+            ))->call(Request::get('v3/example')->asAlipayApp('app-1'));
+            self::fail('预期自定义 Token Provider 非法值被拒绝');
+        } catch (ConfigurationException) {
+        }
+
+        $invalidSigner = new class implements SigningKeyProviderInterface {
+            public function keyId(): string
+            {
+                return 'application';
+            }
+
+            public function sign(string $message, int|string $algorithm = OPENSSL_ALGO_SHA256): string
+            {
+                return "bad\r\nsignature";
+            }
+        };
+        $config = new AliRestConfig($base->appid, $invalidSigner, $base->trust);
+        try {
+            AliRestClient::mk($config, new Runtime(transport: new RecordingTransport()))
+                ->call(Request::get('v3/example'));
+            self::fail('预期自定义签名 Provider 非法值被拒绝');
+        } catch (SignatureException $exception) {
+            self::assertStringContainsString('Base64', $exception->getMessage());
+        }
     }
 }
