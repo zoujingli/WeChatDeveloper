@@ -8,15 +8,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\CacheInterface;
-use We\Exception\SdkException;
-use We\Support\CacheKey;
-use We\Support\FileCacheStore;
-use We\Support\NullCacheStore;
-use We\Support\PsrSimpleCacheStore;
-use We\Support\TokenCacheKey;
+use We\Common\Exception\SdkException;
+use We\Wechat\Common\FileCacheStore;
+use We\Wechat\Common\Internal\CacheKey;
+use We\Wechat\Common\Internal\TokenCacheKey;
+use We\Wechat\Common\NullCacheStore;
+use We\Wechat\Common\PsrSimpleCacheStore;
 
 /**
- * SDK 缓存存储实现测试用例。
+ * SDK 缓存存储实现测试。
+ *
  * @internal
  */
 #[CoversClass(FileCacheStore::class)]
@@ -24,9 +25,6 @@ use We\Support\TokenCacheKey;
 #[CoversClass(PsrSimpleCacheStore::class)]
 final class CacheStoreTest extends TestCase
 {
-    /**
-     * 测试文件缓存的写入、读取、删除与过期行为。
-     */
     public function testFileCacheStoreSetGetDelAndTtl(): void
     {
         $dir = $this->tempDir();
@@ -45,9 +43,6 @@ final class CacheStoreTest extends TestCase
         $this->removeDir($dir);
     }
 
-    /**
-     * 测试文件缓存锁会执行回调。
-     */
     public function testFileCacheStoreLockExecutesCallback(): void
     {
         $dir = $this->tempDir();
@@ -68,7 +63,7 @@ final class CacheStoreTest extends TestCase
 
         try {
             $store->set('recursive', $recursive, 60);
-            self::fail('Expected the recursive value to be rejected.');
+            self::fail('预期递归缓存值被拒绝');
         } catch (SdkException $exception) {
             self::assertInstanceOf(\JsonException::class, $exception->getPrevious());
         } finally {
@@ -79,7 +74,7 @@ final class CacheStoreTest extends TestCase
     public function testFileCacheStoreRestrictsNewCacheFilePermissions(): void
     {
         if (DIRECTORY_SEPARATOR === '\\') {
-            self::markTestSkipped('POSIX file permission bits are not available on Windows.');
+            self::markTestSkipped('Windows 不支持 POSIX 文件权限位。');
         }
         $dir = $this->tempDir();
         $store = new FileCacheStore($dir);
@@ -101,7 +96,7 @@ final class CacheStoreTest extends TestCase
     public function testExpiredReadCannotDeleteConcurrentFreshWrite(): void
     {
         if (!function_exists('pcntl_fork') || !function_exists('stream_socket_pair')) {
-            self::markTestSkipped('This concurrency regression requires pcntl and local sockets.');
+            self::markTestSkipped('该并发回归测试需要 pcntl 和本地套接字。');
         }
         $dir = $this->tempDir();
         $store = new FileCacheStore($dir);
@@ -147,9 +142,6 @@ final class CacheStoreTest extends TestCase
         $this->removeDir($dir);
     }
 
-    /**
-     * 测试空缓存锁会直接执行回调。
-     */
     public function testNullCacheStoreLockExecutesCallback(): void
     {
         $store = new NullCacheStore();
@@ -157,9 +149,6 @@ final class CacheStoreTest extends TestCase
         $this->assertSame('ok', $store->lock('k', 10, static fn (): string => 'ok'));
     }
 
-    /**
-     * 测试 PSR 缓存未配置锁能力时抛出异常。
-     */
     public function testPsrSimpleCacheStoreThrowsWhenLockerMissing(): void
     {
         $store = new PsrSimpleCacheStore(new ArraySimpleCache());
@@ -170,9 +159,6 @@ final class CacheStoreTest extends TestCase
         $store->lock('k', 10, static fn (): string => 'never');
     }
 
-    /**
-     * 测试 PSR 缓存会使用注入的锁回调。
-     */
     public function testPsrSimpleCacheStoreUsesInjectedLocker(): void
     {
         $calls = [];
@@ -193,7 +179,7 @@ final class CacheStoreTest extends TestCase
         $key = CacheKey::compose(
             'tenant@example',
             'wechat.platform',
-            TokenCacheKey::wechatPlatformAccessToken('wx/app:1'),
+            TokenCacheKey::weChatAccessToken('wx/app:1'),
         );
 
         $store->set($key, 'token', 3600);
@@ -209,7 +195,7 @@ final class CacheStoreTest extends TestCase
 
         try {
             $store->get('token');
-            self::fail('Expected the backend failure to be wrapped.');
+            self::fail('预期缓存后端错误被转换');
         } catch (SdkException $exception) {
             self::assertSame($failure, $exception->getPrevious());
             self::assertSame('get', $exception->context()['operation']);
@@ -247,17 +233,11 @@ final class CacheStoreTest extends TestCase
         $store->del('token');
     }
 
-    /**
-     * 创建本次测试使用的临时目录路径。
-     */
     private function tempDir(): string
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wechatdev_cache_' . bin2hex(random_bytes(8));
     }
 
-    /**
-     * 递归删除测试临时目录。
-     */
     private function removeDir(string $dir): void
     {
         if (!is_dir($dir)) {
@@ -277,6 +257,8 @@ final class CacheStoreTest extends TestCase
 
 /**
  * 测试用 PSR-16 内存缓存实现。
+ *
+ * @internal
  */
 final class ArraySimpleCache implements CacheInterface
 {
@@ -289,9 +271,6 @@ final class ArraySimpleCache implements CacheInterface
         private readonly bool $deleteResult = true,
     ) {}
 
-    /**
-     * 读取测试缓存值。
-     */
     public function get(string $key, mixed $default = null): mixed
     {
         $this->failWhenConfigured();
@@ -300,9 +279,6 @@ final class ArraySimpleCache implements CacheInterface
         return $this->values[$key] ?? $default;
     }
 
-    /**
-     * 写入缓存值。
-     */
     public function set(string $key, mixed $value, \DateInterval|int|null $ttl = null): bool
     {
         $this->failWhenConfigured();
@@ -315,9 +291,6 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
-    /**
-     * 删除测试缓存值。
-     */
     public function delete(string $key): bool
     {
         $this->failWhenConfigured();
@@ -330,9 +303,6 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
-    /**
-     * 清空测试缓存。
-     */
     public function clear(): bool
     {
         $this->values = [];
@@ -340,9 +310,6 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
-    /**
-     * 批量读取测试缓存值。
-     */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         foreach ($keys as $key) {
@@ -350,9 +317,6 @@ final class ArraySimpleCache implements CacheInterface
         }
     }
 
-    /**
-     * 批量写入测试缓存值。
-     */
     public function setMultiple(iterable $values, \DateInterval|int|null $ttl = null): bool
     {
         foreach ($values as $key => $value) {
@@ -362,9 +326,6 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
-    /**
-     * 批量删除测试缓存值。
-     */
     public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
@@ -374,9 +335,6 @@ final class ArraySimpleCache implements CacheInterface
         return true;
     }
 
-    /**
-     * 判断测试缓存键是否存在。
-     */
     public function has(string $key): bool
     {
         $this->assertValidKey($key);
@@ -387,7 +345,7 @@ final class ArraySimpleCache implements CacheInterface
     private function assertValidKey(string $key): void
     {
         if ($key === '' || preg_match('/[{}()\/\\\@:]/', $key) === 1) {
-            throw new \InvalidArgumentException('Invalid PSR-16 key: ' . $key);
+            throw new \InvalidArgumentException('PSR-16 缓存键无效: ' . $key);
         }
     }
 
@@ -399,4 +357,5 @@ final class ArraySimpleCache implements CacheInterface
     }
 }
 
+/** @internal */
 final class TestCacheException extends \RuntimeException implements CacheException {}
