@@ -190,7 +190,7 @@ final class CacheStoreTest extends TestCase
 
     public function testPsrSimpleCacheStoreWrapsBackendFailure(): void
     {
-        $failure = new TestCacheException('backend unavailable');
+        $failure = new TestCacheException('缓存后端不可用');
         $store = new PsrSimpleCacheStore(new ArraySimpleCache(failure: $failure));
 
         try {
@@ -205,7 +205,7 @@ final class CacheStoreTest extends TestCase
     public function testPsrSimpleCacheStoreDoesNotMaskProgrammingErrors(): void
     {
         $store = new PsrSimpleCacheStore(new ArraySimpleCache(
-            failure: new \TypeError('backend programming error'),
+            failure: new \TypeError('缓存后端编程错误'),
         ));
 
         $this->expectException(\TypeError::class);

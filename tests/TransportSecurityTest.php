@@ -25,7 +25,7 @@ final class TransportSecurityTest extends TestCase
     {
         $request = new PsrRequest('GET', 'https://api.example.com/path?access_token=SECRET');
         $handler = new MockHandler([
-            new ConnectException('failed for https://api.example.com/path?access_token=SECRET', $request),
+            new ConnectException('连接失败：https://api.example.com/path?access_token=SECRET', $request),
         ]);
         $transport = new GuzzleTransport(new GuzzleClient(['handler' => HandlerStack::create($handler)]));
 

@@ -204,7 +204,7 @@ final class ClientTest extends TestCase
     public function testTransportFailureIsEnrichedWithChannelAndTimeout(): void
     {
         $transport = new RecordingTransport([
-            new TransportException('network down', context: ['host' => 'api.weixin.qq.com']),
+            new TransportException('网络连接中断', context: ['host' => 'api.weixin.qq.com']),
         ]);
         $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
 
