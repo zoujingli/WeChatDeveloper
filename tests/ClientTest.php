@@ -4,175 +4,200 @@ declare(strict_types=1);
 
 namespace We\Tests;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use GuzzleHttp\Psr7\Response as PsrResponse;
+use GuzzleHttp\Psr7\Utils;
 use PHPUnit\Framework\TestCase;
-use We\Client;
-use We\Config\AlipayPlatformConfig;
-use We\Config\WechatPlatformConfig;
-use We\Config\WechatServiceConfig;
-use We\Exception\SdkException;
-use We\Platform\Alipay\PaymentClient as AlipayPaymentClient;
-use We\Platform\Alipay\PlatformClient as AlipayPlatformClient;
-use We\Platform\Wechat\PaymentClient as WechatPaymentClient;
-use We\Platform\Wechat\PlatformClient as WechatPlatformClient;
-use We\Platform\Wechat\ServiceClient as WechatServiceClient;
-use We\Platform\Wechat\WxappClient as WechatWxappClient;
+use We\AliPayClient;
+use We\AliRestClient;
+use We\Common\Exception\InvalidCallException;
+use We\Common\Exception\PlatformException;
+use We\Common\Exception\StreamException;
+use We\Common\Exception\TransportException;
+use We\Common\Request;
+use We\Common\Runtime;
+use We\Wechat\Common\Internal\CacheKey;
+use We\Wechat\Common\Internal\TokenCacheKey;
+use We\Wechat\WeChatConfig;
+use We\Wechat\WxAppConfig;
+use We\Wechat\WxOpenConfig;
+use We\WeChatClient;
+use We\WxAppClient;
+use We\WxOpenClient;
+use We\WxPayClient;
 
 /**
- * SDK 根入口通道工厂测试用例。
+ * 六个通道的公开调用契约测试。
+ *
  * @internal
+ * @coversNothing
  */
-#[CoversClass(Client::class)]
 final class ClientTest extends TestCase
 {
-    public function testPlatformFactoriesExposeConcreteReturnTypes(): void
+    public function testEveryChannelOwnsItsTypedFactory(): void
     {
-        $factories = [
-            'wechatPlatform' => WechatPlatformClient::class,
-            'wechatWxapp' => WechatWxappClient::class,
-            'wechatService' => WechatServiceClient::class,
-            'wechatPayment' => WechatPaymentClient::class,
-            'alipayPlatform' => AlipayPlatformClient::class,
-            'alipayPayment' => AlipayPaymentClient::class,
+        $transport = new RecordingTransport();
+        $runtime = new Runtime(transport: $transport);
+        $channels = [
+            WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), $runtime),
+            WxAppClient::mk(new WxAppConfig('wx_app', 'secret'), $runtime),
+            WxOpenClient::mk(new WxOpenConfig('component_app', 'secret'), $runtime),
+            WxPayClient::mk(ProtocolFixtures::wxPayConfig(), $runtime),
+            AliPayClient::mk(ProtocolFixtures::aliPayConfig(), $runtime),
+            AliRestClient::mk(ProtocolFixtures::aliRestConfig(), $runtime),
         ];
-        $client = new \ReflectionClass(Client::class);
 
-        foreach ($factories as $method => $returnType) {
-            self::assertTrue($client->hasMethod($method), $method . ' must be a declared method');
-            self::assertSame($returnType, (string)$client->getMethod($method)->getReturnType());
+        self::assertSame([
+            'wechat.platform',
+            'wechat.wxapp',
+            'wechat.service',
+            'wechat.payment',
+            'alipay.gateway',
+            'alipay.rest',
+        ], array_map(static fn ($channel): string => $channel->channel(), $channels));
+    }
+
+    public function testWeChatCallUsesCachedTokenAndParsesJson(): void
+    {
+        $cache = new MemoryCache();
+        $cache->set(CacheKey::compose(
+            Runtime::DEFAULT_CACHE_KEY_PREFIX,
+            WeChatClient::NAME,
+            TokenCacheKey::weChatAccessToken('wx_app'),
+        ), 'cached-token', 3600);
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Content-Type' => 'application/json'], '{"users":[1,2]}'),
+        ]);
+        $client = WeChatClient::mk(
+            new WeChatConfig('wx_app', 'secret'),
+            new Runtime(cache: $cache, transport: $transport),
+        );
+
+        $data = $client->call(Request::get('cgi-bin/user/get')->query(['next_openid' => 'NEXT']))->json();
+
+        self::assertSame(['users' => [1, 2]], $data);
+        self::assertSame('next_openid=NEXT&access_token=cached-token', $transport->requests[0]->getUri()->getQuery());
+    }
+
+    public function testAnonymousAndRawResponsesNeedNoExtraResultTypes(): void
+    {
+        $transport = new RecordingTransport([
+            new PsrResponse(204),
+            new PsrResponse(200, ['Content-Type' => 'text/plain'], 'RAW'),
+        ]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
+
+        $empty = $client->call(Request::get('sns/example')->anonymous());
+        $raw = $client->call(Request::get('raw')->anonymous());
+
+        self::assertSame(204, $empty->status());
+        self::assertSame('', $transport->requests[0]->getUri()->getQuery());
+        self::assertSame(200, $raw->status());
+        self::assertSame('RAW', $raw->raw());
+        $raw->body()->close();
+    }
+
+    public function testJsonErrorDoesNotPolluteDownloadDestination(): void
+    {
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Content-Type' => 'application/json'], '{"errcode":40001,"errmsg":"bad token"}'),
+        ]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
+        $destination = Utils::streamFor('');
+
+        try {
+            $client->call(Request::get('wxa/getwxacodeunlimit')->anonymous()->downloadTo($destination));
+            self::fail('预期平台错误被拒绝');
+        } catch (PlatformException $exception) {
+            self::assertSame(40001, $exception->platformCode());
         }
-        self::assertFalse($client->hasMethod('__call'));
+        self::assertSame('', (string)$destination);
     }
 
-    /**
-     * 测试根客户端缓存前缀为空时抛出异常。
-     */
-    public function testConstructorThrowsWhenCacheKeyPrefixEmpty(): void
+    public function testReservedHeaderAndSpoolLimitFailBeforeExposure(): void
     {
-        $this->expectException(SdkException::class);
-        $this->expectExceptionMessage('cacheKeyPrefix');
-        new Client(cacheKeyPrefix: '   ');
+        $transport = new RecordingTransport([new PsrResponse(200, [], 'TOO-LARGE')]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
+
+        try {
+            $client->call(Request::get('example')->anonymous()->headers(['Authorization' => 'caller-value']));
+            self::fail('预期协议保留请求头被拒绝');
+        } catch (InvalidCallException) {
+            self::assertSame([], $transport->requests);
+        }
+        try {
+            $client->call(Request::get('example')->anonymous()->query(['access_token' => 'caller-token']));
+            self::fail('预期协议保留查询参数被拒绝');
+        } catch (InvalidCallException) {
+            self::assertSame([], $transport->requests);
+        }
+
+        $this->expectException(StreamException::class);
+        $client->call(Request::get('raw')->anonymous()->maxResponseBytes(4));
     }
 
-    /**
-     * 测试默认缓存目录位于系统临时目录下。
-     */
-    public function testDefaultCacheStoreDirectoryUnderSysTemp(): void
+    public function testWxOpenAuthorizerUsesReferencedToken(): void
     {
-        $dir = Client::defaultCacheStoreDirectory();
-        $this->assertStringStartsWith(rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR . '/'), $dir);
-        $this->assertStringEndsWith(Client::DEFAULT_CACHE_STORE_DIR_NAME, $dir);
-    }
-
-    /**
-     * 测试不支持的通道标识会抛出异常。
-     */
-    public function testGetThrowsWhenChannelUnsupported(): void
-    {
-        $client = new Client();
-
-        $this->expectException(SdkException::class);
-        $this->expectExceptionMessage('不支持的通道标识');
-        $client->get('unknown.channel', new WechatPlatformConfig('wx_x', 'sec'));
-    }
-
-    /**
-     * 测试通道配置类型不匹配会抛出异常。
-     */
-    public function testGetThrowsWhenConfigMismatch(): void
-    {
-        $client = new Client();
-
-        $this->expectException(SdkException::class);
-        $this->expectExceptionMessage('WechatPlatformConfig');
-        $client->get('wechat.platform', new WechatServiceConfig('app', 'sec', 'token', TestKeys::encodingAesKey()));
-    }
-
-    /**
-     * 测试微信公众平台工厂返回正确客户端。
-     */
-    public function testWechatPlatformFactoryReturnsTypedClient(): void
-    {
-        $client = new Client();
-        $wechat = $client->wechatPlatform(new WechatPlatformConfig('wx_appid', 'app_secret'));
-
-        $this->assertInstanceOf(WechatPlatformClient::class, $wechat);
-    }
-
-    /**
-     * 测试微信公众平台可生成 open.weixin.qq.com 网页授权地址。
-     */
-    public function testWechatPlatformBuildsOpenAuthorizeUrl(): void
-    {
-        $client = new Client();
-        $wechat = $client->wechatPlatform(new WechatPlatformConfig('wx_appid', 'app_secret'));
-        $result = $wechat->get('connect/oauth2/authorize', [
-            'redirect_uri' => 'https://example.com/wechat/callback',
-            'scope' => 'snsapi_userinfo',
-            'state' => 'S1',
+        $cache = new MemoryCache();
+        $cache->set(CacheKey::compose(
+            Runtime::DEFAULT_CACHE_KEY_PREFIX,
+            WxOpenClient::NAME,
+            TokenCacheKey::wechatOpenAuthorizerAccessToken('component_app', 'authorizer_app'),
+        ), 'authorizer-token', 3600);
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Content-Type' => 'application/json'], '{"ok":true}'),
         ]);
+        $client = WxOpenClient::mk(
+            new WxOpenConfig('component_app', 'component_secret'),
+            new Runtime(cache: $cache, transport: $transport),
+        );
 
-        $this->assertArrayHasKey('url', $result);
-        $this->assertStringStartsWith('https://open.weixin.qq.com/connect/oauth2/authorize?', (string)$result['url']);
-        $this->assertStringContainsString('appid=wx_appid', (string)$result['url']);
-        $this->assertStringContainsString('scope=snsapi_userinfo', (string)$result['url']);
-        $this->assertStringEndsWith('#wechat_redirect', (string)$result['url']);
+        $client->call(Request::get('cgi-bin/user/get')->asWechatAuthorizer('authorizer_app'));
+
+        self::assertStringContainsString('access_token=authorizer-token', $transport->requests[0]->getUri()->getQuery());
     }
 
-    /**
-     * 测试微信服务平台工厂返回正确客户端，并保留授权地址生成能力。
-     */
-    public function testWechatServiceFactoryReturnsTypedClientAndBuildsAuthorizationUrl(): void
+    public function testDerivedResourcePolicyIsAppliedAtSecondCall(): void
     {
-        $client = new Client();
-        $service = $client->wechatService(new WechatServiceConfig(
-            'wx_component',
-            'component_secret',
-            'componentToken123',
-            TestKeys::encodingAesKey()
-        ));
-        $url = $service->authorizationUrl('preauthcode', 'https://example.com/callback', 3, 'STATE_TEST');
-
-        $this->assertInstanceOf(WechatServiceClient::class, $service);
-        $this->assertStringContainsString('componentloginpage', $url);
-        $this->assertStringContainsString('pre_auth_code=preauthcode', $url);
-        $this->assertStringContainsString('state=STATE_TEST', $url);
-    }
-
-    /**
-     * 测试支付宝授权调用返回跳转地址。
-     */
-    public function testAlipayPlatformCallReturnsAuthorizationUrl(): void
-    {
-        $client = new Client();
-        $alipay = $client->alipayPlatform(new AlipayPlatformConfig(
-            '202605010001',
-            TestKeys::privateKey(),
-            TestKeys::publicKey(),
-        ));
-        $result = $alipay->get('auth', [
-            'redirect_uri' => 'https://example.com/alipay/callback',
-            'scope' => 'auth_user',
-            'state' => 'S2',
+        $transport = new RecordingTransport([
+            new PsrResponse(200, ['Content-Type' => 'application/json'], '{"url":"https://127.0.0.1/private"}'),
         ]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
+        $source = $client->call(Request::get('resource')->anonymous());
 
-        $this->assertArrayHasKey('url', $result);
-        $this->assertStringContainsString('state=S2', (string)$result['url']);
+        $this->expectException(InvalidCallException::class);
+        $client->call(Request::get($source->resource('url'))->downloadTo(Utils::streamFor('')));
     }
 
-    /**
-     * 测试按通道字符串创建指定客户端。
-     */
-    public function testGetCanReturnSpecificChannelClient(): void
+    public function testErrorsKeepDiagnosticContextWithoutPayload(): void
     {
-        $client = new Client();
-        $channelClient = $client->get('alipay.platform', new AlipayPlatformConfig(
-            '202605010001',
-            TestKeys::privateKey(),
-            TestKeys::publicKey(),
-        ));
+        $transport = new RecordingTransport([
+            new PsrResponse(200, [], '{"errcode":40003,"errmsg":"invalid","openid":"sensitive-user"}'),
+        ]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
 
-        $this->assertInstanceOf(AlipayPlatformClient::class, $channelClient);
-        $this->assertNotInstanceOf(WechatServiceClient::class, $channelClient);
+        try {
+            $client->call(Request::get('example')->anonymous());
+            self::fail('预期平台错误被拒绝');
+        } catch (PlatformException $exception) {
+            self::assertSame(40003, $exception->platformCode());
+            self::assertArrayNotHasKey('openid', $exception->context());
+        }
+    }
+
+    public function testTransportFailureIsEnrichedWithChannelAndTimeout(): void
+    {
+        $transport = new RecordingTransport([
+            new TransportException('network down', context: ['host' => 'api.weixin.qq.com']),
+        ]);
+        $client = WeChatClient::mk(new WeChatConfig('wx_app', 'secret'), new Runtime(transport: $transport));
+
+        try {
+            $client->call(Request::get('example')->anonymous()->timeout(1234));
+            self::fail('预期传输错误被转换');
+        } catch (TransportException $exception) {
+            self::assertSame(WeChatClient::NAME, $exception->channel());
+            self::assertSame('api.weixin.qq.com', $exception->context()['host']);
+            self::assertSame([1234], $transport->timeouts);
+        }
     }
 }

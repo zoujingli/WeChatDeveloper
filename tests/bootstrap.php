@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 $autoloadCandidates = [
     dirname(__DIR__) . '/vendor/autoload.php',
     dirname(__DIR__, 2) . '/vendor/autoload.php',
@@ -23,4 +24,4 @@ foreach ($autoloadCandidates as $autoloadFile) {
     }
 }
 
-throw new RuntimeException('Cannot locate Composer autoload.php for We tests.');
+throw new RuntimeException('无法找到 We 测试所需的 Composer autoload.php。');
