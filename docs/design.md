@@ -1,70 +1,80 @@
 # 设计
 
-## 定位
+## 边界
 
-2.0 把 SDK 收敛为协议层模块：少量稳定入口承载认证、HTTP、签名、验签和加解密复杂度，业务接口名称和字段继续以平台官方文档为准。
+2.0 是平台 API 出站调用层。它隐藏 Token、编码、HTTP、签名验签、可信错误和流处理，但不实现平台业务端点，也不处理通知、消息、授权页面、客户端调起或业务状态。
 
 ```text
-Application
+业务应用
     |
     v
-We\Client -- ConfigInterface
-    |
-    +-- WeChat platform / wxapp / service clients
-    +-- WeChat Pay APIv3 client
-    +-- Alipay platform / payment clients
-    |
-    +-- StoreCacheInterface / StoreTokenInterface
-    +-- injected Guzzle ClientInterface
+对应通道 *Client::mk(Config) -> call(Request) -> Response
+                                      |
+                                      +-- 共享 Runtime / HTTP 传输
+                                      +-- Token / 签名 / 信任材料适配器
 ```
 
-`Client` 提供六个显式类型工厂，也保留动态 `get()` 供配置驱动系统使用。删除魔术 `__call()` 后，错误工厂名称能在开发阶段更早暴露。
+## 六个通道
 
-## 模块边界
+通道按报文协议划分：微信公众号 `wechat.platform`、小程序 `wechat.wxapp`、微信开放平台 `wechat.service`、微信支付 `wechat.payment`、支付宝支付 v2 `alipay.gateway` 和支付宝 REST v3 `alipay.rest`。底层通道 ID 保持协议稳定，不随公开类名变化。
 
-| 模块 | 负责 | 不负责 |
-|------|------|--------|
-| `Config` | 必填字段、URL、RSA 和平台信任材料校验 | 读取环境变量、密钥轮换 |
-| 平台客户端 | token、请求协议、响应解析、平台签名 | 业务实体和数据库 |
-| `Support` | 密钥规范化、缓存、签名、XML、加解密 | 业务流程编排 |
-| 缓存契约 | token TTL 和刷新互斥 | 通用应用缓存 API |
-| Token 契约 | 授权方 refresh token 读写 | 账号数据模型 |
-| 异常层级 | 统一捕获和平台诊断上下文 | 日志与告警策略 |
+每个通道有独立 Client 与对应配置，不经过根类型分派。`src/` 根目录只保存六个 `We\*Client`；公共调用类型统一位于 `We\Common`，包括 `Request`、`Response`、`Resource`、`Runtime` 和 `MultipartPart`。
 
-## 安全决策
+源码按“跨生态公共、生态公共、通道专属”三层归属：
 
-支付数据采用强安全默认值：
+```text
+src/
+├── *Client.php                    # 仅六个通道入口
+├── Common/                        # 微信与支付宝共同使用
+├── Wechat/
+│   ├── WeChatConfig.php           # 微信公众号配置
+│   ├── WxAppConfig.php            # 微信小程序配置
+│   ├── WxOpenConfig.php           # 微信开放平台配置
+│   ├── WxPayConfig.php            # 微信支付配置
+│   ├── Common/                    # 微信生态共同使用
+│   └── WxOpen/                    # 开放平台专属契约与实现
+└── Alipay/
+    ├── AliPayConfig.php           # 支付宝支付 v2 配置
+    ├── AliRestConfig.php          # 支付宝 REST v3 配置
+    └── Common/                    # 支付宝生态共同使用
+```
 
-- 配置对象校验后保持只读，配置数组拒绝非字符串凭证被隐式转换。
-- 支付宝响应必须存在预期节点、标量 code 和有效签名；完成验签的原始节点必须与最终解析节点一致。
-- 微信支付普通 JSON 响应必须包含完整平台签名头，并以原始 body 验签。
-- 微信支付通知先验签，再检查默认 300 秒时间窗口，最后解密 resource。
-- 缺少信任材料在配置阶段失败，不允许“未配置即跳过验签”。
-- 支付密钥不仅要求 OpenSSL 可解析，还要求算法确为 RSA。
+跨通道基类、调用值对象、传输、协议、异常和签名 Provider 放在 `Common`。只被同一生态多个通道复用的类型放在该生态的 `Common`。具名 Config 直接放在生态根目录，因为类名已经表达通道；单一通道另有专属契约或实现时才建立同名前缀目录。非公开实现继续放入所属层级的 `Internal`，例如微信通用 Token 管理位于 `Wechat/Common/Internal`，开放平台独有的 Token 管理位于 `Wechat/WxOpen/Internal`。不得建立顶层 `Config`、`Contract`、`Provider` 等按技术角色横切生态的目录。
 
-通知幂等保留在业务层。SDK 不知道订单聚合、合法状态转换或事务边界，因此不能可靠代替业务持久化去重。
+## 固定顺序
 
-## URL 边界
+每次调用按同一顺序执行：
 
-通用微信平台和 JSON 客户端只接受相对 path，避免调用方参数把受信客户端变成任意 URL 请求器。
+1. 校验目标、请求体、身份和保留请求头。
+2. 在发送前解析或刷新凭证。
+3. 确定性编码查询参数、请求头和唯一请求体。
+4. 按平台通道要求，对最终 URI、请求头和协议规定的报文字节生成签名。
+5. 通过同步 HTTP 传输发送一次请求。
+6. 暂存响应，并按平台通道要求完成强制验签。
+7. 识别可信平台错误和响应结构。
+8. 返回统一 `Response`，或在验证后复制下载流。
 
-微信账单的绝对 URL 是官方协议要求，因此封装在专用 `downloadBill()` 内：只有先通过已签名 API 响应取得的有效 HTTPS 地址才会交给下载 HTTP 适配器。该能力不会泄漏到通用客户端。
+已经发送的业务请求不会被隐式重放。
 
-## 缓存设计
+## 请求与响应
 
-缓存键由部署前缀、平台通道和逻辑用途组成。三段独立编码，段内点号也转换为 `%2E`，再使用点号连接，既保留隔离语义，又满足 PSR-16 对保留字符的限制并避免跨段碰撞。
+`Request` 是不可变值对象，目标只接受相对路径、支付宝 Gateway 方法或可信 `Resource`。查询参数保序并支持重复键；请求只有一个请求体。
 
-`FileCacheStore` 通过临时文件和原子重命名发布新值。过期读不做按路径删除，避免旧读者在新值重命名后误删新文件。
+`Response` 保存已接受的原始字节与解析值。JSON 和 XML 结构由响应自动识别，调用方在结果端选择解析方法，不需要响应模式或结果类族。
 
-## 扩展接缝
+下载先写入权限受限的临时文件。JSON 错误识别、响应验签和摘要校验成功后才写入调用方流。
 
-- 框架缓存实现 `StoreCacheInterface`，或用 `PsrSimpleCacheStore` 适配 PSR-16。
-- 微信服务平台账号仓库实现 `StoreTokenInterface`。
-- 测试或特殊传输策略向根 `Client` 注入 Guzzle `ClientInterface`。
-- 新官方 API 优先通过现有平台客户端的 `get()`、`post()`、`call()`、`raw()`、`download()` 或 `upload()` 表达。
+## 信任边界
 
-只有当新协议形态无法由现有公开接口安全表达时，才增加专用方法，例如两阶段账单下载。
+- 调用方不能覆盖认证、`Host`、`Content-Length`、`Content-Type` 或平台签名请求头。
+- 普通目标不能使用绝对 URL。
+- 派生资源绑定来源通道，强制 HTTPS，默认拒绝字面私网、保留或回环 IP 地址以及重定向。
+- 未识别的序列号或密钥 ID 失败关闭。
+- 原始字节读取不会关闭支付通道的强制验签。
+- 支付宝支付 v2 只有显式 `rawMedia()` 才采用官方未签名媒体响应规则。
 
-## 版本边界
+## 扩展
 
-2.0 不移植 1.x 上百个业务接口类，不保留旧命名空间、静态 `instance()` 或全局 helper。主版本断代使协议层接口保持可发现、可测试和较小的维护面。
+HTTP、缓存、Token、签名密钥、信任材料、component ticket 和授权方 Token 存储是实际外部边界，因此使用小接口。业务请求体、端点目录、日志、持久化和控制器不建立 SDK 扩展点。
+
+长期决策见 [ADR](adr/)，协议依据见 [事实矩阵](research/platform-call-scenarios.md)。

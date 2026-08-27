@@ -1,34 +1,28 @@
-# 测试与贡献
+# 测试
 
-项目使用 PHPUnit、PHPStan 和 PHP CS Fixer。测试不连接真实微信或支付宝账号，外部平台通过注入的 Guzzle 适配器替换。
+## 契约路径
 
-## 本地准备
+公开行为从唯一调用链断言：
 
-```bash
-composer install
-composer validate --strict
+```text
+对应通道 *Client::mk(Config) -> call(Request) -> Response 解析方法
+                                      |
+                                      v
+                             Runtime(记录型传输适配器)
 ```
 
-项目要求 PHP 8.1 或更高版本，以及 JSON、OpenSSL、SimpleXML 扩展。
+测试不连接真实微信或支付宝账号。`RecordingTransport` 记录最终 PSR-7 请求并返回夹具响应；只有签名、URI、请求头和实际请求体等报文行为在 HTTP 传输接口观察。
 
-macOS 使用 Homebrew OpenSSL 3 时，如果系统默认配置无法生成 RSA 测试密钥，可显式设置配置文件：
+## 覆盖要求
 
-```bash
-OPENSSL_CONF=/opt/homebrew/etc/openssl@3/openssl.cnf composer test
-```
+- 新请求形态覆盖成功、输入拒绝和平台错误。
+- Token、签名或信任变更覆盖缓存、未知密钥 ID、缺失签名和验签失败。
+- 下载覆盖 JSON 错误、字节上限、摘要失败及复制前目标流不被写入。
+- 文档示例必须能被 PHP tokenizer 解析，本地 Markdown 链接必须有效。
+- 每个公开接口方法必须具有职责、单位、所有权或失败语义所需的 PHPDoc；`docs/api.md` 必须覆盖 `Request` 与 `Response` 的全部非内部公开方法。
+- 异常 `context` 断言不包含业务请求体或凭证。
 
-密钥夹具生成失败会输出 OpenSSL 错误栈和当前 `OPENSSL_CONF`，用于区分环境问题与 SDK 回归。
-
-## 开发循环
-
-对单个行为先运行对应测试文件：
-
-```bash
-vendor/bin/phpunit -c phpunit.xml tests/PaymentClientTest.php
-composer analyse
-```
-
-提交前执行完整质量门禁：
+## 命令
 
 ```bash
 composer cs:fix
@@ -37,38 +31,7 @@ composer analyse
 composer validate --strict
 composer audit --locked
 composer test
+git diff --check
 ```
 
-`composer cs:fix` 会修改文件；其余命令应以零退出码完成。
-
-## CI 矩阵
-
-CI 包含：
-
-- Composer 严格元数据校验。
-- Composer 锁定依赖安全审计。
-- PHP CS Fixer dry-run。
-- PHPStan 静态分析。
-- PHP 8.1、8.2、8.3、8.4 完整 PHPUnit 测试。
-- PHP 8.1 最低依赖组合测试。
-
-标签发布复用同一 CI 工作流。任一质量任务失败都不会创建 GitHub Release。
-
-## 测试边界
-
-测试优先经过调用方可见接口：
-
-1. 根 `Client` 和六个平台客户端。
-2. 配置对象的构造与 `fromArray()`。
-3. `StoreCacheInterface` 的可替换语义。
-4. 只在外部平台边界替换 Guzzle HTTP 客户端。
-
-不要测试私有消息拼接、内部调用次数或实现细节。支付响应验签测试必须签署原始 body；通知测试必须覆盖有效窗口、过期/未来时间戳、配置窗口和显式关闭时间检查。
-
-文件缓存并发回归是一个明确的低层调度例外：测试只用文件路径和 `flock` 确定旧读与新写的交错顺序，最终行为仍只通过公开 `get()`/`set()` 断言。该调度不构成缓存文件格式的公开契约。
-
-文档测试会检查 README、文档中心、更新记录和所有面向使用者的主题文档，并解析其中每个 PHP fenced code。示例必须语法完整，不要在 PHP code block 中使用省略号代替表达式。
-
-## 临时文件
-
-缓存测试只在系统临时目录创建隔离文件。并发回归测试依赖 POSIX `fork` 与 `flock`，不支持这些能力的环境会按测试声明处理，不应改为访问生产缓存。
+CI 覆盖 PHP 8.1、8.2、8.3、8.4，并在 PHP 8.1 执行最低依赖验证。测试密钥只存在于测试夹具。

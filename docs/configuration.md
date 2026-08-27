@@ -1,86 +1,53 @@
-# 配置与凭证
+# 配置
 
-所有平台配置实现 `We\Contract\ConfigInterface`，在构造或 `fromArray()` 时立即验证必填字段和密钥。配置属性在校验后保持只读，配置无效时不会创建可调用的客户端。
+每个通道 Client 直接绑定一个具体配置类，不经过公共配置接口或运行时类型分派。构造函数和 `fromArray()` 都会校验通道字段；`fromArray()` 还会构造并校验内置密钥 Provider。无效配置抛出 `We\Common\Exception\ConfigurationException`。
 
-除 `notification_tolerance_seconds` 明确接受非负整数外，`fromArray()` 的配置字段必须是字符串。数组、对象、布尔值或浮点数不会被隐式转换；类型不匹配时抛出对应平台的 SDK 异常。
+| 场景 | 通道 | 配置类型 | 构造参数 | 默认端点 |
+| --- | --- | --- | --- | --- |
+| 微信公众号 | `wechat.platform` | `We\Wechat\WeChatConfig` | `appid`、`appSecret`、`storageScope`、`tokenStrategy`、`endpoint` | `https://api.weixin.qq.com` |
+| 微信小程序 | `wechat.wxapp` | `We\Wechat\WxAppConfig` | `appid`、`appSecret`、`storageScope`、`tokenStrategy`、`endpoint` | `https://api.weixin.qq.com` |
+| 微信开放平台 | `wechat.service` | `We\Wechat\WxOpenConfig` | `componentAppid`、`componentAppSecret`、`storageScope`、`endpoint` | `https://api.weixin.qq.com` |
+| 微信支付 | `wechat.payment` | `We\Wechat\WxPayConfig` | `appid`、`mchId`、`merchantSigner`、`platformTrust`、`endpoint` | `https://api.mch.weixin.qq.com` |
+| 支付宝支付 v2 | `alipay.gateway` | `We\Alipay\AliPayConfig` | `appid`、`signer`、`trust`、`defaultTrustKeyId`、`charset`、`signType`、`format`、`version`、`appCertificateSerial`、`alipayRootCertificateSerial`、`endpoint` | `https://openapi.alipay.com/gateway.do` |
+| 支付宝 REST v3 | `alipay.rest` | `We\Alipay\AliRestConfig` | `appid`、`signer`、`trust`、`defaultTrustKeyId`、`appCertificateSerial`、`endpoint` | `https://openapi.alipay.com` |
 
-## 根客户端
-
-`We\Client` 可注入运行态缓存、微信服务平台授权方 Token 仓库和 Guzzle HTTP 客户端：
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use We\Client;
-use We\Support\FileCacheStore;
-
-$client = new Client(
-    cache: new FileCacheStore(__DIR__ . '/runtime/wechat-cache'),
-    cacheKeyPrefix: 'production-tenant-a',
-);
-```
-
-`cacheKeyPrefix` 必须非空，用于隔离部署或租户。未注入缓存时使用系统临时目录中的文件缓存。
-
-## 微信公众平台
+## 微信公众号与小程序
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use We\Config\WechatPlatformConfig;
+use We\Wechat\Common\WeChatTokenStrategy;
+use We\Wechat\WeChatConfig;
+use We\Wechat\WxAppConfig;
 
-$config = new WechatPlatformConfig(
+$weChat = new WeChatConfig(
     appid: 'wx_appid',
     appSecret: 'app_secret',
-    token: 'callbackToken123',
-    encodingAesKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
     storageScope: 'tenant-a',
+    tokenStrategy: WeChatTokenStrategy::Stable,
 );
+
+$wxApp = new WxAppConfig('wx_appid', 'app_secret');
 ```
 
-数组字段：`appid`、`appsecret`/`app_secret`、`token`、`encodingaeskey`/`encoding_aes_key`、`storage_scope`。
-
-`token` 与 `encodingAesKey` 只有消息签名或安全模式加解密场景需要；`appid` 与 `appSecret` 始终必填。
-
-## 微信小程序
+## 微信开放平台
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use We\Config\WechatWxappConfig;
+use We\Wechat\WxOpenConfig;
 
-$config = WechatWxappConfig::fromArray([
-    'appid' => 'wx_appid',
-    'app_secret' => 'app_secret',
-    'storage_scope' => 'tenant-a',
-]);
-```
-
-## 微信服务平台
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use We\Config\WechatServiceConfig;
-
-$config = new WechatServiceConfig(
+$wxOpen = new WxOpenConfig(
     componentAppid: 'wx_component_appid',
     componentAppSecret: 'component_secret',
-    componentToken: 'componentToken123',
-    componentEncodingAesKey: 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG',
-    storageScope: 'tenant-a',
 );
 ```
 
-数组字段：`component_appid`、`component_appsecret`/`component_app_secret`、`component_token`、`component_encodingaeskey`/`component_encoding_aes_key`、`storage_scope`。
+获取 component Token 还需要通过 `We\Common\Runtime` 注入 `We\Wechat\WxOpen\ComponentTicketProviderInterface`。授权方代调用同时需要 `We\Wechat\WxOpen\StoreTokenInterface` 保存 refresh Token 和刷新结果。
 
 ## 微信支付 APIv3
 
@@ -89,39 +56,21 @@ $config = new WechatServiceConfig(
 
 declare(strict_types=1);
 
-use We\Config\WechatPaymentConfig;
+use We\Common\Provider\PemSigningKeyProvider;
+use We\Common\Provider\StaticTrustMaterialProvider;
+use We\Wechat\WxPayConfig;
 
-$config = new WechatPaymentConfig(
+$wxPay = new WxPayConfig(
     appid: 'wx_appid',
     mchId: '1900000001',
-    apiV3Key: '0123456789abcdef0123456789abcdef',
-    merchantSerial: 'merchant_certificate_serial',
-    merchantPrivateKey: $merchantPrivateKeyPem,
-    platformPublicKey: $wechatPayPlatformPublicKeyPem,
-    platformSerial: 'wechatpay_platform_key_or_certificate_serial',
-    notificationToleranceSeconds: 300,
+    merchantSigner: new PemSigningKeyProvider('merchant-serial', $merchantPrivateKey),
+    platformTrust: new StaticTrustMaterialProvider([
+        'wechat.payment' => ['platform-serial' => $platformPublicKey],
+    ]),
 );
 ```
 
-商户私钥用于请求签名。`platformPublicKey` 或 `platformCertificate` 至少配置一个，并与 `platformSerial` 一起用于普通响应和通知验签。平台公钥优先于平台证书。
-
-数组字段：
-
-| 构造参数 | `fromArray()` 字段 |
-|----------|---------------------|
-| `appid` | `appid` |
-| `mchId` | `mch_id` / `mchid` |
-| `apiV3Key` | `api_v3_key` / `mch_v3_key` |
-| `merchantSerial` | `merchant_serial` / `cert_serial` |
-| `merchantPrivateKey` | `merchant_private_key` / `cert_private` |
-| `platformCertificate` | `platform_certificate` |
-| `platformPublicKey` | `platform_public_key` |
-| `platformSerial` | `platform_serial` |
-| `notificationToleranceSeconds` | `notification_tolerance_seconds`，默认 `300` |
-
-旧字段 `cert_public` 是商户证书，不会映射到微信支付平台证书。2.0 必须显式提供平台信任材料。
-
-`notificationToleranceSeconds` 不得小于 0。`fromArray()` 只接受非负整数或仅含数字的字符串，不会把空字符串、布尔值或任意文字转换成 `0`。`0` 表示调用方明确关闭通知时间检查；它不会关闭 RSA 验签。
+商户签名 Provider 只需实现 `keyId()` 与 `sign()`，可由 HSM 或 KMS 适配器实现。信任材料 Provider 按平台序列号解析公钥，未知序列号失败关闭。
 
 ## 支付宝
 
@@ -130,24 +79,47 @@ $config = new WechatPaymentConfig(
 
 declare(strict_types=1);
 
-use We\Config\AlipayPaymentConfig;
+use We\Alipay\AliPayConfig;
+use We\Alipay\AliRestConfig;
+use We\Common\Provider\PemSigningKeyProvider;
+use We\Common\Provider\StaticTrustMaterialProvider;
 
-$config = new AlipayPaymentConfig(
-    appid: '2026000000000000',
-    privateKey: $applicationPrivateKey,
-    alipayPublicKey: $alipayPublicKey,
-    signType: 'RSA2',
-);
+$signer = new PemSigningKeyProvider('application', $appPrivateKey, true);
+$gatewayTrust = new StaticTrustMaterialProvider([
+    'alipay.gateway' => ['default' => $alipayPublicKey],
+], true);
+$restTrust = new StaticTrustMaterialProvider([
+    'alipay.rest' => ['default' => $alipayPublicKey],
+], true);
+
+$aliPay = new AliPayConfig('ali_appid', $signer, $gatewayTrust);
+$aliRest = new AliRestConfig('ali_appid', $signer, $restTrust);
 ```
 
-应用私钥和 `alipayPublicKey` 均为必填项。数组字段是 `appid`/`app_id`、`private_key`/`merchant_private_key`、`alipay_public_key`、`gateway`、`charset`、`sign_type`、`format`、`version`。
+支付宝用户和代调用应用 Token 由 `We\Alipay\Common\TokenProviderInterface` 解析。SDK 提供 `We\Alipay\Common\StaticTokenProvider`；Provider 负责刷新生命周期，SDK 只在发送前按凭证 ID 读取当前有效 Token。
 
-`AlipayPlatformConfig` 与 `AlipayPaymentConfig` 使用同一套网关和密钥字段，后者创建支付客户端。
+Gateway 默认使用信任材料 ID `default`、字符集 `utf-8`、签名类型 `RSA2`、响应格式 `JSON` 和版本 `1.0`；响应格式只支持 JSON 或 XML，签名类型只支持 RSA 或 RSA2。REST 默认信任材料 ID 同样为 `default`。证书模式可通过 `appCertificateSerial` 和 Gateway 的 `alipayRootCertificateSerial` 写入协议字段。
 
-## RSA 规则
+## 端点
 
-- 微信支付商户私钥、微信支付平台公钥/证书、支付宝应用私钥和支付宝公钥必须是 RSA。
-- EC 或其他可被 OpenSSL 解析但算法不匹配的密钥会被拒绝。
-- 支付宝私钥支持完整 PEM，也支持无头尾的 PKCS#1 或 PKCS#8 Base64 正文。
-- 支付宝公钥支持完整 PEM 或无头尾公钥正文。
-- 不要把商户证书、公钥和平台公钥混用；它们代表不同信任主体。
+六种配置都可传入 `We\Common\Config\Endpoint`。它只保存 `baseUri`，并要求使用没有用户信息的 HTTPS URL。自定义端点由部署配置显式提供，不从单次请求覆盖。
+
+## 数组配置
+
+`fromArray()` 适合读取字符串配置文件。它固定创建本地 PEM 签名 Provider 和静态信任材料 Provider；HSM、KMS 或动态信任材料应改用构造函数注入。所有输入值必须是字符串；同一格中使用 `/` 分隔的字段名为输入别名：
+
+| 配置 | 必填字段 | 可选字段 |
+| --- | --- | --- |
+| `WeChatConfig` / `WxAppConfig` | `appid`、`appsecret` / `app_secret` | `storage_scope` / `storageScope`、`token_strategy`、`endpoint` |
+| `WxOpenConfig` | `component_appid`、`component_appsecret` / `component_app_secret` | `storage_scope` / `storageScope`、`endpoint` |
+| `WxPayConfig` | `appid`、`mch_id` / `mchid`、`merchant_serial` / `cert_serial`、`merchant_private_key` / `cert_private`、`platform_serial`、`platform_public_key` / `platform_certificate` | `endpoint` |
+| `AliPayConfig` | `appid` / `app_id`、`private_key` / `merchant_private_key`、`alipay_public_key` | `alipay_cert_sn` / `trust_key_id`、`app_cert_sn` / `signing_key_id`、`charset`、`sign_type`、`format`、`version`、`alipay_root_cert_sn`、`gateway` / `endpoint` |
+| `AliRestConfig` | `appid` / `app_id`、`private_key` / `merchant_private_key`、`alipay_public_key` | `alipay_cert_sn` / `trust_key_id`、`app_cert_sn` / `signing_key_id`、`endpoint` |
+
+支付宝配置中的 `app_cert_sn` 同时用作签名密钥 ID 和应用证书序列号；`signing_key_id` 只设置签名密钥 ID。
+
+`WeChatTokenStrategy::Standard` 使用微信标准 Token 端点，`WeChatTokenStrategy::Stable` 使用稳定版 Token 端点。`storageScope` 只参与 Token 缓存键，不会发送给平台。
+
+微信支付数组配置要求 PEM 私钥以及 PEM 公钥或证书。支付宝数组配置同时接受 PEM 和没有 PEM 边界的 Base64 密钥内容。这些内置 Provider 的无效材料在配置阶段失败；构造函数注入的自定义 Provider 负责自身可用性，并在签名或读取信任材料失败时关闭调用。
+
+私钥、公钥、证书、Token 和完整 Secret 不应写入日志或异常 `context`。

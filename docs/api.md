@@ -1,108 +1,169 @@
-# 公开 API 速查
+# 公开 API
 
-SDK 的主调用面是根客户端、六个平台客户端和三个扩展契约。业务代码优先从 `We\Client` 创建客户端；`We\Support` 中的实现用于适配协议细节，不应代替平台客户端成为业务入口。
+## 通道 Client
 
-## 根客户端
+六个通道 Client 都实现 `We\Common\Contract\ChannelInterface`，公开入口固定为 `*Client::mk(具体配置, ?Runtime)->call(Request)->Response`：
 
-`We\Client` 接受可选的缓存、服务平台授权方 Token 仓库、Guzzle HTTP 客户端和缓存键前缀：
+| 场景 | Client | 配置 | `channel()` |
+| --- | --- | --- | --- |
+| 微信公众号 | `We\WeChatClient` | `We\Wechat\WeChatConfig` | `wechat.platform` |
+| 微信小程序 | `We\WxAppClient` | `We\Wechat\WxAppConfig` | `wechat.wxapp` |
+| 微信开放平台 | `We\WxOpenClient` | `We\Wechat\WxOpenConfig` | `wechat.service` |
+| 微信支付 | `We\WxPayClient` | `We\Wechat\WxPayConfig` | `wechat.payment` |
+| 支付宝支付 v2 | `We\AliPayClient` | `We\Alipay\AliPayConfig` | `alipay.gateway` |
+| 支付宝 REST v3 | `We\AliRestClient` | `We\Alipay\AliRestConfig` | `alipay.rest` |
+
+每个 `mk()` 只接受表中对应配置；`Runtime` 省略时按需创建本地默认依赖。没有按配置类型分派的根 Client，也没有业务端点方法。
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use We\Client;
-use We\Config\WechatPlatformConfig;
+use We\Wechat\WxAppConfig;
+use We\WxAppClient;
 
-$client = new Client(
-    cache: $cacheStore,
-    authorizers: $authorizerTokenStore,
-    http: $httpClient,
-    cacheKeyPrefix: 'production-tenant-a',
-);
-
-$platform = $client->wechatPlatform(new WechatPlatformConfig(
-    appid: 'wx_appid',
-    appSecret: 'app_secret',
-));
+$client = WxAppClient::mk(new WxAppConfig('wx_appid', 'app_secret'));
 ```
 
-六个显式类型工厂如下：
+`call(Request)` 同步发送一次请求。SDK 不会在已发送后因超时、平台错误或验签失败自动重放；调用方只能在确认业务幂等语义后自行重试。
 
-| 工厂 | 配置对象 | 返回客户端 |
+## Runtime
+
+`We\Common\Runtime` 集中注入可替换运行依赖，同一实例可以复用于多个通道 Client：
+
+| 参数 | 类型 | 省略时的行为 |
 | --- | --- | --- |
-| `wechatPlatform()` | `WechatPlatformConfig` | `We\Platform\Wechat\PlatformClient` |
-| `wechatWxapp()` | `WechatWxappConfig` | `We\Platform\Wechat\WxappClient` |
-| `wechatService()` | `WechatServiceConfig` | `We\Platform\Wechat\ServiceClient` |
-| `wechatPayment()` | `WechatPaymentConfig` | `We\Platform\Wechat\PaymentClient` |
-| `alipayPlatform()` | `AlipayPlatformConfig` | `We\Platform\Alipay\PlatformClient` |
-| `alipayPayment()` | `AlipayPaymentConfig` | `We\Platform\Alipay\PaymentClient` |
+| `cache` | `We\Wechat\Common\StoreCacheInterface` | 在默认系统临时目录中延迟创建 `We\Wechat\Common\FileCacheStore` |
+| `authorizers` | `We\Wechat\WxOpen\StoreTokenInterface` | 使用授权方身份时失败关闭 |
+| `transport` | `We\Common\Transport\HttpTransportInterface` | 延迟创建 `We\Common\Transport\GuzzleTransport` |
+| `tokens` | `We\Alipay\Common\TokenProviderInterface` | 使用支付宝用户或代调用应用身份时失败关闭 |
+| `componentTickets` | `We\Wechat\WxOpen\ComponentTicketProviderInterface` | 获取 component Token 时失败关闭 |
+| `resourcePolicy` | `We\Common\Protocol\ExternalResourcePolicyInterface` | 使用 `PublicNetworkResourcePolicy` |
+| `cacheKeyPrefix` | `string` | `wechat_developer` |
+| `spoolDirectory` | `?string` | 使用系统临时目录下的 SDK 专用子目录 |
 
-配置驱动场景使用 `Client::get($channel, $config)`。支持的通道是 `wechat.platform`、`wechat.wxapp`、`wechat.service`、`wechat.payment`、`alipay.platform` 和 `alipay.payment`；配置类型与通道不匹配时抛出 `SdkException`。所有配置属性在构造校验后保持只读。
+```php
+<?php
 
-未注入缓存时，`Client` 使用 `Client::defaultCacheStoreDirectory()` 返回的系统临时目录子目录创建 `FileCacheStore`。生产环境应显式注入符合部署拓扑的缓存实现。
+declare(strict_types=1);
 
-## 通用调用语义
+use We\Common\Runtime;
 
-| 客户端 | 方法 | 行为 |
+$runtime = new Runtime(transport: $transport, cache: $cache);
+$client = WxAppClient::mk($config, $runtime);
+```
+
+默认资源策略拒绝字面私网、保留或回环 IP 地址。它不执行 DNS 解析；需要抵御 DNS 重绑定的部署应注入更严格的网络策略或在出站代理层限制目标。
+
+## Request
+
+`We\Common\Request` 是不可变值对象。每个修改方法返回新实例，原实例保持不变。
+
+### 创建与目标
+
+| 工厂 | 作用 |
+| --- | --- |
+| `Request::create(string $method, Resource|string $target)` | 使用任意有效 HTTP 方法创建请求 |
+| `Request::get()`、`post()`、`put()`、`patch()`、`delete()` | 使用常见 HTTP 方法创建请求 |
+
+字符串目标必须是没有查询参数、片段、反斜杠或 URL scheme 的相对路径；支付宝支付 v2 Gateway 进一步要求点分方法名。绝对 URL 只能通过可信 `Response` 创建的 `Resource` 进入调用链。
+
+### 查询参数与请求头
+
+`query()` 和 `form()` 接受关联数组或 `[name, value]` 参数对列表。参数对列表保留顺序和重复键；关联数组中的列表值展开为重复键。`null`、布尔值、整数和浮点数分别转换为空字符串、`1`/`0` 和字符串。
+
+`headers()` 接受 `array<string, string|list<string>>`。认证、`Host`、`Content-Length`、`Content-Type` 和平台签名请求头由通道独占，在发送前发现冲突会抛出 `InvalidCallException`。
+
+### 请求体
+
+后一次请求体修改会替换前一次请求体，最终只发送一种编码结果：
+
+| 方法 | 请求体与所有权 |
+| --- | --- |
+| `json(mixed $value)` | 在调用时编码一次 JSON |
+| `form(array $fields)` | RFC 3986 表单参数 |
+| `raw(string $body, string $mediaType = 'application/octet-stream')` | 已编码字符串 |
+| `raw(StreamInterface $body, string $mediaType = 'application/octet-stream', ?int $knownLength = null)` | 从当前位置读取；`knownLength` 是剩余字节数，流仍由调用方持有 |
+| `multipart(MultipartPart ...$parts)` | 至少一个普通字段或文件部件 |
+
+`We\Common\MultipartPart` 的 `contents` 接受字符串或可读 PSR-7 流；`filename`、`mediaType` 和附加请求头均为可选值。部件流从当前位置读取，生命周期仍由调用方管理。
+
+### 调用身份
+
+| 方法 | 支持通道 | 协议行为 |
 | --- | --- | --- |
-| 微信公众平台、小程序 | `get()` / `post()` | 使用官方相对 path；GET 参数进入 query，POST 参数默认进入 JSON body；默认附加 access token |
-| 微信公众平台、小程序 | `request()` | 显式指定 HTTP 方法、query、Guzzle options 和是否附加 token |
-| 微信公众平台、小程序 | `raw()` / `download()` | 返回 PSR-7 `ResponseInterface`，用于非 JSON 数据 |
-| 微信公众平台、小程序 | `upload()` | 接受 Guzzle multipart 数组并解析平台 JSON 响应 |
-| 微信服务平台 | `get()` / `post()` / `call()` | 调用第三方平台接口；同时提供 `authorizer_appid` 与 `component_access_token` options 时可代授权方调用 |
-| 微信服务平台 | `request()` | 直接调用第三方平台接口，不解析授权方控制项；代授权方调用使用 `requestAsAuthorizer()` |
-| 微信支付 | `get()` / `post()` / `request()` | 对商户请求签名，验证平台响应签名后解析 JSON |
-| 微信支付 | `raw()` / `download()` | 对请求签名并返回原始响应；响应 body 未被解释为可信业务 JSON |
-| 支付宝开放平台 | `request()` | 使用官方 API method 和业务参数调用网关，验签后返回响应节点 |
-| 支付宝客户端 | `get()` / `post()` / `call()` | 兼容统一客户端调用形态；支付宝网关传输仍使用官方 POST 表单协议 |
+| 默认身份 | 全部 | 微信平台注入默认 Token；支付和支付宝继续生成平台级签名 |
+| `anonymous()` | `wechat.platform`、`wechat.wxapp`、`wechat.service`、两个支付宝通道 | 不注入可选 Token；支付宝应用签名仍保留 |
+| `asWechatAuthorizer(string $appid)` | `wechat.service` | 从授权方存储解析 authorizer Token |
+| `asAlipayUser(string $credentialId)` | `alipay.gateway`、`alipay.rest` | 从 Token Provider 解析用户 `auth_token` |
+| `asAlipayApp(string $credentialId)` | `alipay.gateway`、`alipay.rest` | 从 Token Provider 解析代调用应用 Token |
 
-微信通用客户端只接受相对 path。微信支付账单的绝对下载地址只能通过 `downloadBill()` 使用，不能传给通用调用入口。
+微信支付只接受默认商户身份。调用方不能通过查询参数或请求头直接写入由身份生成的 Token。
 
-## 微信公众平台与小程序专用能力
+### 协议与流选项
 
-- `accessToken($refresh = false)`：读取缓存 token；传 `true` 强制刷新。
-- `call('connect/oauth2/authorize', ...)`：生成公众号网页授权 URL，返回 `['url' => string]`。
-- `call('connect/qrconnect', ...)`：生成网站应用扫码登录 URL，返回 `['url' => string]`。
-- `post('decrypt_message', ...)` / `post('encrypt_message', ...)`：处理公众平台消息安全模式。
-- `options['with_token'] = false`：调用无需公众号或小程序 access token 的接口。
-
-完整示例见[微信平台](wechat.md)。
-
-## 微信服务平台专用能力
-
-| 方法 | 用途 |
+| 方法 | 契约 |
 | --- | --- |
-| `componentAccessToken()` | 获取并缓存第三方平台 `component_access_token` |
-| `createPreAuthCode()` | 创建授权流程所需的 `pre_auth_code` |
-| `authorizationUrl()` | 生成第三方平台授权页地址 |
-| `queryAuth()` | 使用 `authorization_code` 查询授权信息 |
-| `authorizerInfo()` | 获取授权方账号基本信息 |
-| `requestAsAuthorizer()` | 使用授权方 access token 调用公众号或小程序接口 |
+| `rawMedia()` | 仅用于支付宝支付 v2 官方明确不签名的媒体响应；仍识别 HTTP 与 JSON/XML 平台错误 |
+| `sensitiveKey(string $keyId)` | 仅让微信支付写入敏感字段使用的证书序列号或密钥 ID；不加密业务字段 |
+| `timeout(int $milliseconds)` | 设置大于 0 的单次 HTTP 超时；默认 `20000` |
+| `maxResponseBytes(int $bytes)` | 设置响应以及需要签名的不可回绕请求流的暂存上限；默认 `67108864` |
+| `downloadTo(StreamInterface $destination, ?string $digestAlgorithm = null, ?string $expectedDigest = null)` | 校验成功后复制到可写目标流 |
 
-授权方 refresh token 的读取和刷新结果回写由 `StoreTokenInterface` 承担。完整流程见[微信平台](wechat.md#微信服务平台)。
+摘要算法和值必须同时提供。派生资源已经携带摘要时，以资源摘要为准。目标流仍由调用方持有；校验失败前不会写入，复制过程中写入失败时可能保留已复制的部分数据。
 
-## 支付专用能力
+## Response
 
-- 微信支付 `downloadBill()`：先验签账单地址响应，再限制为 HTTPS 且禁止重定向地下载文件。
-- 微信支付 `post('decrypt_notification', ...)`：使用原始 body 验签、检查时间窗口并解密通知 resource。
-- 支付宝 `auth()`：生成网页授权地址。
-- 支付宝 `decrypt()`：校验 16 字节 key/IV，解密 Base64 编码的 AES-128-CBC 数据并解析 JSON。
-- 支付宝支付 `page()`：生成电脑网站支付跳转 URL。
-- 支付宝支付 `refund()`：调用 `alipay.trade.refund`。
-- 支付宝 `verifyNotify()`：验证异步通知参数签名，不代替金额、商户身份和幂等校验。
+`We\Common\Response` 只表示已完成通道协议校验的响应。通道自动识别 JSON、XML、空响应和原始字节：
 
-支付调用必须同时遵循[配置与凭证](configuration.md)、[微信支付](payments.md)或[支付宝](alipay.md)中的信任材料和验签要求。
-
-## 扩展契约与适配器
-
-| 类型 | 接入目的 |
+| 方法 | 返回与失败语义 |
 | --- | --- |
-| `ConfigInterface` | 统一配置对象的 `fromArray()` 和 `validate()` 行为 |
-| `StoreCacheInterface` | 提供 token 的 TTL、删除和刷新互斥 |
-| `StoreTokenInterface` | 读取服务平台授权方 refresh token，并保存刷新后的完整 token payload |
-| `FileCacheStore` | 单机文件缓存和进程锁 |
-| `PsrSimpleCacheStore` | 把 PSR-16 缓存和业务提供的分布式锁适配为 SDK 缓存契约 |
-| `NullCacheStore` | 测试或明确禁用缓存，不提供互斥能力 |
+| `json()` | 返回任意 JSON 解析值；非 JSON 响应抛出 `ProtocolException` |
+| `xml()` | 返回保留重复节点的数组；非 XML 响应抛出 `ProtocolException` |
+| `raw()` | 返回原始字节；可回绕流会恢复读取位置 |
+| `body()` | 返回 PSR-7 流；原始字节临时流由调用方关闭，下载响应返回调用方提供的目标流 |
+| `channel()` | 稳定平台通道标识 |
+| `status()` | 平台原始 HTTP 状态码 |
+| `headers()`、`header(string $name)` | 全部响应头或不区分大小写的单个响应头 |
+| `requestId()` | 平台请求 ID，缺失时为 `null` |
+| `keyId()` | 验签使用的序列号或密钥 ID，未验签时为 `null` |
+| `bytesWritten()` | 下载写入字节数，非下载响应为 `null` |
+| `digest()` | 下载摘要，未要求摘要校验时为 `null` |
 
-缓存实现要求见[缓存](cache.md)，配置字段要求见[配置与凭证](configuration.md)。所有 SDK 故障类型和捕获策略见[异常](exceptions.md)。
+支付通道的 `raw()` 与 `body()` 不能绕过响应验签。支付宝支付 v2 只有显式 `rawMedia()` 请求可以采用官方未签名媒体规则。
+
+### 派生资源
+
+`resource(string $urlField, ?string $digestField = null, string $digestAlgorithm = 'sha256')` 从 JSON 顶级字段创建匿名派生资源；`signedResource()` 使用相同参数创建需要来源通道重新签名的资源。
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use GuzzleHttp\Psr7\Utils;
+use We\Common\Request;
+
+$resource = $response->signedResource('download_url', 'hash_value');
+$download = $client->call(
+    Request::get($resource)->downloadTo(Utils::streamFor('')),
+);
+```
+
+普通微信通道只接受匿名派生资源，微信支付和支付宝 REST 同时支持匿名与重新签名资源，支付宝 Gateway 不接受派生资源。资源绑定来源通道并强制 HTTPS；微信支付和支付宝 REST 显式拒绝额外查询参数，普通微信通道只发送资源自身 URL。派生资源不能切换到业务调用身份。
+
+## 扩展接口
+
+| 契约 | 实现责任 | 内置实现 |
+| --- | --- | --- |
+| `We\Common\Transport\HttpTransportInterface` | 按原样同步发送一次最终 PSR-7 请求，不跟随重定向 | `We\Common\Transport\GuzzleTransport` |
+| `We\Common\Provider\SigningKeyProviderInterface` | 返回密钥 ID，并对原始报文字节生成 Base64 RSA 签名 | `We\Common\Provider\PemSigningKeyProvider` |
+| `We\Common\Provider\TrustMaterialProviderInterface` | 按通道和密钥 ID 返回 PEM 验签公钥 | `We\Common\Provider\StaticTrustMaterialProvider` |
+| `We\Common\Protocol\ExternalResourcePolicyInterface` | 在派生资源发送前校验网络目标 | `We\Common\Protocol\PublicNetworkResourcePolicy` |
+| `We\Wechat\Common\StoreCacheInterface` | 保存微信 Token、TTL，并提供刷新互斥 | `We\Wechat\Common\FileCacheStore`、`We\Wechat\Common\PsrSimpleCacheStore`、`We\Wechat\Common\NullCacheStore` |
+| `We\Wechat\WxOpen\StoreTokenInterface` | 读取 refresh Token，并持久化验证后的授权方刷新响应 | 无默认持久化实现 |
+| `We\Wechat\WxOpen\ComponentTicketProviderInterface` | 返回当前有效的 `component_verify_ticket` | `We\Wechat\WxOpen\StaticComponentTicketProvider` |
+| `We\Alipay\Common\TokenProviderInterface` | 按身份类型和凭证 ID 返回当前有效 Token | `We\Alipay\Common\StaticTokenProvider` |
+
+Provider 返回空值、未知密钥 ID 或缺失部署依赖时必须失败关闭。公共请求不接受 Guzzle 选项，业务 API 不增加具名方法。

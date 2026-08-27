@@ -1,72 +1,50 @@
 # 异常
 
-2.0 使用 `We\Exception\SdkException` 作为所有 SDK 故障的统一基类，同时保留平台和故障类别。
+运行时 SDK 异常统一位于 `We\Common\Exception`，并按失败阶段分类：
 
 ```text
-RuntimeException
-└── SdkException
-    ├── TransportException
-    ├── WechatException
-    │   ├── ApiException
-    │   └── SignatureException
-    └── AlipayException
-        ├── AlipayApiException
-        └── AlipaySignatureException
+SdkException
+├── ConfigurationException
+├── InvalidCallException
+├── TransportException
+├── ProtocolException
+│   └── SignatureException
+├── PlatformException
+└── StreamException
 ```
 
-| 类型 | 典型场景 |
-|------|----------|
-| `SdkException` | 根客户端、缓存适配或通用 SDK 配置错误 |
-| `TransportException` | 与微信或支付宝建立连接、发送请求或下载文件失败 |
-| `WechatException` | 微信配置、协议、加解密或请求故障 |
-| `ApiException` | 微信平台/支付 API 返回错误或无效响应 |
-| `SignatureException` | 微信消息、支付响应或通知验签失败 |
-| `AlipayException` | 支付宝配置、密钥、签名或解密故障 |
-| `AlipayApiException` | 支付宝网关响应结构或业务错误 |
-| `AlipaySignatureException` | 支付宝同步响应缺少签名或验签失败 |
-
-## 统一捕获
+| 异常 | 含义 |
+| --- | --- |
+| `ConfigurationException` | 配置、凭证、Provider 或端点无效 |
+| `InvalidCallException` | 目标、请求体、身份、保留请求头或资源组合无效，尚未发生 I/O |
+| `TransportException` | DNS、TLS、连接或超时失败 |
+| `ProtocolException` | 编码、JSON/XML 解析或响应结构无效 |
+| `SignatureException` | 请求签名无法生成，或无法建立平台响应信任 |
+| `PlatformException` | 可信平台响应拒绝调用 |
+| `StreamException` | 暂存、上限、摘要或目标流失败 |
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use We\Exception\SdkException;
+use We\Common\Exception\PlatformException;
+use We\Common\Exception\SignatureException;
+use We\Common\Exception\TransportException;
 
 try {
-    $result = $platform->get('cgi-bin/user/get');
-} catch (SdkException $exception) {
-    logger()->error($exception->getMessage(), [
-        'exception' => $exception,
-    ]);
-}
-```
-
-## 精确捕获和上下文
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use We\Exception\AlipayApiException;
-use We\Exception\AlipaySignatureException;
-use We\Exception\TransportException;
-
-try {
-    $result = $alipay->post('alipay.trade.query', [
-        'out_trade_no' => 'A202608100001',
-    ]);
-} catch (AlipaySignatureException $exception) {
-    security_log($exception->getMessage(), $exception->context());
-} catch (AlipayApiException $exception) {
-    application_log($exception->getMessage(), $exception->context());
+    $data = $client->call($request)->json();
+} catch (SignatureException $exception) {
+    security_log($exception->channel(), $exception->requestId());
 } catch (TransportException $exception) {
-    retryable_log($exception->getMessage(), $exception->context());
+    retryable_log($exception->context());
+} catch (PlatformException $exception) {
+    platform_log($exception->platformCode(), $exception->context());
 }
 ```
 
-异常的 `context()` 返回平台响应、签名序列号或其他诊断数据。不要把可能含敏感信息的完整上下文直接写入公开日志。
+`SdkException` 提供 `channel()`、`requestId()`、`platformCode()` 和脱敏 `context()`。诊断上下文不包含私钥、完整 Token、签名材料、文件内容或完整业务请求体。
 
-PHP 原生参数类型错误、调用不存在的方法等编程错误不包装为 `SdkException`；这类错误应在开发和静态分析阶段修复。
+`TransportException` 只表示本次调用的传输失败，不代表请求一定没有到达平台。SDK 不自动重放；调用方必须依据业务幂等性和平台查询结果决定是否重试。`PlatformException` 表示已经识别到可信平台拒绝，不应按网络故障盲目重试。
+
+原生 `TypeError` 和调用不存在的方法属于编程错误，不包装为运行时 SDK 异常。
