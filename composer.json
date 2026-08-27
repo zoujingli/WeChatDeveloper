@@ -1,6 +1,6 @@
 {
   "name": "zoujingli/wechat-developer",
-  "description": "Multi-platform developer SDK for WeChat and Alipay.",
+  "description": "微信与支付宝平台 API 的类型化 PHP 调用层。",
   "type": "library",
   "license": "MIT",
   "homepage": "https://github.com/zoujingli/WeChatDeveloper",
@@ -17,12 +17,17 @@
       "email": "zoujingli@qq.com"
     }
   ],
+  "support": {
+    "issues": "https://github.com/zoujingli/WeChatDeveloper/issues",
+    "source": "https://github.com/zoujingli/WeChatDeveloper"
+  },
   "require": {
     "php": ">=8.1",
     "ext-json": "*",
     "ext-openssl": "*",
     "ext-simplexml": "*",
     "guzzlehttp/guzzle": "^7.15.3",
+    "psr/http-message": "^1.1 || ^2.0",
     "psr/simple-cache": "^3.0"
   },
   "require-dev": {
