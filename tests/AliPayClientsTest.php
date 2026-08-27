@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response as PsrResponse;
 use PHPUnit\Framework\TestCase;
 use We\Alipay\Common\StaticTokenProvider;
 use We\Alipay\Common\TokenKind;
+use We\Alipay\Common\TokenProviderInterface;
 use We\AliPayClient;
 use We\AliRestClient;
 use We\Common\Exception\InvalidCallException;
@@ -133,6 +134,41 @@ final class AliPayClientsTest extends TestCase
         } catch (InvalidCallException) {
             self::assertSame([], $restTransport->requests);
         }
+    }
+
+    public function testInvalidCallsFailBeforeTokenProviderLookup(): void
+    {
+        $tokens = new class implements TokenProviderInterface {
+            public int $calls = 0;
+
+            public function token(TokenKind $kind, string $credentialId): string
+            {
+                ++$this->calls;
+
+                return 'TOKEN';
+            }
+        };
+        $runtime = new Runtime(transport: $transport = new RecordingTransport(), tokens: $tokens);
+
+        foreach ([
+            static fn () => AliPayClient::mk(ProtocolFixtures::aliPayConfig(), $runtime)->call(
+                Request::post('alipay.trade.query')->raw('invalid')->asAlipayUser('user-1'),
+            ),
+            static fn () => AliRestClient::mk(ProtocolFixtures::aliRestConfig(), $runtime)->call(
+                Request::post('v3/example/upload')->multipart(
+                    new MultipartPart('invalid', 'value'),
+                )->asAlipayApp('app-1'),
+            ),
+        ] as $call) {
+            try {
+                $call();
+                self::fail('预期无效调用在读取 Token 前被拒绝');
+            } catch (InvalidCallException) {
+            }
+        }
+
+        self::assertSame(0, $tokens->calls);
+        self::assertSame([], $transport->requests);
     }
 
     public function testRestSignsUriBodyAndAppIdentity(): void

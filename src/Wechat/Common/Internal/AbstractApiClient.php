@@ -10,8 +10,8 @@ use Psr\Http\Message\ResponseInterface;
 use We\Common\AbstractClient;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
+use We\Common\Internal\RequestState;
 use We\Common\Protocol\ExternalResourcePolicyInterface;
-use We\Common\Request;
 use We\Common\Resource;
 use We\Common\Transport\EncodedBody;
 use We\Common\Transport\HttpTransportInterface;
@@ -36,7 +36,7 @@ abstract class AbstractApiClient extends AbstractClient
         parent::__construct($transport, $spooler, resourcePolicy: $resourcePolicy);
     }
 
-    protected function buildRequest(Request $request, EncodedBody $body): RequestInterface
+    protected function validateRequest(RequestState $request): void
     {
         if ($request->rawMedia) {
             throw new InvalidCallException('`rawMedia()` 仅适用于支付宝 v2 Gateway', channel: $this->channel());
@@ -48,17 +48,43 @@ abstract class AbstractApiClient extends AbstractClient
             throw new InvalidCallException('`access_token` 必须由调用身份解析', channel: $this->channel());
         }
         if ($request->target instanceof Resource) {
-            if (!in_array($request->identity, [Request::IDENTITY_DEFAULT, Request::IDENTITY_ANONYMOUS], true)) {
+            if (!in_array($request->identity, [RequestState::IDENTITY_DEFAULT, RequestState::IDENTITY_ANONYMOUS], true)) {
                 throw new InvalidCallException('微信派生资源不能使用业务调用身份', channel: $this->channel());
             }
             $this->assertResource($request->target);
 
+            return;
+        }
+        $this->validateIdentity($request);
+    }
+
+    protected function validateIdentity(RequestState $request): void
+    {
+        if (!in_array($request->identity, [RequestState::IDENTITY_DEFAULT, RequestState::IDENTITY_ANONYMOUS], true)) {
+            throw new InvalidCallException('当前微信通道不支持该调用身份', channel: $this->channel());
+        }
+    }
+
+    /** @return array<string,string> */
+    protected function resolveCredentials(RequestState $request): array
+    {
+        if ($request->target instanceof Resource) {
+            return [];
+        }
+        $token = $this->identityToken($request);
+
+        return $token === null ? [] : ['access_token' => $token];
+    }
+
+    /** @param array<string,string> $credentials */
+    protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface
+    {
+        if ($request->target instanceof Resource) {
             return $this->httpRequest($request, new Uri($request->target->url), $body);
         }
         $query = $request->query;
-        $token = $this->identityToken($request);
-        if ($token !== null) {
-            $query[] = ['access_token', $token];
+        if (isset($credentials['access_token'])) {
+            $query[] = ['access_token', $credentials['access_token']];
         }
 
         return $this->httpRequest(
@@ -69,16 +95,16 @@ abstract class AbstractApiClient extends AbstractClient
         );
     }
 
-    protected function identityToken(Request $request): ?string
+    protected function identityToken(RequestState $request): ?string
     {
         return match ($request->identity) {
-            Request::IDENTITY_ANONYMOUS => null,
-            Request::IDENTITY_DEFAULT => ($this->defaultToken)(),
+            RequestState::IDENTITY_ANONYMOUS => null,
+            RequestState::IDENTITY_DEFAULT => ($this->defaultToken)(),
             default => throw new InvalidCallException('当前微信通道不支持该调用身份', channel: $this->channel()),
         };
     }
 
-    protected function assertJsonSuccess(Request $request, ResponseInterface $response, mixed $value): void
+    protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
     {
         if (is_array($value) && (int)($value['errcode'] ?? 0) !== 0) {
             $code = (int)$value['errcode'];

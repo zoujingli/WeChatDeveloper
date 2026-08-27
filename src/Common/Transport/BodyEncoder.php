@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\StreamInterface;
 use We\Common\Exception\ProtocolException;
-use We\Common\Request;
+use We\Common\Internal\RequestState;
 
 /**
  * 将 `Request` 的唯一请求体编码为最终报文流。
@@ -17,19 +17,19 @@ use We\Common\Request;
  */
 final class BodyEncoder
 {
-    public function encode(Request $request): EncodedBody
+    public function encode(RequestState $request): EncodedBody
     {
         return match ($request->bodyType) {
-            Request::BODY_EMPTY => new EncodedBody(Utils::streamFor(''), null, 0),
-            Request::BODY_JSON => $this->json($request->body),
-            Request::BODY_FORM => $this->form($request->body),
-            Request::BODY_RAW => new EncodedBody(
+            RequestState::BODY_EMPTY => new EncodedBody(Utils::streamFor(''), null, 0),
+            RequestState::BODY_JSON => $this->json($request->body),
+            RequestState::BODY_FORM => $this->form($request->body),
+            RequestState::BODY_RAW => new EncodedBody(
                 Utils::streamFor(is_string($request->body) ? $request->body : ''),
                 $request->mediaType,
                 $request->bodyLength,
             ),
-            Request::BODY_STREAM => $this->stream($request),
-            Request::BODY_MULTIPART => $this->multipart($request),
+            RequestState::BODY_STREAM => $this->stream($request),
+            RequestState::BODY_MULTIPART => $this->multipart($request),
             default => throw new ProtocolException('不支持的请求体类型 `' . $request->bodyType . '`'),
         };
     }
@@ -60,7 +60,7 @@ final class BodyEncoder
         return new EncodedBody(Utils::streamFor($contents), 'application/x-www-form-urlencoded', strlen($contents));
     }
 
-    private function multipart(Request $request): EncodedBody
+    private function multipart(RequestState $request): EncodedBody
     {
         $elements = [];
         foreach ($request->parts as $part) {
@@ -80,7 +80,7 @@ final class BodyEncoder
         return new EncodedBody($stream, 'multipart/form-data; boundary=' . $stream->getBoundary(), $stream->getSize());
     }
 
-    private function stream(Request $request): EncodedBody
+    private function stream(RequestState $request): EncodedBody
     {
         if (!$request->body instanceof StreamInterface) {
             throw new ProtocolException('流请求体结构无效');

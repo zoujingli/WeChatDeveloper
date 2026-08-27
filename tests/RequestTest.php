@@ -13,8 +13,10 @@ use We\Common\Exception\ConfigurationException;
 use We\Common\Exception\InvalidCallException;
 use We\Common\MultipartPart;
 use We\Common\Request;
-use We\Common\Transport\BodyEncoder;
+use We\Common\Runtime;
+use We\Wechat\WeChatConfig;
 use We\Wechat\WxPayConfig;
+use We\WeChatClient;
 
 /**
  * 请求、配置和请求体编码契约测试。
@@ -29,13 +31,20 @@ final class RequestTest extends TestCase
         $original = Request::get('cgi-bin/example');
         $changed = $original
             ->query([['tag', 'a'], ['tag', 'b']])
-            ->headers(['X-Trace-Id' => 'trace'])
-            ->rawMedia();
+            ->headers(['X-Trace-Id' => 'trace']);
+        $transport = new RecordingTransport();
+        $client = WeChatClient::mk(
+            new WeChatConfig('wx_app', 'secret'),
+            new Runtime(transport: $transport),
+        );
+
+        $client->call($original->anonymous());
+        $client->call($changed->anonymous());
 
         self::assertNotSame($original, $changed);
-        self::assertSame([], $original->query);
-        self::assertSame([['tag', 'a'], ['tag', 'b']], $changed->query);
-        self::assertTrue($changed->hasHeader('x-trace-id'));
+        self::assertSame('', $transport->requests[0]->getUri()->getQuery());
+        self::assertSame('tag=a&tag=b', $transport->requests[1]->getUri()->getQuery());
+        self::assertSame('trace', $transport->requests[1]->getHeaderLine('X-Trace-Id'));
     }
 
     public function testTargetRejectsAbsoluteOrAmbiguousValues(): void
@@ -48,8 +57,14 @@ final class RequestTest extends TestCase
             }
         }
 
-        self::assertSame('alipay.trade.query', Request::post('alipay.trade.query')->target);
-        self::assertSame('v3/payments/1', Request::get('/v3/payments/1')->target);
+        self::assertInstanceOf(Request::class, Request::post('alipay.trade.query'));
+        $transport = new RecordingTransport();
+        $client = WeChatClient::mk(
+            new WeChatConfig('wx_app', 'secret'),
+            new Runtime(transport: $transport),
+        );
+        $client->call(Request::get('/v3/payments/1')->anonymous());
+        self::assertSame('/v3/payments/1', $transport->requests[0]->getUri()->getPath());
     }
 
     public function testHeadersRejectInjection(): void
@@ -106,16 +121,22 @@ final class RequestTest extends TestCase
                 new MultipartPart('file', Utils::streamFor('FILE'), 'demo.jpg', 'image/jpeg'),
             ),
         ];
-        $encoder = new BodyEncoder();
-        $encoded = array_map($encoder->encode(...), $requests);
+        $transport = new RecordingTransport();
+        $client = WeChatClient::mk(
+            new WeChatConfig('wx_app', 'secret'),
+            new Runtime(transport: $transport),
+        );
+        foreach ($requests as $request) {
+            $client->call($request->anonymous());
+        }
 
-        self::assertSame('', (string)$encoded[0]->stream);
-        self::assertSame('{"ok":true}', (string)$encoded[1]->stream);
-        self::assertSame('tag=a&tag=b', (string)$encoded[2]->stream);
-        self::assertSame('RAW', (string)$encoded[3]->stream);
-        self::assertSame('STREAM', $encoded[4]->stream->getContents());
-        self::assertSame(6, $encoded[4]->contentLength);
-        self::assertStringContainsString('filename="demo.jpg"', (string)$encoded[5]->stream);
+        self::assertSame('', (string)$transport->requests[0]->getBody());
+        self::assertSame('{"ok":true}', (string)$transport->requests[1]->getBody());
+        self::assertSame('tag=a&tag=b', (string)$transport->requests[2]->getBody());
+        self::assertSame('RAW', (string)$transport->requests[3]->getBody());
+        self::assertSame('STREAM', $transport->requests[4]->getBody()->getContents());
+        self::assertSame('6', $transport->requests[4]->getHeaderLine('Content-Length'));
+        self::assertStringContainsString('filename="demo.jpg"', (string)$transport->requests[5]->getBody());
     }
 
     public function testEndpointAndArrayConfigsFailClosed(): void

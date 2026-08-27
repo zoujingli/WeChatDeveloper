@@ -64,6 +64,7 @@ final class DocumentationTest extends TestCase
     /** @var list<string> */
     private const COMMON_INTERNAL_TYPES = [
         'src/Common/AbstractClient.php',
+        'src/Common/Internal/RequestState.php',
         'src/Common/Support/ConfigValue.php',
         'src/Common/Support/CredentialValidator.php',
         'src/Common/Support/XmlCodec.php',
@@ -329,6 +330,7 @@ final class DocumentationTest extends TestCase
             'Common/Config',
             'Common/Contract',
             'Common/Exception',
+            'Common/Internal',
             'Common/Protocol',
             'Common/Provider',
             'Common/Support',

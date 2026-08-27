@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace We;
 
-use We\Common\Request;
+use We\Common\Internal\RequestState;
 use We\Common\Runtime;
 use We\Wechat\Common\Internal\AbstractApiClient;
 use We\Wechat\WxOpen\Internal\WxOpenTokenManager;
@@ -50,12 +50,20 @@ final class WxOpenClient extends AbstractApiClient
         return self::NAME;
     }
 
-    protected function identityToken(Request $request): ?string
+    protected function validateIdentity(RequestState $request): void
     {
-        if ($request->identity === Request::IDENTITY_WECHAT_AUTHORIZER && $request->credentialId !== null) {
+        if ($request->identity === RequestState::IDENTITY_WECHAT_AUTHORIZER && $request->credentialId !== null) {
+            return;
+        }
+        parent::validateIdentity($request);
+    }
+
+    protected function identityToken(RequestState $request): ?string
+    {
+        if ($request->identity === RequestState::IDENTITY_WECHAT_AUTHORIZER && $request->credentialId !== null) {
             return $this->tokens->authorizerToken($request->credentialId);
         }
-        if ($request->identity === Request::IDENTITY_DEFAULT) {
+        if ($request->identity === RequestState::IDENTITY_DEFAULT) {
             return $this->tokens->componentToken();
         }
 

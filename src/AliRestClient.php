@@ -14,7 +14,7 @@ use We\Common\AbstractClient;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
-use We\Common\Request;
+use We\Common\Internal\RequestState;
 use We\Common\Resource;
 use We\Common\Runtime;
 use We\Common\Support\CredentialValidator;
@@ -47,7 +47,7 @@ final class AliRestClient extends AbstractClient
         return self::NAME;
     }
 
-    protected function buildRequest(Request $request, EncodedBody $body): RequestInterface
+    protected function validateRequest(RequestState $request): void
     {
         if ($request->rawMedia) {
             throw new InvalidCallException('`rawMedia()` 仅适用于支付宝 v2 Gateway', channel: self::NAME);
@@ -58,27 +58,57 @@ final class AliRestClient extends AbstractClient
         if ($request->hasQuery('auth_token')) {
             throw new InvalidCallException('`auth_token` 必须由调用身份解析', channel: self::NAME);
         }
+        if (!in_array($request->identity, [
+            RequestState::IDENTITY_DEFAULT,
+            RequestState::IDENTITY_ANONYMOUS,
+            RequestState::IDENTITY_ALIPAY_USER,
+            RequestState::IDENTITY_ALIPAY_APP,
+        ], true)) {
+            throw new InvalidCallException('支付宝 v3 通道不支持该调用身份', channel: self::NAME);
+        }
+        if ($request->target instanceof Resource) {
+            if ($request->identity !== RequestState::IDENTITY_DEFAULT) {
+                throw new InvalidCallException('支付宝派生资源只使用来源通道默认身份', channel: self::NAME);
+            }
+            $this->assertResource($request->target);
+            if ($request->query !== []) {
+                throw new InvalidCallException('派生资源 URL 不接受额外查询参数', channel: self::NAME);
+            }
+        }
+        if ($request->bodyType === RequestState::BODY_MULTIPART) {
+            $this->multipartData($request);
+        }
+    }
+
+    /** @return array<string,string> */
+    protected function resolveCredentials(RequestState $request): array
+    {
+        if ($request->identity === RequestState::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
+            return ['auth_token' => $this->tokens->token(TokenKind::AlipayUser, $request->credentialId)];
+        }
+        if ($request->identity === RequestState::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
+            return ['app_auth_token' => $this->tokens->token(TokenKind::AlipayApp, $request->credentialId)];
+        }
+
+        return [];
+    }
+
+    /** @param array<string,string> $credentials */
+    protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface
+    {
         $query = $request->query;
         $headers = ['Accept' => 'application/json'];
-        if ($request->identity === Request::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
-            $query[] = ['auth_token', $this->tokens->token(TokenKind::AlipayUser, $request->credentialId)];
-        } elseif ($request->identity === Request::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
-            $headers['alipay-app-auth-token'] = $this->tokens->token(TokenKind::AlipayApp, $request->credentialId);
-        } elseif (!in_array($request->identity, [Request::IDENTITY_DEFAULT, Request::IDENTITY_ANONYMOUS], true)) {
-            throw new InvalidCallException('支付宝 v3 通道不支持该调用身份', channel: self::NAME);
+        if (isset($credentials['auth_token'])) {
+            $query[] = ['auth_token', $credentials['auth_token']];
+        }
+        if (isset($credentials['app_auth_token'])) {
+            $headers['alipay-app-auth-token'] = $credentials['app_auth_token'];
         }
 
         if (is_string($request->target)) {
             $uri = UriBuilder::build($this->config->endpoint->baseUri, $request->target, $query);
             $signed = true;
         } else {
-            if ($request->identity !== Request::IDENTITY_DEFAULT) {
-                throw new InvalidCallException('支付宝派生资源只使用来源通道默认身份', channel: self::NAME);
-            }
-            $this->assertResource($request->target);
-            if ($query !== []) {
-                throw new InvalidCallException('派生资源 URL 不接受额外查询参数', channel: self::NAME);
-            }
             $uri = new Uri($request->target->url);
             $signed = $request->target->signed;
         }
@@ -104,7 +134,7 @@ final class AliRestClient extends AbstractClient
         return $this->httpRequest($request, $uri, $body, $headers);
     }
 
-    protected function verifyResponse(Request $request, ResponseInterface $response, ?string $body): void
+    protected function verifyResponse(RequestState $request, ResponseInterface $response, ?string $body): void
     {
         if ($request->target instanceof Resource) {
             return;
@@ -131,7 +161,7 @@ final class AliRestClient extends AbstractClient
         }
     }
 
-    protected function assertJsonSuccess(Request $request, ResponseInterface $response, mixed $value): void
+    protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
     {
         if ($response->getStatusCode() >= 400) {
             $data = is_array($value) ? $value : [];
@@ -168,12 +198,17 @@ final class AliRestClient extends AbstractClient
     }
 
     /** @return array{0:string,1:EncodedBody} */
-    private function signingBody(Request $request, EncodedBody $body): array
+    private function signingBody(RequestState $request, EncodedBody $body): array
     {
-        if ($request->bodyType !== Request::BODY_MULTIPART) {
+        if ($request->bodyType !== RequestState::BODY_MULTIPART) {
             return $this->signableBody($request, $body);
         }
 
+        return [$this->multipartData($request), $body];
+    }
+
+    private function multipartData(RequestState $request): string
+    {
         $data = '';
         $found = false;
         foreach ($request->parts as $part) {
@@ -190,7 +225,7 @@ final class AliRestClient extends AbstractClient
             $found = true;
         }
 
-        return [$data, $body];
+        return $data;
     }
 
     private function assertResource(Resource $resource): void

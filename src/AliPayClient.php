@@ -16,8 +16,8 @@ use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
 use We\Common\Exception\SignatureException;
+use We\Common\Internal\RequestState;
 use We\Common\MultipartPart;
-use We\Common\Request;
 use We\Common\Runtime;
 use We\Common\Support\CredentialValidator;
 use We\Common\Support\XmlCodec;
@@ -50,7 +50,7 @@ final class AliPayClient extends AbstractClient
         return self::NAME;
     }
 
-    protected function buildRequest(Request $request, EncodedBody $body): RequestInterface
+    protected function validateRequest(RequestState $request): void
     {
         if ($request->sensitiveKeyId !== null) {
             throw new InvalidCallException('`sensitiveKey()` 仅适用于微信支付', channel: self::NAME);
@@ -61,7 +61,34 @@ final class AliPayClient extends AbstractClient
         if (!in_array($request->method, ['GET', 'POST'], true)) {
             throw new InvalidCallException('支付宝 v2 Gateway 只支持 GET 或 POST', channel: self::NAME);
         }
-        $params = $this->gatewayParameters($request);
+        if (!in_array($request->identity, [
+            RequestState::IDENTITY_DEFAULT,
+            RequestState::IDENTITY_ANONYMOUS,
+            RequestState::IDENTITY_ALIPAY_USER,
+            RequestState::IDENTITY_ALIPAY_APP,
+        ], true)) {
+            throw new InvalidCallException('支付宝 v2 通道不支持该调用身份', channel: self::NAME);
+        }
+        $this->assertBusinessPayload($request);
+    }
+
+    /** @return array<string,string> */
+    protected function resolveCredentials(RequestState $request): array
+    {
+        if ($request->identity === RequestState::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
+            return ['auth_token' => $this->tokens->token(TokenKind::AlipayUser, $request->credentialId)];
+        }
+        if ($request->identity === RequestState::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
+            return ['app_auth_token' => $this->tokens->token(TokenKind::AlipayApp, $request->credentialId)];
+        }
+
+        return [];
+    }
+
+    /** @param array<string,string> $credentials */
+    protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface
+    {
+        $params = $this->gatewayParameters($request, $credentials);
         ksort($params);
         $signContent = [];
         foreach ($params as $name => $value) {
@@ -80,7 +107,7 @@ final class AliPayClient extends AbstractClient
         }
 
         $uri = new Uri($this->config->endpoint->baseUri);
-        if ($request->bodyType === Request::BODY_MULTIPART) {
+        if ($request->bodyType === RequestState::BODY_MULTIPART) {
             $parts = [];
             foreach ($params as $name => $value) {
                 $parts[] = new MultipartPart($name, $value);
@@ -90,15 +117,29 @@ final class AliPayClient extends AbstractClient
                     $parts[] = $part;
                 }
             }
-            $encoded = (new BodyEncoder())->encode(Request::post($request->target)->multipart(...$parts));
+            $encoded = (new BodyEncoder())->encode(new RequestState(
+                'POST',
+                $request->target,
+                bodyType: RequestState::BODY_MULTIPART,
+                parts: $parts,
+            ));
         } else {
-            $encoded = (new BodyEncoder())->encode(Request::post($request->target)->form($params));
+            $fields = [];
+            foreach ($params as $name => $value) {
+                $fields[] = [$name, $value];
+            }
+            $encoded = (new BodyEncoder())->encode(new RequestState(
+                'POST',
+                $request->target,
+                bodyType: RequestState::BODY_FORM,
+                body: $fields,
+            ));
         }
 
         return $this->httpRequest($request, $uri, $encoded, ['Accept' => 'application/json, application/xml']);
     }
 
-    protected function verifyResponse(Request $request, ResponseInterface $response, ?string $body): void
+    protected function verifyResponse(RequestState $request, ResponseInterface $response, ?string $body): void
     {
         if ($request->rawMedia) {
             return;
@@ -155,7 +196,7 @@ final class AliPayClient extends AbstractClient
         }
     }
 
-    protected function normalizeJson(Request $request, ResponseInterface $response, mixed $value): mixed
+    protected function normalizeJson(RequestState $request, ResponseInterface $response, mixed $value): mixed
     {
         if (!is_array($value) || !is_string($request->target)) {
             throw new ProtocolException('支付宝 v2 JSON 响应结构无效', channel: self::NAME);
@@ -172,7 +213,7 @@ final class AliPayClient extends AbstractClient
     }
 
     /** @param array<string,mixed> $value @return array<string,mixed> */
-    protected function normalizeXml(Request $request, ResponseInterface $response, array $value): array
+    protected function normalizeXml(RequestState $request, ResponseInterface $response, array $value): array
     {
         $node = $this->responseNode($request, $value);
         $data = $value[$node] ?? null;
@@ -183,19 +224,19 @@ final class AliPayClient extends AbstractClient
         return $data;
     }
 
-    protected function assertJsonSuccess(Request $request, ResponseInterface $response, mixed $value): void
+    protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
     {
         $this->assertGatewaySuccess($response, $value);
     }
 
     /** @param array<string,mixed> $value */
-    protected function assertXmlSuccess(Request $request, ResponseInterface $response, array $value): void
+    protected function assertXmlSuccess(RequestState $request, ResponseInterface $response, array $value): void
     {
         $this->assertGatewaySuccess($response, $value);
     }
 
     /** @return array<string,string> */
-    private function gatewayParameters(Request $request): array
+    private function gatewayParameters(RequestState $request, array $credentials): array
     {
         $params = [
             'app_id' => $this->config->appid,
@@ -212,41 +253,52 @@ final class AliPayClient extends AbstractClient
         if ($this->config->alipayRootCertificateSerial !== '') {
             $params['alipay_root_cert_sn'] = $this->config->alipayRootCertificateSerial;
         }
-        if ($request->identity === Request::IDENTITY_ALIPAY_USER && $request->credentialId !== null) {
-            $params['auth_token'] = $this->tokens->token(TokenKind::AlipayUser, $request->credentialId);
-        } elseif ($request->identity === Request::IDENTITY_ALIPAY_APP && $request->credentialId !== null) {
-            $params['app_auth_token'] = $this->tokens->token(TokenKind::AlipayApp, $request->credentialId);
-        } elseif (!in_array($request->identity, [Request::IDENTITY_DEFAULT, Request::IDENTITY_ANONYMOUS], true)) {
-            throw new InvalidCallException('支付宝 v2 通道不支持该调用身份', channel: self::NAME);
+        foreach ($credentials as $name => $value) {
+            $params[$name] = $value;
         }
 
-        if ($request->bodyType === Request::BODY_JSON) {
+        if ($request->bodyType === RequestState::BODY_JSON) {
             try {
                 $params['biz_content'] = json_encode($request->body, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             } catch (\JsonException $exception) {
                 throw new ProtocolException('支付宝 `biz_content` JSON 编码失败', 0, $exception, channel: self::NAME);
             }
-        } elseif ($request->bodyType === Request::BODY_FORM && is_array($request->body)) {
+        } elseif ($request->bodyType === RequestState::BODY_FORM && is_array($request->body)) {
             foreach ($request->body as [$name, $value]) {
-                $this->assertBusinessParameter($name);
                 $params[$name] = $value;
             }
-        } elseif ($request->bodyType === Request::BODY_MULTIPART) {
+        } elseif ($request->bodyType === RequestState::BODY_MULTIPART) {
             foreach ($request->parts as $part) {
                 if (is_string($part->contents) && $part->filename === null) {
-                    $this->assertBusinessParameter($part->name);
                     $params[$part->name] = $part->contents;
                 }
             }
-        } elseif ($request->bodyType !== Request::BODY_EMPTY) {
-            throw new InvalidCallException('支付宝 v2 仅支持 JSON、表单、`multipart` 或空请求体', channel: self::NAME);
         }
         foreach ($request->query as [$name, $value]) {
-            $this->assertBusinessParameter($name);
             $params[$name] = $value;
         }
 
         return $params;
+    }
+
+    private function assertBusinessPayload(RequestState $request): void
+    {
+        if ($request->bodyType === RequestState::BODY_FORM && is_array($request->body)) {
+            foreach ($request->body as [$name]) {
+                $this->assertBusinessParameter($name);
+            }
+        } elseif ($request->bodyType === RequestState::BODY_MULTIPART) {
+            foreach ($request->parts as $part) {
+                if (is_string($part->contents) && $part->filename === null) {
+                    $this->assertBusinessParameter($part->name);
+                }
+            }
+        } elseif (!in_array($request->bodyType, [RequestState::BODY_EMPTY, RequestState::BODY_JSON], true)) {
+            throw new InvalidCallException('支付宝 v2 仅支持 JSON、表单、`multipart` 或空请求体', channel: self::NAME);
+        }
+        foreach ($request->query as [$name]) {
+            $this->assertBusinessParameter($name);
+        }
     }
 
     private function assertBusinessParameter(string $name): void
@@ -317,7 +369,7 @@ final class AliPayClient extends AbstractClient
     }
 
     /** @param array<string,mixed> $value */
-    private function responseNode(Request $request, array $value): string
+    private function responseNode(RequestState $request, array $value): string
     {
         if (array_key_exists('error_response', $value)) {
             return 'error_response';

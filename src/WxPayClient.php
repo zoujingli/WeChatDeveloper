@@ -11,7 +11,7 @@ use We\Common\AbstractClient;
 use We\Common\Exception\InvalidCallException;
 use We\Common\Exception\PlatformException;
 use We\Common\Exception\SignatureException;
-use We\Common\Request;
+use We\Common\Internal\RequestState;
 use We\Common\Resource;
 use We\Common\Runtime;
 use We\Common\Support\CredentialValidator;
@@ -42,22 +42,29 @@ final class WxPayClient extends AbstractClient
         return self::NAME;
     }
 
-    protected function buildRequest(Request $request, EncodedBody $body): RequestInterface
+    protected function validateRequest(RequestState $request): void
     {
         if ($request->rawMedia) {
             throw new InvalidCallException('`rawMedia()` 仅适用于支付宝 v2 Gateway', channel: self::NAME);
         }
-        if ($request->identity !== Request::IDENTITY_DEFAULT) {
+        if ($request->identity !== RequestState::IDENTITY_DEFAULT) {
             throw new InvalidCallException('微信支付通道只支持商户默认身份', channel: self::NAME);
         }
-        if (is_string($request->target)) {
-            $uri = UriBuilder::build($this->config->endpoint->baseUri, $request->target, $request->query);
-        } else {
+        if ($request->target instanceof Resource) {
             $this->assertResource($request->target);
-            $uri = new Uri($request->target->url);
             if ($request->query !== []) {
                 throw new InvalidCallException('派生资源 URL 不接受额外查询参数', channel: self::NAME);
             }
+        }
+    }
+
+    /** @param array<string,string> $credentials */
+    protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface
+    {
+        if (is_string($request->target)) {
+            $uri = UriBuilder::build($this->config->endpoint->baseUri, $request->target, $request->query);
+        } else {
+            $uri = new Uri($request->target->url);
         }
 
         [$contents, $body] = $this->signableBody($request, $body);
@@ -85,7 +92,7 @@ final class WxPayClient extends AbstractClient
         return $this->httpRequest($request, $uri, $body, $headers);
     }
 
-    protected function verifyResponse(Request $request, ResponseInterface $response, ?string $body): void
+    protected function verifyResponse(RequestState $request, ResponseInterface $response, ?string $body): void
     {
         if ($request->target instanceof Resource) {
             return;
@@ -110,7 +117,7 @@ final class WxPayClient extends AbstractClient
         }
     }
 
-    protected function assertJsonSuccess(Request $request, ResponseInterface $response, mixed $value): void
+    protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
     {
         if ($response->getStatusCode() >= 400) {
             $data = is_array($value) ? $value : [];

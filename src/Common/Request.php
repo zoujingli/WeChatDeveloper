@@ -6,6 +6,7 @@ namespace We\Common;
 
 use Psr\Http\Message\StreamInterface;
 use We\Common\Exception\InvalidCallException;
+use We\Common\Internal\RequestState;
 
 /**
  * 不可变的出站 API 请求。
@@ -14,64 +15,7 @@ use We\Common\Exception\InvalidCallException;
  */
 final class Request
 {
-    /** @internal */
-    public const BODY_EMPTY = 'empty';
-
-    /** @internal */
-    public const BODY_JSON = 'json';
-
-    /** @internal */
-    public const BODY_FORM = 'form';
-
-    /** @internal */
-    public const BODY_RAW = 'raw';
-
-    /** @internal */
-    public const BODY_STREAM = 'stream';
-
-    /** @internal */
-    public const BODY_MULTIPART = 'multipart';
-
-    /** @internal */
-    public const IDENTITY_DEFAULT = 'default';
-
-    /** @internal */
-    public const IDENTITY_ANONYMOUS = 'anonymous';
-
-    /** @internal */
-    public const IDENTITY_WECHAT_AUTHORIZER = 'wechat_authorizer';
-
-    /** @internal */
-    public const IDENTITY_ALIPAY_USER = 'alipay_user';
-
-    /** @internal */
-    public const IDENTITY_ALIPAY_APP = 'alipay_app';
-
-    /**
-     * @param list<array{0:string,1:string}> $query
-     * @param list<array{0:string,1:string}> $headers
-     * @param list<MultipartPart> $parts
-     */
-    private function __construct(
-        public readonly string $method,
-        public readonly Resource|string $target,
-        public readonly array $query = [],
-        public readonly array $headers = [],
-        public readonly string $bodyType = self::BODY_EMPTY,
-        public readonly mixed $body = null,
-        public readonly ?string $mediaType = null,
-        public readonly ?int $bodyLength = null,
-        public readonly array $parts = [],
-        public readonly string $identity = self::IDENTITY_DEFAULT,
-        public readonly ?string $credentialId = null,
-        public readonly bool $rawMedia = false,
-        public readonly ?StreamInterface $destination = null,
-        public readonly ?string $digestAlgorithm = null,
-        public readonly ?string $expectedDigest = null,
-        public readonly ?string $sensitiveKeyId = null,
-        public readonly int $timeoutMilliseconds = 20_000,
-        public readonly int $maxResponseBytes = 67_108_864,
-    ) {}
+    private function __construct(private readonly RequestState $state) {}
 
     /** 使用 HTTP 方法和相对目标或可信派生资源创建请求。 */
     public static function create(string $method, Resource|string $target): self
@@ -84,7 +28,7 @@ final class Request
             $target = self::relativeTarget($target);
         }
 
-        return new self($method, $target);
+        return new self(new RequestState($method, $target));
     }
 
     public static function get(Resource|string $target): self
@@ -141,13 +85,13 @@ final class Request
     /** 使用调用时只编码一次的 JSON 请求体。 */
     public function json(mixed $value): self
     {
-        return $this->copy(bodyType: self::BODY_JSON, body: $value);
+        return $this->copy(bodyType: RequestState::BODY_JSON, body: $value);
     }
 
     /** @param array<string, null|bool|float|int|list<null|bool|float|int|string>|string>|list<array{0:string,1:null|bool|float|int|string}> $fields */
     public function form(array $fields): self
     {
-        return $this->copy(bodyType: self::BODY_FORM, body: self::parameterPairs($fields));
+        return $this->copy(bodyType: RequestState::BODY_FORM, body: self::parameterPairs($fields));
     }
 
     /**
@@ -166,7 +110,7 @@ final class Request
         }
 
         return $this->copy(
-            bodyType: is_string($body) ? self::BODY_RAW : self::BODY_STREAM,
+            bodyType: is_string($body) ? RequestState::BODY_RAW : RequestState::BODY_STREAM,
             body: $body,
             mediaType: $mediaType,
             bodyLength: is_string($body) ? strlen($body) : $knownLength,
@@ -180,31 +124,31 @@ final class Request
             throw new InvalidCallException('`multipart` 请求体至少需要一个部件');
         }
 
-        return $this->copy(bodyType: self::BODY_MULTIPART, parts: $parts);
+        return $this->copy(bodyType: RequestState::BODY_MULTIPART, parts: $parts);
     }
 
     /** 不注入通道默认 Token；平台级签名和应用身份仍按通道协议生成。 */
     public function anonymous(): self
     {
-        return $this->copy(identity: self::IDENTITY_ANONYMOUS, credentialId: null);
+        return $this->copy(identity: RequestState::IDENTITY_ANONYMOUS, credentialId: null);
     }
 
     /** 使用 `authorizer_appid` 引用微信开放平台授权方身份。 */
     public function asWechatAuthorizer(string $appid): self
     {
-        return $this->withCredential(self::IDENTITY_WECHAT_AUTHORIZER, $appid);
+        return $this->withCredential(RequestState::IDENTITY_WECHAT_AUTHORIZER, $appid);
     }
 
     /** 使用凭证 ID 引用支付宝用户 `auth_token`。 */
     public function asAlipayUser(string $credentialId): self
     {
-        return $this->withCredential(self::IDENTITY_ALIPAY_USER, $credentialId);
+        return $this->withCredential(RequestState::IDENTITY_ALIPAY_USER, $credentialId);
     }
 
     /** 使用凭证 ID 引用支付宝代调用应用 Token。 */
     public function asAlipayApp(string $credentialId): self
     {
-        return $this->withCredential(self::IDENTITY_ALIPAY_APP, $credentialId);
+        return $this->withCredential(RequestState::IDENTITY_ALIPAY_APP, $credentialId);
     }
 
     /** 声明支付宝 v2 AOP Gateway 官方不签名的媒体响应。 */
@@ -266,42 +210,10 @@ final class Request
         return $this->copy(maxResponseBytes: $bytes);
     }
 
-    /** @internal */
-    public function hasHeader(string $name): bool
+    /** @internal 通道管线使用；调用方不得依赖内部状态结构。 */
+    public function internalState(): RequestState
     {
-        foreach ($this->headers as [$candidate]) {
-            if (strcasecmp($candidate, $name) === 0) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /** @internal */
-    public function hasQuery(string $name): bool
-    {
-        foreach ($this->query as [$candidate]) {
-            if ($candidate === $name) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array<string,list<string>>
-     * @internal
-     */
-    public function headerMap(): array
-    {
-        $headers = [];
-        foreach ($this->headers as [$name, $value]) {
-            $headers[$name][] = $value;
-        }
-
-        return $headers;
+        return $this->state;
     }
 
     private function withCredential(string $identity, string $credentialId): self
@@ -414,25 +326,23 @@ final class Request
         ?int $timeoutMilliseconds = null,
         ?int $maxResponseBytes = null,
     ): self {
-        return new self(
-            $this->method,
-            $this->target,
-            $query ?? $this->query,
-            $headers ?? $this->headers,
-            $bodyType ?? $this->bodyType,
-            $bodyType === null ? $this->body : $body,
-            $bodyType === null ? $this->mediaType : $mediaType,
-            $bodyType === null ? $this->bodyLength : $bodyLength,
-            $bodyType === null ? $this->parts : ($parts ?? []),
-            $identity ?? $this->identity,
-            $identity === null ? $this->credentialId : $credentialId,
-            $rawMedia ?? $this->rawMedia,
-            $destination ?? $this->destination,
-            $destination === null ? $this->digestAlgorithm : $digestAlgorithm,
-            $destination === null ? $this->expectedDigest : $expectedDigest,
-            $sensitiveKeyId ?? $this->sensitiveKeyId,
-            $timeoutMilliseconds ?? $this->timeoutMilliseconds,
-            $maxResponseBytes ?? $this->maxResponseBytes,
-        );
+        return new self($this->state->with(
+            query: $query,
+            headers: $headers,
+            bodyType: $bodyType,
+            body: $body,
+            mediaType: $mediaType,
+            bodyLength: $bodyLength,
+            parts: $parts,
+            identity: $identity,
+            credentialId: $credentialId,
+            rawMedia: $rawMedia,
+            destination: $destination,
+            digestAlgorithm: $digestAlgorithm,
+            expectedDigest: $expectedDigest,
+            sensitiveKeyId: $sensitiveKeyId,
+            timeoutMilliseconds: $timeoutMilliseconds,
+            maxResponseBytes: $maxResponseBytes,
+        ));
     }
 }

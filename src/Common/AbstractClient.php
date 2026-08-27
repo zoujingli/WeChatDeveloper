@@ -15,6 +15,7 @@ use We\Common\Exception\PlatformException;
 use We\Common\Exception\ProtocolException;
 use We\Common\Exception\StreamException;
 use We\Common\Exception\TransportException;
+use We\Common\Internal\RequestState;
 use We\Common\Protocol\ExternalResourcePolicyInterface;
 use We\Common\Support\XmlCodec;
 use We\Common\Transport\BodyEncoder;
@@ -54,11 +55,14 @@ abstract class AbstractClient implements ChannelInterface
     /** 完成一次出站 API 调用并返回已完成协议校验的响应。 */
     public function call(Request $request): Response
     {
-        $this->assertHeaders($request);
-        $body = $this->bodyEncoder->encode($request);
-        $outbound = $this->buildRequest($request, $body);
+        $state = $request->internalState();
+        $this->assertHeaders($state);
+        $this->validateRequest($state);
+        $credentials = $this->resolveCredentials($state);
+        $body = $this->bodyEncoder->encode($state);
+        $outbound = $this->buildRequest($state, $body, $credentials);
         try {
-            $response = $this->transport->send($outbound, $request->timeoutMilliseconds);
+            $response = $this->transport->send($outbound, $state->timeoutMilliseconds);
         } catch (TransportException $exception) {
             throw new TransportException(
                 $exception->getMessage(),
@@ -70,27 +74,36 @@ abstract class AbstractClient implements ChannelInterface
                 $exception->platformCode(),
             );
         }
-        $spool = $this->spooler->spool($response->getBody(), $request->maxResponseBytes);
+        $spool = $this->spooler->spool($response->getBody(), $state->maxResponseBytes);
 
         try {
             $contents = $spool->contents();
-            $this->verifyResponse($request, $response, $contents);
+            $this->verifyResponse($state, $response, $contents);
 
-            return $this->response($request, $response, $spool, $contents);
+            return $this->response($state, $response, $spool, $contents);
         } catch (\Throwable $exception) {
             $spool->stream->close();
             throw $exception;
         }
     }
 
-    abstract protected function buildRequest(Request $request, EncodedBody $body): RequestInterface;
+    abstract protected function validateRequest(RequestState $request): void;
+
+    /** @return array<string,string> */
+    protected function resolveCredentials(RequestState $request): array
+    {
+        return [];
+    }
+
+    /** @param array<string,string> $credentials */
+    abstract protected function buildRequest(RequestState $request, EncodedBody $body, array $credentials): RequestInterface;
 
     /**
      * 返回参与签名的精确字节，并在流不可回绕时用受限临时流替换请求体。
      *
      * @return array{0:string,1:EncodedBody}
      */
-    protected function signableBody(Request $request, EncodedBody $body): array
+    protected function signableBody(RequestState $request, EncodedBody $body): array
     {
         if ($body->stream->isSeekable()) {
             $position = $body->stream->tell();
@@ -106,7 +119,7 @@ abstract class AbstractClient implements ChannelInterface
 
     /** @param array<string,list<string>|string> $protocolHeaders */
     protected function httpRequest(
-        Request $request,
+        RequestState $request,
         UriInterface $uri,
         EncodedBody $body,
         array $protocolHeaders = [],
@@ -125,9 +138,9 @@ abstract class AbstractClient implements ChannelInterface
         return new PsrRequest($request->method, $uri, $headers, $body->stream);
     }
 
-    protected function verifyResponse(Request $request, ResponseInterface $response, ?string $body): void {}
+    protected function verifyResponse(RequestState $request, ResponseInterface $response, ?string $body): void {}
 
-    protected function assertJsonSuccess(Request $request, ResponseInterface $response, mixed $value): void
+    protected function assertJsonSuccess(RequestState $request, ResponseInterface $response, mixed $value): void
     {
         if ($response->getStatusCode() >= 400) {
             throw new PlatformException(
@@ -139,7 +152,7 @@ abstract class AbstractClient implements ChannelInterface
     }
 
     /** @param array<string,mixed> $value */
-    protected function assertXmlSuccess(Request $request, ResponseInterface $response, array $value): void
+    protected function assertXmlSuccess(RequestState $request, ResponseInterface $response, array $value): void
     {
         if ($response->getStatusCode() >= 400) {
             throw new PlatformException(
@@ -155,18 +168,18 @@ abstract class AbstractClient implements ChannelInterface
         return null;
     }
 
-    protected function normalizeJson(Request $request, ResponseInterface $response, mixed $value): mixed
+    protected function normalizeJson(RequestState $request, ResponseInterface $response, mixed $value): mixed
     {
         return $value;
     }
 
     /** @param array<string,mixed> $value @return array<string,mixed> */
-    protected function normalizeXml(Request $request, ResponseInterface $response, array $value): array
+    protected function normalizeXml(RequestState $request, ResponseInterface $response, array $value): array
     {
         return $value;
     }
 
-    private function assertHeaders(Request $request): void
+    private function assertHeaders(RequestState $request): void
     {
         foreach (self::RESERVED_HEADERS as $header) {
             if ($request->hasHeader($header)) {
@@ -178,7 +191,7 @@ abstract class AbstractClient implements ChannelInterface
         }
     }
 
-    private function response(Request $request, ResponseInterface $response, Spool $spool, string $contents): Response
+    private function response(RequestState $request, ResponseInterface $response, Spool $spool, string $contents): Response
     {
         [$requestId, $keyId] = $this->metadata($response);
         if ($request->destination !== null) {
@@ -270,7 +283,7 @@ abstract class AbstractClient implements ChannelInterface
     }
 
     private function streamResponse(
-        Request $request,
+        RequestState $request,
         ResponseInterface $response,
         Spool $spool,
         string $contents,
